@@ -313,7 +313,7 @@ button.connected { background: #1a1a1f }
     cursor: not-allowed;
 }
 
-.multiplier-badge {
+.ave-badge {
     display: inline-block;
     background: linear-gradient(135deg, #ff8c00, #ff5e00);
     color: white;
@@ -324,7 +324,7 @@ button.connected { background: #1a1a1f }
     margin-left: 8px;
 }
 
-.multiplier-info {
+.ave-info {
     margin-top: 10px;
     padding: 10px;
     background: rgba(255, 140, 0, 0.1);
@@ -405,7 +405,7 @@ button.connected { background: #1a1a1f }
 <div id="taskPage">
     <div class="hero">
         <h1>Welcome to Averix</h1>
-        <p>Daily tasks earn you referral power</p>
+        <p>Complete tasks to earn AVE</p>
     </div>
 
     <div class="card">
@@ -415,14 +415,14 @@ button.connected { background: #1a1a1f }
             </div>
             <div class="progress-info">
                 <h3>Task Progress</h3>
-                <p>Complete tasks to increase your multiplier</p>
+                <p>Complete tasks to earn AVE</p>
             </div>
         </div>
     </div>
 
     <div class="card">
         <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Set Username</h3>
-        <p style="color: #bdbdbd; margin-bottom: 16px;">Choose a username to complete this task.</p>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Choose a username to earn 20 AVE.</p>
         
         <div id="usernameForm">
             <input id="usernameInput" placeholder="Enter username"
@@ -436,7 +436,7 @@ button.connected { background: #1a1a1f }
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="task-username">Username: <span id="completedUsername">Beckham</span></div>
+                <div class="task-username">Username: <span id="completedUsername">Beckham</span> • 20 AVE earned</div>
             </div>
         </div>
         
@@ -445,7 +445,7 @@ button.connected { background: #1a1a1f }
 
     <div class="card">
         <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Verify Gmail</h3>
-        <p style="color: #bdbdbd; margin-bottom: 16px;">Verify your Gmail account to complete this task.</p>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Verify your Gmail account to earn 20 AVE.</p>
         
         <div id="gmailForm">
             <input id="gmailInput" placeholder="Enter your Gmail address"
@@ -459,7 +459,7 @@ button.connected { background: #1a1a1f }
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="task-username">Gmail: <span id="completedGmail">example@gmail.com</span></div>
+                <div class="task-username">Gmail: <span id="completedGmail">example@gmail.com</span> • 20 AVE earned</div>
             </div>
         </div>
         
@@ -469,11 +469,11 @@ button.connected { background: #1a1a1f }
     <div class="card">
         <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">
             Daily Check-in 
-            <span class="multiplier-badge">+0.5x</span>
+            <span class="ave-badge">+20 AVE</span>
         </h3>
-        <p style="color: #bdbdbd; margin-bottom: 16px;">Check in daily to earn a 0.5x multiplier bonus.</p>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Check in daily to earn 20 AVE.</p>
         
-        <div class="multiplier-info">
+        <div class="ave-info">
             <p><b>Current daily streak:</b> <span id="dailyStreak">0</span> days</p>
             <p><b>Last check-in:</b> <span id="lastCheckin">Never</span></p>
         </div>
@@ -488,7 +488,7 @@ button.connected { background: #1a1a1f }
             </div>
             <div class="task-details">
                 <div class="task-title">Daily Check-in Completed</div>
-                <div class="task-username">+0.5x multiplier activated</div>
+                <div class="task-username">20 AVE earned</div>
             </div>
         </div>
         
@@ -523,15 +523,15 @@ button.connected { background: #1a1a1f }
 <div id="multPage" class="hidden">
     <div class="card">
         <h3>Multipliers</h3>
-        <p>Boost rewards by completing tasks</p>
+        <p>Earn AVE by completing tasks</p>
     </div>
     
     <div class="card">
-        <h3>Current Multiplier: <span id="currentMultiplier">1x</span></h3>
+        <h3>Total AVE Earned: <span id="totalAve">0</span></h3>
         <div style="margin-top: 16px;">
-            <p>✓ Username set: <b>+0.5x</b></p>
-            <p>✓ Gmail verified: <b>+0.5x</b></p>
-            <p>✓ Daily check-in: <b>+0.5x</b></p>
+            <p>✓ Username set: <b>+20 AVE</b></p>
+            <p>✓ Gmail verified: <b>+20 AVE</b></p>
+            <p>✓ Daily check-in: <b>+20 AVE</b></p>
         </div>
     </div>
 </div>
@@ -561,7 +561,7 @@ button.connected { background: #1a1a1f }
         <h3>Stats</h3>
         <p>Referrals: <b id="referralsCount">0</b></p>
         <p>Tasks completed: <b id="tasksCompletedCount">0/3</b></p>
-        <p>Multiplier: <b id="multiplierLevel">1x</b></p>
+        <p>AVE Earned: <b id="aveEarned">0</b></p>
         <p>Daily streak: <b id="profileDailyStreak">0 days</b></p>
     </div>
 
@@ -698,7 +698,7 @@ function switchTab(tab, el) {
     if(tab==="refer") referPage.classList.remove("hidden")
     if(tab==="mult") {
         multPage.classList.remove("hidden")
-        updateMultiplierDisplay();
+        updateAveDisplay();
     }
     if(tab==="profile"){
         profilePage.classList.remove("hidden")
@@ -731,7 +731,7 @@ function setUsername(){
     const u = usernameInput.value.trim()
     if(!u) return
     localStorage.setItem("averix_username", u)
-    usernameStatus.innerText = "Username set: " + u
+    usernameStatus.innerText = "Username set: " + u + " • 20 AVE earned"
     
     // Show completed task UI
     document.getElementById('usernameForm').style.display = 'none'
@@ -756,7 +756,7 @@ function verifyGmail(){
     }
     
     localStorage.setItem("averix_gmail", g)
-    gmailStatus.innerText = "Gmail verified: " + g
+    gmailStatus.innerText = "Gmail verified: " + g + " • 20 AVE earned"
     gmailStatus.style.color = "#2cb67d"
     
     // Show completed task UI
@@ -805,7 +805,7 @@ function dailyCheckin() {
     document.getElementById('dailyCheckinBtn').classList.add('disabled');
     document.getElementById('dailyCheckinBtn').disabled = true;
     
-    dailyStatus.innerText = "Daily check-in completed! +0.5x multiplier earned";
+    dailyStatus.innerText = "Daily check-in completed! 20 AVE earned";
     dailyStatus.style.color = "#2cb67d";
     
     // Update streak display
@@ -849,22 +849,17 @@ function updateTasksCompleted() {
     if (gmail) completedTasks += 1; // Gmail task
     if (dailyCompleted && lastCheckin === today) completedTasks += 1; // Daily check-in
     
+    // Calculate AVE earned (20 AVE per task)
+    const aveEarned = completedTasks * 20;
+    
     // Save to localStorage
     localStorage.setItem('averix_completed_tasks', completedTasks.toString());
+    localStorage.setItem('averix_ave_earned', aveEarned.toString());
     
     // Update display
     document.getElementById('tasksCompletedCount').textContent = completedTasks + "/3";
-    
-    // Update multiplier level based on tasks completed
-    let baseMultiplier = 1.0;
-    if (completedTasks >= 1) baseMultiplier = 1.5;
-    if (completedTasks >= 2) baseMultiplier = 2.0;
-    if (completedTasks >= 3) baseMultiplier = 2.5;
-    
-    // Format multiplier
-    const multiplierText = baseMultiplier.toFixed(1) + 'x';
-    document.getElementById('multiplierLevel').textContent = multiplierText;
-    document.getElementById('currentMultiplier').textContent = multiplierText;
+    document.getElementById('aveEarned').textContent = aveEarned + " AVE";
+    document.getElementById('totalAve').textContent = aveEarned + " AVE";
     
     return completedTasks;
 }
@@ -880,15 +875,9 @@ function updateProgressCircle() {
     progressText.textContent = completedTasks + "/3";
 }
 
-function updateMultiplierDisplay() {
-    const completedTasks = parseInt(localStorage.getItem('averix_completed_tasks') || '0');
-    let multiplier = '1x';
-    
-    if (completedTasks >= 1) multiplier = '1.5x';
-    if (completedTasks >= 2) multiplier = '2x';
-    if (completedTasks >= 3) multiplier = '2.5x';
-    
-    document.getElementById('currentMultiplier').textContent = multiplier;
+function updateAveDisplay() {
+    const aveEarned = parseInt(localStorage.getItem('averix_ave_earned') || '0');
+    document.getElementById('totalAve').textContent = aveEarned + " AVE";
 }
 
 function loadProfile(){
