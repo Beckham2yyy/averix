@@ -1,0 +1,99 @@
+            #connectBtn { padding: 14px 30px; background: #4c8cff; border: 0; border-radius: 6px; font-size: 16px; cursor: pointer; color: white; }
+. .features { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; padding: 40px; } 
+            .feature-box { background: #11112a; padding: 24px; border-radius: 8px; width: 220px; 
+            text-align: left; .wallet-section { margin-top: 40px; padding: 30px; } input { width: 
+            25.0px; padding: 8px; margin: 8px 0; border-radius: 4px; border: 1px solid #444; } 
+            button { padding: 10px 18px; margin-top: 8px; border: none; border-radius: 5px; 
+            background: #1a73e8; color: white; cursor: pointer; }
+       </style>	
+
+        <!-- Ethers.js & WalletConnect v1 using public relay -->
+        <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+    </head>
+    <body>
+
+        <header>
+            <h1>Fast EVM Layer-1 Network</h1>
+            <p>Connect your wallet to start building and interacting with the chain</p>
+            <button id="connectBtn">Connect Wallet</button>
+            <div id="walletAddress" style="margin-top: 16px; font-size: 16px;"></div>
+        </header>
+
+        <div class="features">
+            <div class="feature-box"><h3>Fast TPS</h3><p>High throughput with low latency</p></div>
+            <div class="feature-box"><h3>Low Fees</h3><p>Ultra low gas costs on smart contracts</p></div>
+            <div class="feature-box"><h3>EVM Compatible</h3><p>Deploy existing tools & wallets</p></div>
+        </div>
+
+        <div class="wallet-section">
+            <h2>Login or Register</h2>
+            <form method="POST" action="/login">
+                <input name="email" placeholder="Email" type="email" required><br>
+                <input name="password" placeholder="Password" type="password" required><br>
+                <button type="submit">Login</button>
+            </form><br>
+            <form method="POST" action="/register">
+                <input name="username" placeholder="Username" required><br>
+                <input name="email" placeholder="Email" type="email" required><br>
+                <input name="password" placeholder="Password" type="password" required><br>
+                <button type="submit">Register</button>
+            </form>
+        </div>
+
+        <script>
+            const connectBtn = document.getElementById('connectBtn');
+            const walletAddressDiv = document.getElementById('walletAddress');
+
+            connectBtn.addEventListener('click', async () => {
+                if (window.ethereum) {
+                    // MetaMask available
+                    try {
+                        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                        walletAddressDiv.innerText = "Connected: " + accounts[0];
+                    } catch (err) {
+                        walletAddressDiv.innerText = "Connection failed";
+                    }
+                } else {
+                    // WalletConnect fallback
+                    try {
+                        const provider = new WalletConnectProvider.default({
+                            rpc: {
+                                1: "https://mainnet.infura.io/v3/00000000000000000000000000000000" // public endpoint placeholder
+                            },
+                        });
+                        await provider.enable();
+                        const web3Provider = new ethers.providers.Web3Provider(provider);
+                        const signer = web3Provider.getSigner();
+                        const address = await signer.getAddress();
+                        walletAddressDiv.innerText = "Connected via WalletConnect: " + address;
+                    } catch (err) {
+                        walletAddressDiv.innerText = "WalletConnect failed";
+                    }
+                }
+            });
+        </script>
+
+    </body>
+    </html>
+    """
+
+@app.route("/register", methods=["POST"])
+def register():
+    user = request.form["username"]
+    email = request.form["email"]
+    password = request.form["password"]
+    if insert(user, email, password):
+        return "Account created"
+    return "User already exists"
+
+@app.route("/login", methods=["POST"])
+def login():
+    email = request.form["email"]
+    password = request.form["password"]
+    if LoginCheck(email, password):
+        return "Login successful"
+    return "Invalid login"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
