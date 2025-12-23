@@ -1,11 +1,20 @@
 import os
 import secrets
+import requests
 from datetime import datetime
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, request, jsonify, render_template_string, session, redirect
 import json
+import urllib.parse
+import base64
 
 app = Flask(__name__)
 app.secret_key = "termux-dev-secret-123"
+
+# ========== X (TWITTER) API CONFIGURATION ==========
+X_CLIENT_ID = "SGJQUmgydDMySkhLcEE1Z2ZxMXo6MTpjaQ"
+X_CLIENT_SECRET = "76fVQWJYM9OHxMRaafsPaH0LhbF4np3jhhZtbYnr2CywwQEF5L"
+X_CALLBACK_URL = "https://averix.up.railway.app/x/callback"
+# ===================================================
 
 # Storage (simple dictionary - in production use a database)
 NONCES = {}
@@ -381,6 +390,39 @@ button.connected { background: #1a1a1f }
 .progress-info {
     flex: 1;
 }
+
+/* X (Twitter) connection styling */
+.x-connection-btn {
+    background: linear-gradient(135deg, #000000, #1DA1F2);
+    color: white;
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.x-connection-btn:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+}
+
+.x-connection-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.x-icon {
+    width: 20px;
+    height: 20px;
+}
 </style>
 </head>
 
@@ -411,7 +453,7 @@ button.connected { background: #1a1a1f }
     <div class="card">
         <div class="task-progress">
             <div class="progress-circle" id="progressCircle" style="--progress: 0%">
-                <div class="progress-text" id="progressText">0/3</div>
+                <div class="progress-text" id="progressText">0/4</div>
             </div>
             <div class="progress-info">
                 <h3>Task Progress</h3>
@@ -464,6 +506,32 @@ button.connected { background: #1a1a1f }
         </div>
         
         <p id="gmailStatus" style="margin-top:10px;color:#2cb67d"></p>
+    </div>
+
+    <div class="card">
+        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Connect X</h3>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Connect your X account to earn 20 AVE.</p>
+        
+        <div id="xForm">
+            <button class="x-connection-btn" onclick="connectXAccount()">
+                <svg class="x-icon" viewBox="0 0 24 24" fill="white">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                Connect X Account
+            </button>
+        </div>
+        
+        <div id="xCompleted" class="task-completed" style="display: none;">
+            <div class="checkbox-circle">
+                <div class="checkmark">✓</div>
+            </div>
+            <div class="task-details">
+                <div class="task-title">Task Completed</div>
+                <div class="task-username">X Account: <span id="completedX">@user</span> • 20 AVE earned</div>
+            </div>
+        </div>
+        
+        <p id="xStatus" style="margin-top:10px;color:#2cb67d"></p>
     </div>
 
     <div class="card">
@@ -531,6 +599,7 @@ button.connected { background: #1a1a1f }
         <div style="margin-top: 16px;">
             <p>✓ Username set: <b>+20 AVE</b></p>
             <p>✓ Gmail verified: <b>+20 AVE</b></p>
+            <p>✓ X connected: <b>+20 AVE</b></p>
             <p>✓ Daily check-in: <b>+20 AVE</b></p>
         </div>
     </div>
@@ -560,15 +629,17 @@ button.connected { background: #1a1a1f }
     <div class="card">
         <h3>Stats</h3>
         <p>Referrals: <b id="referralsCount">0</b></p>
-        <p>Tasks completed: <b id="tasksCompletedCount">0/3</b></p>
+        <p>Tasks completed: <b id="tasksCompletedCount">0/4</b></p>
         <p>AVE Earned: <b id="aveEarned">0</b></p>
         <p>Daily streak: <b id="profileDailyStreak">0 days</b></p>
+        <p>X Account: <b id="xAccountStatus">Not Connected</b></p>
     </div>
 
     <div class="card">
         <h3>Identity</h3>
         <p id="identityUsername">Username: not set</p>
         <p id="identityWallet">Wallet: connected</p>
+        <p id="identityX">X (Twitter): Not Connected</p>
     </div>
 
     <div class="card">
@@ -654,6 +725,17 @@ function checkCompletedTasks() {
         document.getElementById('gmailForm').style.display = 'none';
         document.getElementById('gmailCompleted').style.display = 'flex';
         document.getElementById('completedGmail').textContent = g;
+    }
+    
+    const x = localStorage.getItem("averix_x_connected");
+    if(x === "true") {
+        // Show completed X task immediately if X is already connected
+        const xUsername = localStorage.getItem("averix_x_username");
+        document.getElementById('xForm').style.display = 'none';
+        document.getElementById('xCompleted').style.display = 'flex';
+        if(xUsername) {
+            document.getElementById('completedX').textContent = '@' + xUsername;
+        }
     }
     
     // Check daily check-in
@@ -769,6 +851,11 @@ function verifyGmail(){
     updateProgressCircle()
 }
 
+function connectXAccount() {
+    // Redirect to Flask backend for X OAuth
+    window.location.href = '/x/auth';
+}
+
 function dailyCheckin() {
     const today = new Date().toDateString();
     const lastCheckin = localStorage.getItem("averix_last_checkin");
@@ -840,6 +927,7 @@ function updateTasksCompleted() {
     // Check which tasks are completed
     const username = localStorage.getItem('averix_username');
     const gmail = localStorage.getItem('averix_gmail');
+    const xConnected = localStorage.getItem('averix_x_connected') === "true";
     const dailyCompleted = localStorage.getItem('averix_daily_completed');
     const lastCheckin = localStorage.getItem("averix_last_checkin");
     const today = new Date().toDateString();
@@ -847,6 +935,7 @@ function updateTasksCompleted() {
     // Count completed tasks
     if (username) completedTasks += 1; // Username task
     if (gmail) completedTasks += 1; // Gmail task
+    if (xConnected) completedTasks += 1; // X connection task
     if (dailyCompleted && lastCheckin === today) completedTasks += 1; // Daily check-in
     
     // Calculate AVE earned (20 AVE per task)
@@ -857,7 +946,7 @@ function updateTasksCompleted() {
     localStorage.setItem('averix_ave_earned', aveEarned.toString());
     
     // Update display
-    document.getElementById('tasksCompletedCount').textContent = completedTasks + "/3";
+    document.getElementById('tasksCompletedCount').textContent = completedTasks + "/4";
     document.getElementById('aveEarned').textContent = aveEarned + " AVE";
     document.getElementById('totalAve').textContent = aveEarned + " AVE";
     
@@ -866,13 +955,13 @@ function updateTasksCompleted() {
 
 function updateProgressCircle() {
     const completedTasks = updateTasksCompleted();
-    const progress = (completedTasks / 3) * 100;
+    const progress = (completedTasks / 4) * 100;
     
     const progressCircle = document.getElementById('progressCircle');
     const progressText = document.getElementById('progressText');
     
     progressCircle.style.setProperty('--progress', progress + '%');
-    progressText.textContent = completedTasks + "/3";
+    progressText.textContent = completedTasks + "/4";
 }
 
 function updateAveDisplay() {
@@ -888,6 +977,13 @@ function loadProfile(){
         // Update profile picture with first letter of username
         updateProfilePic(u)
     }
+    
+    const xUsername = localStorage.getItem("averix_x_username");
+    if (localStorage.getItem("averix_x_connected") === "true") {
+        document.getElementById('xAccountStatus').textContent = "Connected as @" + (xUsername || "user");
+        document.getElementById('identityX').textContent = "X (Twitter): Connected as @" + (xUsername || "user");
+    }
+    
     if(currentAccount){
         profileWallet.innerText =
             currentAccount.slice(0,6)+"..."+currentAccount.slice(-4)
@@ -1022,6 +1118,113 @@ async function connectWallet(){
 def home():
     return render_template_string(HTML_TEMPLATE)
 
+# ========== X (TWITTER) OAUTH ROUTES ==========
+
+@app.route("/x/auth")
+def x_auth():
+    """Start X OAuth flow - redirect user to X for authorization"""
+    # Generate state parameter for security
+    state = secrets.token_hex(16)
+    session['x_state'] = state
+    
+    # Build X OAuth URL
+    auth_url = (
+        "https://twitter.com/i/oauth2/authorize?"
+        "response_type=code&"
+        f"client_id={X_CLIENT_ID}&"
+        f"redirect_uri={urllib.parse.quote(X_CALLBACK_URL)}&"
+        f"state={state}&"
+        "scope=tweet.read%20users.read%20offline.access&"
+        "code_challenge=challenge&"
+        "code_challenge_method=plain"
+    )
+    
+    return redirect(auth_url)
+
+@app.route("/x/callback")
+def x_callback():
+    """Handle X OAuth callback and exchange code for access token"""
+    # Get parameters from callback
+    code = request.args.get('code')
+    state = request.args.get('state')
+    
+    # Verify state parameter
+    if not code or not state or state != session.get('x_state'):
+        return "Invalid callback parameters", 400
+    
+    # Clear state from session
+    session.pop('x_state', None)
+    
+    try:
+        # Prepare token request
+        token_url = "https://api.twitter.com/2/oauth2/token"
+        
+        # Build request data
+        data = {
+            'code': code,
+            'grant_type': 'authorization_code',
+            'client_id': X_CLIENT_ID,
+            'redirect_uri': X_CALLBACK_URL,
+            'code_verifier': 'challenge'
+        }
+        
+        # Make request to get access token
+        auth_string = f"{X_CLIENT_ID}:{X_CLIENT_SECRET}"
+        auth_header = f"Basic {base64.b64encode(auth_string.encode()).decode()}"
+        
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': auth_header
+        }
+        
+        response = requests.post(token_url, data=data, headers=headers)
+        token_data = response.json()
+        
+        if 'access_token' not in token_data:
+            return "Failed to get access token from X", 400
+        
+        access_token = token_data['access_token']
+        
+        # Get user info from X
+        user_url = "https://api.twitter.com/2/users/me"
+        user_headers = {
+            'Authorization': f'Bearer {access_token}'
+        }
+        
+        user_response = requests.get(user_url, headers=user_headers)
+        user_data = user_response.json()
+        
+        if 'data' not in user_data or 'username' not in user_data['data']:
+            return "Failed to get user info from X", 400
+        
+        x_username = user_data['data']['username']
+        x_user_id = user_data['data']['id']
+        
+        # Return HTML page that will save to localStorage and redirect back
+        return f'''
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Averix - X Connection Complete</title>
+            <script>
+                // Save X connection to localStorage
+                localStorage.setItem("averix_x_connected", "true");
+                localStorage.setItem("averix_x_username", "{x_username}");
+                
+                // Redirect back to Averix app
+                window.location.href = "/";
+            </script>
+        </head>
+        <body>
+            <p>X connection successful! Redirecting back to Averix...</p>
+        </body>
+        </html>
+        '''
+        
+    except Exception as e:
+        print(f"X OAuth error: {e}")
+        return f"Error during X authentication: {str(e)}", 500
+
 @app.route("/nonce", methods=["POST"])
 def nonce():
     data = request.json
@@ -1095,6 +1298,8 @@ def upload_profile_pic():
 
 if __name__ == "__main__":
     print("Starting Averix Flask app on http://0.0.0.0:5000")
+    print("X OAuth Integration: ACTIVE")
+    print(f"Callback URL: {X_CALLBACK_URL}")
     print("To access from your phone, make sure you're on the same network")
     print("and use your computer's IP address followed by :5000")
     app.run(host="0.0.0.0", port=5000, debug=True)
