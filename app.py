@@ -632,7 +632,6 @@ button.connected { background: #1a1a1f }
         <p>Tasks completed: <b id="tasksCompletedCount">0/4</b></p>
         <p>AVE Earned: <b id="aveEarned">0</b></p>
         <p>Daily streak: <b id="profileDailyStreak">0 days</b></p>
-        <p>X Account: <b id="xAccountStatus">Not Connected</b></p>
     </div>
 
     <div class="card">
@@ -980,8 +979,7 @@ function loadProfile(){
     
     const xUsername = localStorage.getItem("averix_x_username");
     if (localStorage.getItem("averix_x_connected") === "true") {
-        document.getElementById('xAccountStatus').textContent = "Connected as @" + (xUsername || "user");
-        document.getElementById('identityX').textContent = "X (Twitter): Connected as @" + (xUsername || "user");
+        document.getElementById('identityX').textContent = "X (Twitter): @" + (xUsername || "user");
     }
     
     if(currentAccount){
