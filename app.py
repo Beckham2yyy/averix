@@ -710,88 +710,56 @@ document.addEventListener('DOMContentLoaded', function() {
     updateDailyCheckinStatus();
 });
 
-// Check if wallet was previously connected
+// Check if wallet was previously connected and if it's still valid (within 1 hour)
 async function checkSavedWallet() {
     const savedWallet = localStorage.getItem("averix_wallet_address");
-    if (savedWallet && window.ethereum) {
-        try {
-            // Check if we can access the saved account
-            const accounts = await window.ethereum.request({ 
-                method: 'eth_accounts' 
-            });
-            
-            if (accounts.length > 0) {
-                // Check if the saved wallet matches one of the connected accounts
-                const foundAccount = accounts.find(acc => 
-                    acc.toLowerCase() === savedWallet.toLowerCase()
-                );
+    const connectionTime = localStorage.getItem("averix_wallet_connection_time");
+    
+    if (savedWallet && connectionTime && window.ethereum) {
+        // Check if the connection is still valid (within 1 hour)
+        const oneHourInMs = 60 * 60 * 1000; // 1 hour in milliseconds
+        const currentTime = Date.now();
+        const timeSinceConnection = currentTime - parseInt(connectionTime);
+        
+        if (timeSinceConnection <= oneHourInMs) {
+            try {
+                // Check if we can access the saved account
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_accounts' 
+                });
                 
-                if (foundAccount) {
-                    // Wallet is still connected, unlock the app
-                    unlock(foundAccount);
-                    return;
+                if (accounts.length > 0) {
+                    // Check if the saved wallet matches one of the connected accounts
+                    const foundAccount = accounts.find(acc => 
+                        acc.toLowerCase() === savedWallet.toLowerCase()
+                    );
+                    
+                    if (foundAccount) {
+                        // Wallet is still connected and within 1 hour, unlock the app
+                        unlock(foundAccount);
+                        return;
+                    }
                 }
+                
+                // If we get here, the saved wallet is not currently connected but still within 1 hour
+                // We could try to auto-reconnect, but for security, we'll require manual reconnection
+                // after being away from the site for up to 1 hour
+                document.getElementById('gate').style.display = 'flex';
+                
+            } catch (error) {
+                console.error("Error checking saved wallet:", error);
+                // Show gate if there's an error
+                document.getElementById('gate').style.display = 'flex';
             }
-            
-            // If we get here, the saved wallet is not currently connected
-            // Try to reconnect automatically
-            await autoReconnectWallet(savedWallet);
-            
-        } catch (error) {
-            console.error("Error checking saved wallet:", error);
-            // Show gate if there's an error
+        } else {
+            // Connection expired (more than 1 hour), require reconnection
+            console.log("Wallet connection expired (more than 1 hour ago)");
+            localStorage.removeItem("averix_wallet_address");
+            localStorage.removeItem("averix_wallet_connection_time");
             document.getElementById('gate').style.display = 'flex';
         }
     } else {
-        // No saved wallet or no ethereum provider
-        document.getElementById('gate').style.display = 'flex';
-    }
-}
-
-// Automatically reconnect wallet without user interaction
-async function autoReconnectWallet(savedAddress) {
-    try {
-        // First, request accounts (this might trigger a popup in some wallets)
-        const accounts = await window.ethereum.request({ 
-            method: 'eth_requestAccounts' 
-        });
-        
-        // Find our saved address in the returned accounts
-        const foundAccount = accounts.find(acc => 
-            acc.toLowerCase() === savedAddress.toLowerCase()
-        );
-        
-        if (foundAccount) {
-            // Get nonce from server
-            const nonceResponse = await fetch("/nonce", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({address: foundAccount})
-            });
-            
-            const {message} = await nonceResponse.json();
-            
-            // Sign the message
-            await window.ethereum.request({
-                method: "personal_sign",
-                params: [message, foundAccount]
-            });
-            
-            // Verify with server
-            await fetch("/verify", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({address: foundAccount})
-            });
-            
-            // Unlock the app
-            unlock(foundAccount);
-        } else {
-            // Saved address not found in connected accounts
-            document.getElementById('gate').style.display = 'flex';
-        }
-    } catch (error) {
-        console.error("Error auto-reconnecting wallet:", error);
+        // No saved wallet, no connection time, or no ethereum provider
         document.getElementById('gate').style.display = 'flex';
     }
 }
@@ -882,16 +850,18 @@ function unlock(a){
     disconnectBtn.style.display="block"
     refLink.value="https://averix.app/?ref="+a
     
-    // Save wallet address to localStorage for auto-reconnect
+    // Save wallet address and connection time to localStorage for auto-reconnect (valid for 1 hour)
     localStorage.setItem("averix_wallet_address", a);
+    localStorage.setItem("averix_wallet_connection_time", Date.now());
     
     // Check for completed tasks after wallet connects
     checkCompletedTasks();
 }
 
 function disconnectWallet(){
-    // Remove saved wallet address
+    // Remove saved wallet address and connection time
     localStorage.removeItem("averix_wallet_address");
+    localStorage.removeItem("averix_wallet_connection_time");
     location.reload()
 }
 
