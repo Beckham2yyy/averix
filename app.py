@@ -423,6 +423,30 @@ button.connected { background: #1a1a1f }
     width: 20px;
     height: 20px;
 }
+
+/* Disconnect X button styling */
+.disconnect-x-btn {
+    background: linear-gradient(135deg, #ff4757, #ff3838);
+    color: white;
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.disconnect-x-btn:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+    background: linear-gradient(135deg, #ff3838, #ff1e1e);
+}
 </style>
 </head>
 
@@ -646,6 +670,13 @@ button.connected { background: #1a1a1f }
         <button class="secondary" style="width:100%; margin-bottom: 12px;"
         onclick="startEditingUsername()">
             Change username
+        </button>
+        
+        <button id="disconnectXBtn" class="disconnect-x-btn" onclick="disconnectXAccount()" style="display: none;">
+            <svg class="x-icon" viewBox="0 0 24 24" fill="white">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+            Disconnect X Account
         </button>
         
         <div id="editUsernameForm" class="edit-username-form" style="display: none;">
@@ -917,6 +948,37 @@ function connectXAccount() {
     window.location.href = '/x/auth';
 }
 
+// Function to disconnect X account
+function disconnectXAccount() {
+    if (confirm("Are you sure you want to disconnect your X account? This will remove the 20 AVE you earned from this task.")) {
+        // Remove X connection data from localStorage
+        localStorage.removeItem("averix_x_connected");
+        localStorage.removeItem("averix_x_username");
+        
+        // Show the connect X form again
+        document.getElementById('xForm').style.display = 'block';
+        document.getElementById('xCompleted').style.display = 'none';
+        
+        // Hide the disconnect X button
+        document.getElementById('disconnectXBtn').style.display = 'none';
+        
+        // Update identity section
+        document.getElementById('identityX').textContent = "X (Twitter): Not Connected";
+        
+        // Recalculate AVE earned (subtract 20 for X task)
+        updateTasksCompleted();
+        
+        // Update progress circle
+        updateProgressCircle();
+        
+        // Show success message
+        alert("X account disconnected successfully. 20 AVE has been removed from your total.");
+        
+        // Refresh the profile tab to update displays
+        loadProfile();
+    }
+}
+
 function dailyCheckin() {
     const today = new Date().toDateString();
     const lastCheckin = localStorage.getItem("averix_last_checkin");
@@ -1042,6 +1104,12 @@ function loadProfile(){
     const xUsername = localStorage.getItem("averix_x_username");
     if (localStorage.getItem("averix_x_connected") === "true") {
         document.getElementById('identityX').textContent = "X (Twitter): @" + (xUsername || "user");
+        // Show disconnect X button
+        document.getElementById('disconnectXBtn').style.display = 'block';
+    } else {
+        document.getElementById('identityX').textContent = "X (Twitter): Not Connected";
+        // Hide disconnect X button
+        document.getElementById('disconnectXBtn').style.display = 'none';
     }
     
     if(currentAccount){
