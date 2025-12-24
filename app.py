@@ -151,7 +151,7 @@ button.connected { background: #1a1a1f }
 
 .bottom-item {
     display: flex;
-    flex-direction: column;
+    flex-direction:column;
     align-items: center;
     gap: 4px;
     font-size: 12px;
@@ -624,7 +624,7 @@ button.connected { background: #1a1a1f }
             <p>✓ Username set: <b>+20 AVE</b></p>
             <p>✓ Gmail verified: <b>+20 AVE</b></p>
             <p>✓ X connected: <b>+20 AVE</b></p>
-            <p>✓ Daily check-in: <b>+20 AVE</b></p>
+            <p>✓ Daily check-in: <b>+20 AVE per day</b></p>
         </div>
     </div>
 </div>
@@ -915,6 +915,9 @@ function setUsername(){
     // Update profile picture with first letter of username
     updateProfilePic(u)
     
+    // Add AVE for username task
+    addAve(20);
+    
     // Update tasks completed count
     updateTasksCompleted()
     updateProgressCircle()
@@ -938,6 +941,9 @@ function verifyGmail(){
     document.getElementById('gmailCompleted').style.display = 'flex'
     document.getElementById('completedGmail').textContent = g
     
+    // Add AVE for Gmail task
+    addAve(20);
+    
     // Update tasks completed count
     updateTasksCompleted()
     updateProgressCircle()
@@ -955,6 +961,10 @@ function disconnectXAccount() {
         localStorage.removeItem("averix_x_connected");
         localStorage.removeItem("averix_x_username");
         
+        // Subtract 20 AVE for X task
+        const currentAve = parseInt(localStorage.getItem('averix_total_ave') || '0');
+        localStorage.setItem('averix_total_ave', Math.max(0, currentAve - 20).toString());
+        
         // Show the connect X form again
         document.getElementById('xForm').style.display = 'block';
         document.getElementById('xCompleted').style.display = 'none';
@@ -965,11 +975,14 @@ function disconnectXAccount() {
         // Update identity section
         document.getElementById('identityX').textContent = "X (Twitter): Not Connected";
         
-        // Recalculate AVE earned (subtract 20 for X task)
+        // Update tasks completed count
         updateTasksCompleted();
         
         // Update progress circle
         updateProgressCircle();
+        
+        // Update AVE display
+        updateAveDisplay();
         
         // Show success message
         alert("X account disconnected successfully. 20 AVE has been removed from your total.");
@@ -1006,8 +1019,8 @@ function dailyCheckin() {
     localStorage.setItem("averix_last_checkin", today);
     localStorage.setItem("averix_daily_streak", streak.toString());
     
-    // Mark daily check-in task as completed
-    localStorage.setItem("averix_daily_completed", "true");
+    // Add 20 AVE for this daily check-in
+    addAve(20);
     
     // Update UI
     document.getElementById('dailyCheckinBtn').style.display = 'none';
@@ -1024,6 +1037,58 @@ function dailyCheckin() {
     // Update tasks completed count
     updateTasksCompleted();
     updateProgressCircle();
+}
+
+// Function to add AVE to total
+function addAve(amount) {
+    // First, migrate old AVE data if needed
+    migrateAveData();
+    
+    const currentAve = parseInt(localStorage.getItem('averix_total_ave') || '0');
+    const newTotal = currentAve + amount;
+    localStorage.setItem('averix_total_ave', newTotal.toString());
+    
+    // Update displays
+    document.getElementById('aveEarned').textContent = newTotal + " AVE";
+    document.getElementById('totalAve').textContent = newTotal + " AVE";
+    
+    return newTotal;
+}
+
+// Function to migrate old AVE data to new system
+function migrateAveData() {
+    // Check if we need to migrate old data
+    if (localStorage.getItem('averix_total_ave') === null) {
+        let totalAve = 0;
+        
+        // Check for old AVE data
+        const oldAve = localStorage.getItem('averix_ave_earned');
+        if (oldAve) {
+            totalAve = parseInt(oldAve) || 0;
+            
+            // Check if we need to add extra AVE for multiple daily check-ins
+            const streak = parseInt(localStorage.getItem("averix_daily_streak") || "0");
+            if (streak > 1) {
+                // User has streak > 1, but old system only gave 20 AVE for first check-in
+                // Add 20 AVE for each additional day in the streak
+                totalAve += (streak - 1) * 20;
+            }
+        } else {
+            // Calculate AVE from completed tasks
+            const username = localStorage.getItem('averix_username');
+            const gmail = localStorage.getItem('averix_gmail');
+            const xConnected = localStorage.getItem('averix_x_connected') === "true";
+            const streak = parseInt(localStorage.getItem("averix_daily_streak") || "0");
+            
+            if (username) totalAve += 20;
+            if (gmail) totalAve += 20;
+            if (xConnected) totalAve += 20;
+            if (streak > 0) totalAve += (streak * 20); // Add 20 AVE for each day in streak
+        }
+        
+        // Save migrated data
+        localStorage.setItem('averix_total_ave', totalAve.toString());
+    }
 }
 
 function updateProfilePic(username) {
@@ -1045,28 +1110,29 @@ function updateProfilePic(username) {
 }
 
 function updateTasksCompleted() {
+    // First migrate AVE data if needed
+    migrateAveData();
+    
     let completedTasks = 0;
     
-    // Check which tasks are completed
+    // Check which tasks are completed (only for progress circle)
     const username = localStorage.getItem('averix_username');
     const gmail = localStorage.getItem('averix_gmail');
     const xConnected = localStorage.getItem('averix_x_connected') === "true";
-    const dailyCompleted = localStorage.getItem('averix_daily_completed');
     const lastCheckin = localStorage.getItem("averix_last_checkin");
     const today = new Date().toDateString();
     
-    // Count completed tasks
+    // Count completed tasks (only for progress circle)
     if (username) completedTasks += 1; // Username task
     if (gmail) completedTasks += 1; // Gmail task
     if (xConnected) completedTasks += 1; // X connection task
-    if (dailyCompleted && lastCheckin === today) completedTasks += 1; // Daily check-in
+    if (lastCheckin === today) completedTasks += 1; // Today's daily check-in
     
-    // Calculate AVE earned (20 AVE per task)
-    const aveEarned = completedTasks * 20;
+    // Get total AVE (stored separately)
+    const aveEarned = parseInt(localStorage.getItem('averix_total_ave') || '0');
     
     // Save to localStorage
     localStorage.setItem('averix_completed_tasks', completedTasks.toString());
-    localStorage.setItem('averix_ave_earned', aveEarned.toString());
     
     // Update display
     document.getElementById('tasksCompletedCount').textContent = completedTasks + "/4";
@@ -1088,11 +1154,17 @@ function updateProgressCircle() {
 }
 
 function updateAveDisplay() {
-    const aveEarned = parseInt(localStorage.getItem('averix_ave_earned') || '0');
+    // First migrate AVE data if needed
+    migrateAveData();
+    
+    const aveEarned = parseInt(localStorage.getItem('averix_total_ave') || '0');
     document.getElementById('totalAve').textContent = aveEarned + " AVE";
 }
 
 function loadProfile(){
+    // First migrate AVE data if needed
+    migrateAveData();
+    
     const u = localStorage.getItem("averix_username")
     if(u){
         profileName.innerText = u
@@ -1338,6 +1410,39 @@ def x_callback():
                 // Save X connection to localStorage
                 localStorage.setItem("averix_x_connected", "true");
                 localStorage.setItem("averix_x_username", "{x_username}");
+                
+                // Add 20 AVE for X connection
+                // First migrate existing AVE data
+                function migrateAveData() {
+                    if (localStorage.getItem('averix_total_ave') === null) {
+                        let totalAve = 0;
+                        const oldAve = localStorage.getItem('averix_ave_earned');
+                        if (oldAve) {
+                            totalAve = parseInt(oldAve) || 0;
+                            // Check for multiple daily check-ins
+                            const streak = parseInt(localStorage.getItem("averix_daily_streak") || "0");
+                            if (streak > 1) {
+                                totalAve += (streak - 1) * 20;
+                            }
+                        } else {
+                            const username = localStorage.getItem('averix_username');
+                            const gmail = localStorage.getItem('averix_gmail');
+                            const xConnected = localStorage.getItem('averix_x_connected') === "true";
+                            const streak = parseInt(localStorage.getItem("averix_daily_streak") || "0");
+                            
+                            if (username) totalAve += 20;
+                            if (gmail) totalAve += 20;
+                            if (xConnected) totalAve += 20;
+                            if (streak > 0) totalAve += (streak * 20);
+                        }
+                        localStorage.setItem('averix_total_ave', totalAve.toString());
+                    }
+                }
+                migrateAveData();
+                
+                // Add 20 AVE for X connection
+                const currentAve = parseInt(localStorage.getItem('averix_total_ave') || '0');
+                localStorage.setItem('averix_total_ave', (currentAve + 20).toString());
                 
                 // Redirect back to Averix app
                 window.location.href = "/";
