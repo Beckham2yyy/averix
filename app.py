@@ -349,7 +349,7 @@ button.connected { background: #1a1a1f }
 .upload-status {
     margin-top: 10px;
     font-size: 14px;
-    color: #2cb67d;
+    color = "#2cb67d";
 }
 
 /* Task progress */
@@ -910,6 +910,9 @@ function dailyCheckin() {
 
 // Function to add AVE to total
 function addAve(amount) {
+    // First, migrate old AVE data if needed
+    migrateAveData();
+    
     const currentAve = parseInt(localStorage.getItem('averix_total_ave') || '0');
     const newTotal = currentAve + amount;
     localStorage.setItem('averix_total_ave', newTotal.toString());
@@ -919,6 +922,34 @@ function addAve(amount) {
     document.getElementById('totalAve').textContent = newTotal + " AVE";
     
     return newTotal;
+}
+
+// Function to migrate old AVE data to new system
+function migrateAveData() {
+    // Check if we need to migrate old data
+    if (localStorage.getItem('averix_total_ave') === null) {
+        let totalAve = 0;
+        
+        // Check for old AVE data
+        const oldAve = localStorage.getItem('averix_ave_earned');
+        if (oldAve) {
+            totalAve = parseInt(oldAve) || 0;
+        } else {
+            // Calculate AVE from completed tasks
+            const username = localStorage.getItem('averix_username');
+            const gmail = localStorage.getItem('averix_gmail');
+            const xConnected = localStorage.getItem('averix_x_connected') === "true";
+            const dailyCompleted = localStorage.getItem('averix_daily_completed') === "true";
+            
+            if (username) totalAve += 20;
+            if (gmail) totalAve += 20;
+            if (xConnected) totalAve += 20;
+            if (dailyCompleted) totalAve += 20;
+        }
+        
+        // Save migrated data
+        localStorage.setItem('averix_total_ave', totalAve.toString());
+    }
 }
 
 function updateProfilePic(username) {
@@ -940,6 +971,9 @@ function updateProfilePic(username) {
 }
 
 function updateTasksCompleted() {
+    // First migrate AVE data if needed
+    migrateAveData();
+    
     let completedTasks = 0;
     
     // Check which tasks are completed
@@ -960,7 +994,6 @@ function updateTasksCompleted() {
     
     // Save to localStorage
     localStorage.setItem('averix_completed_tasks', completedTasks.toString());
-    localStorage.setItem('averix_ave_earned', aveEarned.toString());
     
     // Update display
     document.getElementById('tasksCompletedCount').textContent = completedTasks + "/4";
@@ -982,11 +1015,17 @@ function updateProgressCircle() {
 }
 
 function updateAveDisplay() {
+    // First migrate AVE data if needed
+    migrateAveData();
+    
     const aveEarned = parseInt(localStorage.getItem('averix_total_ave') || '0');
     document.getElementById('totalAve').textContent = aveEarned + " AVE";
 }
 
 function loadProfile(){
+    // First migrate AVE data if needed
+    migrateAveData();
+    
     const u = localStorage.getItem("averix_username")
     if(u){
         profileName.innerText = u
@@ -1228,6 +1267,20 @@ def x_callback():
                 localStorage.setItem("averix_x_username", "{x_username}");
                 
                 // Add 20 AVE for X connection
+                // First migrate existing AVE data
+                function migrateAveData() {
+                    if (localStorage.getItem('averix_total_ave') === null) {
+                        let totalAve = 0;
+                        const oldAve = localStorage.getItem('averix_ave_earned');
+                        if (oldAve) {
+                            totalAve = parseInt(oldAve) || 0;
+                        }
+                        localStorage.setItem('averix_total_ave', totalAve.toString());
+                    }
+                }
+                migrateAveData();
+                
+                // Add 20 AVE
                 const currentAve = parseInt(localStorage.getItem('averix_total_ave') || '0');
                 localStorage.setItem('averix_total_ave', (currentAve + 20).toString());
                 
