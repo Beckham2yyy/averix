@@ -383,7 +383,7 @@ button.connected { background: #1a1a1f }
 .progress-text {
     position: absolute;
     font-weight: bold;
-    font-size: 14px;
+    font-size = 14px;
     color: #7f5af0;
 }
 
@@ -446,6 +446,41 @@ button.connected { background: #1a1a1f }
     transform: translateY(-2px);
     transition: transform 0.2s;
     background: linear-gradient(135deg, #ff3838, #ff1e1e);
+}
+
+/* Follow X button styling */
+.follow-x-btn {
+    background: linear-gradient(135deg, #1DA1F2, #1a91da);
+    color: white;
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.follow-x-btn:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+    background: linear-gradient(135deg, #1a91da, #1a8cd0);
+}
+
+.follow-x-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.x-username {
+    color: #1DA1F2;
+    font-weight: bold;
+    margin-top: 4px;
 }
 </style>
 </head>
@@ -559,6 +594,35 @@ button.connected { background: #1a1a1f }
     </div>
 
     <div class="card">
+        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Follow Averix on X</h3>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Follow <span style="color:#1DA1F2; font-weight:bold;">@averix_app</span> on X to earn 20 AVE.</p>
+        
+        <div id="followXForm">
+            <button class="follow-x-btn" onclick="followXAccount()">
+                <svg class="x-icon" viewBox="0 0 24 24" fill="white">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                Open & Follow @averix_app
+            </button>
+            <button class="secondary" style="margin-top: 10px; width: 100%;" onclick="markXFollowed()">
+                I've Followed @averix_app
+            </button>
+        </div>
+        
+        <div id="followXCompleted" class="task-completed" style="display: none;">
+            <div class="checkbox-circle">
+                <div class="checkmark">✓</div>
+            </div>
+            <div class="task-details">
+                <div class="task-title">Task Completed</div>
+                <div class="x-username">Followed: <span id="completedFollowX">@averix_app</span> • 20 AVE earned</div>
+            </div>
+        </div>
+        
+        <p id="followXStatus" style="margin-top:10px;color:#2cb67d"></p>
+    </div>
+
+    <div class="card">
         <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">
             Daily Check-in 
             <span class="ave-badge">+20 AVE</span>
@@ -624,6 +688,7 @@ button.connected { background: #1a1a1f }
             <p>✓ Username set: <b>+20 AVE</b></p>
             <p>✓ Gmail verified: <b>+20 AVE</b></p>
             <p>✓ X connected: <b>+20 AVE</b></p>
+            <p>✓ Follow @averix_app: <b>+20 AVE</b></p>
             <p>✓ Daily check-in: <b>+20 AVE</b></p>
         </div>
     </div>
@@ -663,6 +728,7 @@ button.connected { background: #1a1a1f }
         <p id="identityUsername">Username: not set</p>
         <p id="identityWallet">Wallet: connected</p>
         <p id="identityX">X (Twitter): Not Connected</p>
+        <p id="identityFollowX">Followed @averix_app: Not followed</p>
     </div>
 
     <div class="card">
@@ -823,6 +889,14 @@ function checkCompletedTasks() {
         }
     }
     
+    // Check follow X task
+    const followX = localStorage.getItem("averix_x_followed");
+    if(followX === "true") {
+        // Show completed follow X task immediately if already followed
+        document.getElementById('followXForm').style.display = 'none';
+        document.getElementById('followXCompleted').style.display = 'flex';
+    }
+    
     // Check daily check-in
     const lastCheckin = localStorage.getItem("averix_last_checkin");
     const today = new Date().toDateString();
@@ -979,6 +1053,29 @@ function disconnectXAccount() {
     }
 }
 
+// Function to open X account for following
+function followXAccount() {
+    // Open @averix_app profile in a new tab
+    window.open('https://x.com/averix_app', '_blank');
+}
+
+// Function to mark X account as followed
+function markXFollowed() {
+    localStorage.setItem("averix_x_followed", "true");
+    
+    // Show completed task UI
+    document.getElementById('followXForm').style.display = 'none';
+    document.getElementById('followXCompleted').style.display = 'flex';
+    
+    // Update status message
+    document.getElementById('followXStatus').innerText = "Thank you for following @averix_app! 20 AVE earned";
+    document.getElementById('followXStatus').style.color = "#2cb67d";
+    
+    // Update tasks completed count
+    updateTasksCompleted();
+    updateProgressCircle();
+}
+
 function dailyCheckin() {
     const today = new Date().toDateString();
     const lastCheckin = localStorage.getItem("averix_last_checkin");
@@ -1056,11 +1153,13 @@ function updateTasksCompleted() {
     const username = localStorage.getItem('averix_username');
     const gmail = localStorage.getItem('averix_gmail');
     const xConnected = localStorage.getItem('averix_x_connected') === "true";
+    const xFollowed = localStorage.getItem('averix_x_followed') === "true";
     
-    // For the progress circle: only count one-time tasks (NOT daily check-in)
+    // For the progress circle: count all one-time tasks
     if (username) completedTasks += 1; // Username task
     if (gmail) completedTasks += 1; // Gmail task
     if (xConnected) completedTasks += 1; // X connection task
+    if (xFollowed) completedTasks += 1; // Follow X task
     
     // Calculate AVE earned
     // One-time tasks: 20 AVE each
@@ -1078,7 +1177,7 @@ function updateTasksCompleted() {
     localStorage.setItem('averix_ave_earned', aveEarned.toString());
     
     // Update display
-    document.getElementById('tasksCompletedCount').textContent = completedTasks + "/3";
+    document.getElementById('tasksCompletedCount').textContent = completedTasks + "/4";
     document.getElementById('aveEarned').textContent = aveEarned + " AVE";
     document.getElementById('totalAve').textContent = aveEarned + " AVE";
     
@@ -1087,14 +1186,14 @@ function updateTasksCompleted() {
 
 function updateProgressCircle() {
     const completedTasks = updateTasksCompleted();
-    // Changed from 4 to 3 since we're not counting daily check-in in progress circle
-    const progress = (completedTasks / 3) * 100;
+    // 4 one-time tasks total (username, gmail, x connected, follow x)
+    const progress = (completedTasks / 4) * 100;
     
     const progressCircle = document.getElementById('progressCircle');
     const progressText = document.getElementById('progressText');
     
     progressCircle.style.setProperty('--progress', progress + '%');
-    progressText.textContent = completedTasks + "/3";
+    progressText.textContent = completedTasks + "/4";
 }
 
 function updateAveDisplay() {
@@ -1120,6 +1219,13 @@ function loadProfile(){
         document.getElementById('identityX').textContent = "X (Twitter): Not Connected";
         // Hide disconnect X button
         document.getElementById('disconnectXBtn').style.display = 'none';
+    }
+    
+    // Update follow X status
+    if (localStorage.getItem("averix_x_followed") === "true") {
+        document.getElementById('identityFollowX').textContent = "Followed @averix_app: Yes";
+    } else {
+        document.getElementById('identityFollowX').textContent = "Followed @averix_app: Not followed";
     }
     
     if(currentAccount){
