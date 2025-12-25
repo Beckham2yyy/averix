@@ -348,7 +348,7 @@ button.connected { background: #1a1a1f }
 
 .upload-status {
     margin-top: 10px;
-    font-size: 14px;
+    font-size = 14px;
     color: #2cb67d;
 }
 
@@ -604,7 +604,7 @@ button.connected { background: #1a1a1f }
                 </svg>
                 Open & Follow @averix_app
             </button>
-            <button class="secondary" style="margin-top: 10px; width: 100%;" onclick="markXFollowed()">
+            <button id="markFollowedBtn" class="secondary" style="margin-top: 10px; width: 100%; display: none;" onclick="markXFollowed()">
                 I've Followed @averix_app
             </button>
         </div>
@@ -728,7 +728,6 @@ button.connected { background: #1a1a1f }
         <p id="identityUsername">Username: not set</p>
         <p id="identityWallet">Wallet: connected</p>
         <p id="identityX">X (Twitter): Not Connected</p>
-        <p id="identityFollowX">Followed @averix_app: Not followed</p>
     </div>
 
     <div class="card">
@@ -895,6 +894,13 @@ function checkCompletedTasks() {
         // Show completed follow X task immediately if already followed
         document.getElementById('followXForm').style.display = 'none';
         document.getElementById('followXCompleted').style.display = 'flex';
+    } else {
+        // Check if user has clicked to follow (but hasn't marked as completed yet)
+        const hasClickedFollow = localStorage.getItem("averix_x_follow_clicked");
+        if (hasClickedFollow === "true") {
+            // Show the "I've followed" button
+            document.getElementById('markFollowedBtn').style.display = 'block';
+        }
     }
     
     // Check daily check-in
@@ -1055,8 +1061,14 @@ function disconnectXAccount() {
 
 // Function to open X account for following
 function followXAccount() {
+    // Mark that the user has clicked to follow
+    localStorage.setItem("averix_x_follow_clicked", "true");
+    
     // Open @averix_app profile in a new tab
     window.open('https://x.com/averix_app', '_blank');
+    
+    // Show the "I've followed" button
+    document.getElementById('markFollowedBtn').style.display = 'block';
 }
 
 // Function to mark X account as followed
@@ -1219,13 +1231,6 @@ function loadProfile(){
         document.getElementById('identityX').textContent = "X (Twitter): Not Connected";
         // Hide disconnect X button
         document.getElementById('disconnectXBtn').style.display = 'none';
-    }
-    
-    // Update follow X status
-    if (localStorage.getItem("averix_x_followed") === "true") {
-        document.getElementById('identityFollowX').textContent = "Followed @averix_app: Yes";
-    } else {
-        document.getElementById('identityFollowX').textContent = "Followed @averix_app: Not followed";
     }
     
     if(currentAccount){
