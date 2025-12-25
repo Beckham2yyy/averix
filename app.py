@@ -477,6 +477,11 @@ button.connected { background: #1a1a1f }
     cursor: not-allowed;
 }
 
+.follow-x-btn.disabled-text {
+    background: #1a1a1f;
+    cursor: not-allowed;
+}
+
 .x-username {
     color: #1DA1F2;
     font-weight: bold;
@@ -598,7 +603,7 @@ button.connected { background: #1a1a1f }
         <p style="color: #bdbdbd; margin-bottom: 16px;">Follow <span style="color:#1DA1F2; font-weight:bold;">@averix_app</span> on X to earn 20 AVE.</p>
         
         <div id="followXForm">
-            <button class="follow-x-btn" onclick="followXAccount()">
+            <button class="follow-x-btn" onclick="followXAccount()" id="followXBtn">
                 <svg class="x-icon" viewBox="0 0 24 24" fill="white">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
@@ -804,6 +809,7 @@ document.addEventListener('DOMContentLoaded', function() {
     checkSavedWallet();
     checkCompletedTasks();
     updateDailyCheckinStatus();
+    updateFollowXButton();
 });
 
 // Check if wallet was previously connected and if it's still valid (within 1 hour)
@@ -928,6 +934,42 @@ function updateDailyCheckinStatus() {
     document.getElementById('profileDailyStreak').textContent = streak + " days";
 }
 
+// Function to update the Follow X button based on X connection status
+function updateFollowXButton() {
+    const xConnected = localStorage.getItem("averix_x_connected") === "true";
+    const followXCompleted = localStorage.getItem("averix_x_followed") === "true";
+    const followXBtn = document.getElementById('followXBtn');
+    
+    if (followXCompleted) {
+        // Task already completed, button should not be visible
+        return;
+    }
+    
+    if (!xConnected) {
+        // X not connected, disable the button
+        followXBtn.disabled = true;
+        followXBtn.classList.add('disabled');
+        followXBtn.classList.add('disabled-text');
+        followXBtn.innerHTML = `
+            <svg class="x-icon" viewBox="0 0 24 24" fill="#8b8b9a">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+            Connect X Account First
+        `;
+    } else {
+        // X connected, enable the button
+        followXBtn.disabled = false;
+        followXBtn.classList.remove('disabled');
+        followXBtn.classList.remove('disabled-text');
+        followXBtn.innerHTML = `
+            <svg class="x-icon" viewBox="0 0 24 24" fill="white">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+            Open & Follow @averix_app
+        `;
+    }
+}
+
 function switchTab(tab, el) {
     document.querySelectorAll(".bottom-item").forEach(i=>i.classList.remove("active"))
     el.classList.add("active")
@@ -941,6 +983,7 @@ function switchTab(tab, el) {
         taskPage.classList.remove("hidden")
         // Check again when switching to task tab
         checkCompletedTasks();
+        updateFollowXButton();
     }
     if(tab==="refer") referPage.classList.remove("hidden")
     if(tab==="mult") {
@@ -967,6 +1010,7 @@ function unlock(a){
     
     // Check for completed tasks after wallet connects
     checkCompletedTasks();
+    updateFollowXButton();
 }
 
 function disconnectWallet(){
@@ -1045,6 +1089,9 @@ function disconnectXAccount() {
         // Update identity section
         document.getElementById('identityX').textContent = "X (Twitter): Not Connected";
         
+        // Update the Follow X button to disabled state
+        updateFollowXButton();
+        
         // Recalculate AVE earned (subtract 20 for X task)
         updateTasksCompleted();
         
@@ -1061,6 +1108,13 @@ function disconnectXAccount() {
 
 // Function to open X account for following
 function followXAccount() {
+    // Check if X account is connected
+    const xConnected = localStorage.getItem("averix_x_connected");
+    if (xConnected !== "true") {
+        alert("Please connect your X account first before attempting this task!");
+        return;
+    }
+    
     // Mark that the user has clicked to follow
     localStorage.setItem("averix_x_follow_clicked", "true");
     
