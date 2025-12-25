@@ -686,17 +686,6 @@ button.connected { background: #1a1a1f }
         <h3>Multipliers</h3>
         <p>Earn AVE by completing tasks</p>
     </div>
-    
-    <div class="card">
-        <h3>Total AVE Earned: <span id="totalAve">0</span></h3>
-        <div style="margin-top: 16px;">
-            <p>✓ Username set: <b>+20 AVE</b></p>
-            <p>✓ Gmail verified: <b>+20 AVE</b></p>
-            <p>✓ X connected: <b>+20 AVE</b></p>
-            <p>✓ Follow @averix_app: <b>+20 AVE</b></p>
-            <p>✓ Daily check-in: <b>+20 AVE</b></p>
-        </div>
-    </div>
 </div>
 
 <div id="profilePage" class="hidden">
