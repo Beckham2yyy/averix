@@ -686,17 +686,6 @@ button.connected { background: #1a1a1f }
         <h3>Multipliers</h3>
         <p>Earn AVE by completing tasks</p>
     </div>
-    
-    <div class="card">
-        <h3>Total AVE Earned: <span id="totalAve">0</span></h3>
-        <div style="margin-top: 16px;">
-            <p>✓ Username set: <b>+20 AVE</b></p>
-            <p>✓ Gmail verified: <b>+20 AVE</b></p>
-            <p>✓ X connected: <b>+20 AVE</b></p>
-            <p>✓ Follow @averix_app: <b>+20 AVE</b></p>
-            <p>✓ Daily check-in: <b>+20 AVE</b></p>
-        </div>
-    </div>
 </div>
 
 <div id="profilePage" class="hidden">
@@ -985,7 +974,7 @@ function switchTab(tab, el) {
     if(tab==="refer") referPage.classList.remove("hidden")
     if(tab==="mult") {
         multPage.classList.remove("hidden")
-        updateAveDisplay();
+        // No longer need to update AVE display since we removed it
     }
     if(tab==="profile"){
         profilePage.classList.remove("hidden")
@@ -1242,7 +1231,6 @@ function updateTasksCompleted() {
     // Update display
     document.getElementById('tasksCompletedCount').textContent = completedTasks + "/4";
     document.getElementById('aveEarned').textContent = aveEarned + " AVE";
-    document.getElementById('totalAve').textContent = aveEarned + " AVE";
     
     return completedTasks;
 }
@@ -1257,11 +1245,6 @@ function updateProgressCircle() {
     
     progressCircle.style.setProperty('--progress', progress + '%');
     progressText.textContent = completedTasks + "/4";
-}
-
-function updateAveDisplay() {
-    const aveEarned = parseInt(localStorage.getItem('averix_ave_earned') || '0');
-    document.getElementById('totalAve').textContent = aveEarned + " AVE";
 }
 
 function loadProfile(){
