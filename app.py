@@ -999,7 +999,7 @@ function unlock(a){
     connectBtn.innerText=a.slice(0,6)+"..."+a.slice(-4)
     connectBtn.classList.add("connected")
     disconnectBtn.style.display="block"
-    refLink.value="https://averix.app/?ref="+a
+    refLink.value="https://averix.up.railway.app/?ref="+a
     
     // Save wallet address and connection time to localStorage for auto-reconnect (valid for 1 hour)
     localStorage.setItem("averix_wallet_address", a);
