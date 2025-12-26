@@ -686,6 +686,17 @@ button.connected { background: #1a1a1f }
         <h3>Multipliers</h3>
         <p>Earn AVE by completing tasks</p>
     </div>
+    
+    <div class="card">
+        <h3>Total AVE Earned: <span id="totalAve">0</span></h3>
+        <div style="margin-top: 16px;">
+            <p>✓ Username set: <b>+20 AVE</b></p>
+            <p>✓ Gmail verified: <b>+20 AVE</b></p>
+            <p>✓ X connected: <b>+20 AVE</b></p>
+            <p>✓ Follow @averix_app: <b>+20 AVE</b></p>
+            <p>✓ Daily check-in: <b>+20 AVE</b></p>
+        </div>
+    </div>
 </div>
 
 <div id="profilePage" class="hidden">
@@ -703,7 +714,7 @@ button.connected { background: #1a1a1f }
             </div>
             <div class="profile-info">
                 <div class="profile-name" id="profileName">Username</div>
-                <div class="profile-wallet" id="profileWallet">1111...1111</div>
+                <div class="profile-wallet" id="profileWallet">0x0000...0000</div>
             </div>
         </div>
         <p id="uploadStatus" class="upload-status"></p>
@@ -815,13 +826,18 @@ async function checkSavedWallet() {
         if (timeSinceConnection <= oneHourInMs) {
             try {
                 // Check if we can access the saved account
-                const response = await window.solana.connect({ onlyIfTrusted: true });
-                const publicKey = response.publicKey.toString();
+                const accounts = await window.solana.request({ 
+                    method: 'connect' 
+                });
                 
-                if (publicKey === savedWallet) {
-                    // Wallet is still connected and within 1 hour, unlock the app
-                    unlock(publicKey);
-                    return;
+                if (accounts && accounts.publicKey) {
+                    const publicKey = accounts.publicKey.toString();
+                    // Check if the saved wallet matches the connected account
+                    if (publicKey === savedWallet) {
+                        // Wallet is still connected and within 1 hour, unlock the app
+                        unlock(publicKey);
+                        return;
+                    }
                 }
                 
                 // If we get here, the saved wallet is not currently connected but still within 1 hour
@@ -980,7 +996,7 @@ function switchTab(tab, el) {
 function unlock(a){
     currentAccount = a
     gate.style.display="none"
-    connectBtn.innerText=a.slice(0,4)+"..."+a.slice(-4)
+    connectBtn.innerText=a.slice(0,6)+"..."+a.slice(-4)
     connectBtn.classList.add("connected")
     disconnectBtn.style.display="block"
     refLink.value="https://averix.app/?ref="+a
@@ -1270,7 +1286,7 @@ function loadProfile(){
     
     if(currentAccount){
         profileWallet.innerText =
-            currentAccount.slice(0,4)+"..."+currentAccount.slice(-4)
+            currentAccount.slice(0,6)+"..."+currentAccount.slice(-4)
     }
     
     // Update tasks completed count when loading profile
@@ -1385,40 +1401,13 @@ function uploadProfilePic() {
 
 async function connectWallet(){
     if(!window.solana) return alert("Solana wallet not detected")
-    
-    try {
-        // Connect to Solana wallet (Phantom)
-        const response = await window.solana.connect();
-        const publicKey = response.publicKey.toString();
-        
-        // Get nonce from server
-        const n = await fetch("/nonce", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({address: publicKey})
-        });
-        
-        const {message} = await n.json();
-        
-        // Sign the message
-        const encodedMessage = new TextEncoder().encode(message);
-        const { signature } = await window.solana.signMessage(encodedMessage, "utf8");
-        
-        // Send verification to server
-        await fetch("/verify", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                address: publicKey,
-                signature: Array.from(signature)
-            })
-        });
-        
-        unlock(publicKey);
-    } catch (error) {
-        console.error("Error connecting wallet:", error);
-        alert("Failed to connect wallet. Please try again.");
-    }
+    const response = await window.solana.connect();
+    const publicKey = response.publicKey.toString();
+    const n=await fetch("/nonce",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({address:publicKey})})
+    const {message}=await n.json()
+    await window.solana.signMessage(new TextEncoder().encode(message), "utf8");
+    await fetch("/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({address:publicKey})})
+    unlock(publicKey)
 }
 </script>
 
@@ -1571,7 +1560,7 @@ def verify():
     if address not in NONCES:
         return jsonify({"ok": False, "error": "Nonce expired or not found"}), 400
     
-    # In a real app, verify the Solana signature here
+    # In a real app, verify the signature here
     # For simplicity, we'll just remove the nonce and consider it verified
     
     # Remove used nonce
