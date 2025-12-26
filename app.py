@@ -660,13 +660,13 @@ button.connected { background: #1a1a1f }
 <div id="referPage" class="hidden">
     <div class="card highlight">
         <span class="badge">LIVE</span>
-        <h3>$50,000 Referral Contest</h3>
-        <p>Invite users and climb the leaderboard </p>
+        <h3>$30,000 Referral Contest</h3>
+        <p>Invite verified wallets and climb the leaderboard</p>
     </div>
 
     <div class="card">
         <h3>Total Referral Earnings</h3>
-        <div class="big">0 AVE</div>
+        <div class="big">$0.00</div>
     </div>
 
     <div class="card">
@@ -687,7 +687,18 @@ button.connected { background: #1a1a1f }
         <p>Earn AVE by completing tasks</p>
     </div>
     
-    
+    <div class="card">
+        <h3>Total AVE Earned: <span id="totalAve">0</span></h3>
+        <div style="margin-top: 16px;">
+            <p>✓ Username set: <b>+20 AVE</b></p>
+            <p>✓ Gmail verified: <b>+20 AVE</b></p>
+            <p>✓ X connected: <b>+20 AVE</b></p>
+            <p>✓ Follow @averix_app: <b>+20 AVE</b></p>
+            <p>✓ Daily check-in: <b>+20 AVE</b></p>
+        </div>
+    </div>
+</div>
+
 <div id="profilePage" class="hidden">
     <div class="card">
         <div class="profile-header">
@@ -1592,4 +1603,4 @@ if __name__ == "__main__":
     print(f"Callback URL: {X_CALLBACK_URL}")
     print("To access from your phone, make sure you're on the same network")
     print("and use your computer's IP address followed by :5000")
-    app.run(host="0.0.0.0", port=5000, debug=True) 
+    app.run(host="0.0.0.0", port=5000, debug=True)
