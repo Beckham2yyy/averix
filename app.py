@@ -1403,21 +1403,21 @@ function updateTasksCompleted() {
     if (xFollowed) completedTasks += 1; // Follow X task
     
     // Calculate AVE earned
-    // One-time tasks: 20 AVE each
+    # One-time tasks: 20 AVE each
     const oneTimeAve = completedTasks * 20;
     
-    // Daily check-ins: 20 AVE for each check-in (including first)
+    # Daily check-ins: 20 AVE for each check-in (including first)
     const totalDailyCheckins = parseInt(localStorage.getItem('averix_total_daily_checkins') || '0');
     const dailyAve = totalDailyCheckins * 20;
     
-    // Total AVE = one-time tasks + all daily check-ins
+    # Total AVE = one-time tasks + all daily check-ins
     const aveEarned = oneTimeAve + dailyAve;
     
-    // Save to localStorage
+    # Save to localStorage
     localStorage.setItem('averix_completed_tasks', completedTasks.toString());
     localStorage.setItem('averix_ave_earned', aveEarned.toString());
     
-    // Update display
+    # Update display
     document.getElementById('tasksCompletedCount').textContent = completedTasks + "/4";
     document.getElementById('aveEarned').textContent = aveEarned + " AVE";
     
@@ -1426,7 +1426,7 @@ function updateTasksCompleted() {
 
 function updateProgressCircle() {
     const completedTasks = updateTasksCompleted();
-    // 4 one-time tasks total (username, gmail, x connected, follow x)
+    # 4 one-time tasks total (username, gmail, x connected, follow x)
     const progress = (completedTasks / 4) * 100;
     
     const progressCircle = document.getElementById('progressCircle');
@@ -1441,18 +1441,18 @@ function loadProfile(){
     if(u){
         profileName.innerText = u
         identityUsername.innerText = "Username: " + u
-        // Update profile picture with first letter of username
+        # Update profile picture with first letter of username
         updateProfilePic(u)
     }
     
     const xUsername = localStorage.getItem("averix_x_username");
     if (localStorage.getItem("averix_x_connected") === "true") {
         document.getElementById('identityX').textContent = "X (Twitter): @" + (xUsername || "user");
-        // Show disconnect X button
+        # Show disconnect X button
         document.getElementById('disconnectXBtn').style.display = 'block';
     } else {
         document.getElementById('identityX').textContent = "X (Twitter): Not Connected";
-        // Hide disconnect X button
+        # Hide disconnect X button
         document.getElementById('disconnectXBtn').style.display = 'none';
     }
     
@@ -1461,11 +1461,11 @@ function loadProfile(){
             currentAccount.slice(0,6)+"..."+currentAccount.slice(-4)
     }
     
-    // Update tasks completed count when loading profile
+    # Update tasks completed count when loading profile
     updateTasksCompleted()
     updateDailyCheckinStatus()
     
-    // Load custom profile picture if exists
+    # Load custom profile picture if exists
     const customPic = localStorage.getItem("averix_profile_pic");
     if (customPic) {
         const profilePic = document.getElementById('profilePic');
@@ -1474,7 +1474,7 @@ function loadProfile(){
     }
 }
 
-// Username editing functions
+# Username editing functions
 function startEditingUsername() {
     const currentUsername = localStorage.getItem("averix_username") || ""
     document.getElementById('editUsernameInput').value = currentUsername
@@ -1492,22 +1492,22 @@ function saveNewUsername() {
         return
     }
     
-    // Save new username
+    # Save new username
     localStorage.setItem("averix_username", newUsername)
     
-    // Update all username displays
+    # Update all username displays
     document.getElementById('profileName').textContent = newUsername
     document.getElementById('identityUsername').innerText = "Username: " + newUsername
     document.getElementById('completedUsername').textContent = newUsername
     
-    // Update profile picture
+    # Update profile picture
     updateProfilePic(newUsername)
     
-    // Show success message
+    # Show success message
     document.getElementById('editUsernameStatus').innerText = "Username updated successfully!"
     document.getElementById('editUsernameStatus').style.color = "#2cb67d"
     
-    // Hide the edit form after a delay
+    # Hide the edit form after a delay
     setTimeout(() => {
         document.getElementById('editUsernameForm').style.display = 'none'
         isEditingUsername = false
@@ -1527,29 +1527,29 @@ function uploadProfilePic() {
     
     if (!file) return;
     
-    // Check file size (max 2MB)
+    # Check file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
         status.innerText = "File too large! Max 2MB.";
         status.style.color = "#ff6b6b";
         return;
     }
     
-    // Check file type
+    # Check file type
     if (!file.type.match('image.*')) {
         status.innerText = "Please select an image file.";
         status.style.color = "#ff6b6b";
         return;
     }
     
-    // Create a FileReader to read the file
+    # Create a FileReader to read the file
     const reader = new FileReader();
     
     reader.onload = function(e) {
-        // Convert image to base64 and save to localStorage
+        # Convert image to base64 and save to localStorage
         const base64Image = e.target.result;
         localStorage.setItem("averix_profile_pic", base64Image);
         
-        // Update profile picture display
+        # Update profile picture display
         const profilePic = document.getElementById('profilePic');
         profilePic.style.backgroundImage = `url('${base64Image}')`;
         profilePic.textContent = '';
@@ -1557,7 +1557,7 @@ function uploadProfilePic() {
         status.innerText = "Profile picture updated successfully!";
         status.style.color = "#2cb67d";
         
-        // Clear status after 3 seconds
+        # Clear status after 3 seconds
         setTimeout(() => {
             status.innerText = "";
         }, 3000);
@@ -1748,9 +1748,8 @@ def send_verification_email(to_email, verification_code):
         
         msg.attach(MIMEText(body, 'html'))
         
-        # Connect to Gmail SMTP server
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
+        # Connect to Gmail SMTP server using SSL (port 465)
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.login(GMAIL_EMAIL, GMAIL_APP_PASSWORD)
         
         # Send email
