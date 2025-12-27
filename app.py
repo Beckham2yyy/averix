@@ -21,7 +21,7 @@ X_CALLBACK_URL = "https://averix.up.railway.app/x/callback"
 
 # Gmail Configuration
 GMAIL_EMAIL = "averixapp@gmail.com"
-GMAIL_APP_PASSWORD = "valz ptzs fwcq rfqn"
+GMAIL_APP_PASSWORD = "btgpzquheozugmdt"
 
 # Storage (simple dictionary - in production use a database)
 NONCES = {}
