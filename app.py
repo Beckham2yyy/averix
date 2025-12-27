@@ -6,6 +6,9 @@ from flask import Flask, request, jsonify, render_template_string, session, redi
 import json
 import urllib.parse
 import base64
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
 app.secret_key = "termux-dev-secret-123"
@@ -16,11 +19,16 @@ X_CLIENT_SECRET = "76fVQWJYM9OHxMRaafsPaH0LhbF4np3jhhZtbYnr2CywwQEF5L"
 X_CALLBACK_URL = "https://averix.up.railway.app/x/callback"
 # ===================================================
 
+# Gmail Configuration
+GMAIL_EMAIL = "averixapp@gmail.com"
+GMAIL_APP_PASSWORD = "valz ptzs fwcq rfqn"
+
 # Storage (simple dictionary - in production use a database)
 NONCES = {}
 USER_DATA = {}
 DAILY_CHECKINS = {}  # Store last check-in date by address
 PROFILE_PICS = {}    # Store profile picture data
+GMAIL_CODES = {}     # Store verification codes for emails
 
 # Create uploads directory
 os.makedirs('static/uploads', exist_ok=True)
@@ -487,6 +495,42 @@ button.connected { background: #1a1a1f }
     font-weight: bold;
     margin-top: 4px;
 }
+
+/* Gmail verification styling */
+.code-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: #0b0b0f;
+    color: white;
+    margin-top: 10px;
+    text-align: center;
+    font-size: 18px;
+    letter-spacing: 8px;
+}
+
+.code-input::placeholder {
+    letter-spacing: normal;
+    font-size: 14px;
+}
+
+.resend-btn {
+    background: #1a1a1f;
+    margin-top: 8px;
+    width: 100%;
+}
+
+.resend-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.code-info {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #8b8b9a;
+}
 </style>
 </head>
 
@@ -556,7 +600,15 @@ button.connected { background: #1a1a1f }
         <div id="gmailForm">
             <input id="gmailInput" placeholder="Enter your Gmail address"
             style="width:100%;padding:12px;border-radius:10px;border:none;background:#0b0b0f;color:white;margin-top:10px">
-            <button style="margin-top:12px; width: 100%;" onclick="verifyGmail()">Verify Gmail</button>
+            <button id="sendCodeBtn" style="margin-top:12px; width: 100%;" onclick="sendVerificationCode()">Send Verification Code</button>
+            
+            <div id="codeVerificationSection" style="display: none;">
+                <input id="gmailCodeInput" class="code-input" placeholder="Enter 4-digit code"
+                style="width:100%;padding:12px;border-radius:10px;border:none;background:#0b0b0f;color:white;margin-top:10px">
+                <p class="code-info">We sent a 4-digit code to your email. Check your inbox.</p>
+                <button style="margin-top:12px; width: 100%;" onclick="verifyGmailCode()">Verify Code</button>
+                <button id="resendCodeBtn" class="resend-btn" onclick="resendVerificationCode()" disabled>Resend Code (60s)</button>
+            </div>
         </div>
         
         <div id="gmailCompleted" class="task-completed" style="display: none;">
@@ -792,6 +844,8 @@ button.connected { background: #1a1a1f }
 <script>
 let currentAccount = null
 let isEditingUsername = false
+let resendTimer = null
+let resendSeconds = 60
 
 // Check and display completed tasks when page loads
 document.addEventListener('DOMContentLoaded', function() {
@@ -1030,7 +1084,7 @@ function setUsername(){
     updateProgressCircle()
 }
 
-function verifyGmail(){
+function sendVerificationCode() {
     const g = gmailInput.value.trim()
     if(!g) return
     if(!g.includes('@') || !g.includes('.')) {
@@ -1039,18 +1093,153 @@ function verifyGmail(){
         return
     }
     
-    localStorage.setItem("averix_gmail", g)
-    gmailStatus.innerText = "Gmail verified: " + g + " • 20 AVE earned"
-    gmailStatus.style.color = "#2cb67d"
+    // Check if this email is already verified
+    if (localStorage.getItem("averix_gmail") === g) {
+        gmailStatus.innerText = "This email is already verified!"
+        gmailStatus.style.color = "#2cb67d"
+        return
+    }
     
-    // Show completed task UI
-    document.getElementById('gmailForm').style.display = 'none'
-    document.getElementById('gmailCompleted').style.display = 'flex'
-    document.getElementById('completedGmail').textContent = g
+    // Send request to server to send verification code
+    fetch('/send_gmail_code', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: g })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show code input section
+            document.getElementById('sendCodeBtn').style.display = 'none'
+            document.getElementById('codeVerificationSection').style.display = 'block'
+            gmailStatus.innerText = "Verification code sent to your email!"
+            gmailStatus.style.color = "#2cb67d"
+            
+            // Start resend timer
+            startResendTimer()
+        } else {
+            gmailStatus.innerText = data.message || "Failed to send verification code"
+            gmailStatus.style.color = "#ff6b6b"
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error)
+        gmailStatus.innerText = "Failed to send verification code"
+        gmailStatus.style.color = "#ff6b6b"
+    })
+}
+
+function verifyGmailCode() {
+    const g = gmailInput.value.trim()
+    const code = document.getElementById('gmailCodeInput').value.trim()
     
-    // Update tasks completed count
-    updateTasksCompleted()
-    updateProgressCircle()
+    if(!g || !code) {
+        gmailStatus.innerText = "Please enter both email and verification code"
+        gmailStatus.style.color = "#ff6b6b"
+        return
+    }
+    
+    if(code.length !== 4 || !/^\d+$/.test(code)) {
+        gmailStatus.innerText = "Please enter a valid 4-digit code"
+        gmailStatus.style.color = "#ff6b6b"
+        return
+    }
+    
+    // Send request to verify code
+    fetch('/verify_gmail_code', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: g, code: code })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Save verified email
+            localStorage.setItem("averix_gmail", g)
+            
+            // Show completed task UI
+            document.getElementById('gmailForm').style.display = 'none'
+            document.getElementById('gmailCompleted').style.display = 'flex'
+            document.getElementById('completedGmail').textContent = g
+            
+            gmailStatus.innerText = "Gmail verified successfully! 20 AVE earned"
+            gmailStatus.style.color = "#2cb67d"
+            
+            // Update tasks completed count
+            updateTasksCompleted()
+            updateProgressCircle()
+            
+            // Clear timer if exists
+            if (resendTimer) {
+                clearInterval(resendTimer)
+            }
+        } else {
+            gmailStatus.innerText = data.message || "Invalid verification code"
+            gmailStatus.style.color = "#ff6b6b"
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error)
+        gmailStatus.innerText = "Failed to verify code"
+        gmailStatus.style.color = "#ff6b6b"
+    })
+}
+
+function startResendTimer() {
+    const resendBtn = document.getElementById('resendCodeBtn')
+    resendBtn.disabled = true
+    resendSeconds = 60
+    
+    resendTimer = setInterval(() => {
+        resendSeconds--
+        resendBtn.textContent = `Resend Code (${resendSeconds}s)`
+        
+        if (resendSeconds <= 0) {
+            clearInterval(resendTimer)
+            resendBtn.disabled = false
+            resendBtn.textContent = 'Resend Code'
+        }
+    }, 1000)
+}
+
+function resendVerificationCode() {
+    const g = gmailInput.value.trim()
+    
+    if(!g) return
+    
+    // Send request to resend verification code
+    fetch('/send_gmail_code', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: g })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            gmailStatus.innerText = "New verification code sent to your email!"
+            gmailStatus.style.color = "#2cb67d"
+            
+            // Reset and restart timer
+            if (resendTimer) {
+                clearInterval(resendTimer)
+            }
+            startResendTimer()
+        } else {
+            gmailStatus.innerText = data.message || "Failed to resend verification code"
+            gmailStatus.style.color = "#ff6b6b"
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error)
+        gmailStatus.innerText = "Failed to resend verification code"
+        gmailStatus.style.color = "#ff6b6b"
+    })
 }
 
 function connectXAccount() {
@@ -1509,6 +1698,159 @@ def x_callback():
         print(f"X OAuth error: {e}")
         return f"Error during X authentication: {str(e)}", 500
 
+# ========== GMAIL VERIFICATION ROUTES ==========
+
+def send_verification_email(to_email, verification_code):
+    """Send verification email with code"""
+    try:
+        # Create message
+        msg = MIMEMultipart()
+        msg['From'] = GMAIL_EMAIL
+        msg['To'] = to_email
+        msg['Subject'] = "Averix - Email Verification Code"
+        
+        # Email body
+        body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="color: #7f5af0; margin: 0;">Averix</h1>
+                    <p style="color: #666; margin-top: 5px;">Complete Your Email Verification</p>
+                </div>
+                
+                <div style="background: linear-gradient(135deg, #7f5af0, #2cb67d); padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
+                    <h2 style="color: white; margin: 0 0 20px 0;">Your Verification Code</h2>
+                    <div style="background: white; padding: 15px; border-radius: 8px; display: inline-block;">
+                        <h1 style="color: #7f5af0; margin: 0; font-size: 36px; letter-spacing: 10px;">{verification_code}</h1>
+                    </div>
+                    <p style="color: rgba(255,255,255,0.9); margin-top: 20px; font-size: 14px;">
+                        Enter this 4-digit code in the Averix app to verify your email
+                    </p>
+                </div>
+                
+                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <p style="margin: 0; font-size: 14px; color: #666;">
+                        <strong>Important:</strong> This code will expire in 10 minutes. 
+                        If you didn't request this verification, please ignore this email.
+                    </p>
+                </div>
+                
+                <div style="border-top: 1px solid #e0e0e0; padding-top: 20px; text-align: center;">
+                    <p style="font-size: 12px; color: #999; margin: 0;">
+                        This email was sent by Averix App. Please do not reply to this email.
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        msg.attach(MIMEText(body, 'html'))
+        
+        # Connect to Gmail SMTP server
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(GMAIL_EMAIL, GMAIL_APP_PASSWORD)
+        
+        # Send email
+        server.send_message(msg)
+        server.quit()
+        
+        return True
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return False
+
+@app.route("/send_gmail_code", methods=["POST"])
+def send_gmail_code():
+    """Send verification code to user's email"""
+    try:
+        data = request.json
+        email = data.get("email", "").lower().strip()
+        
+        if not email:
+            return jsonify({"success": False, "message": "Email is required"})
+        
+        # Validate email format
+        if not email.endswith("@gmail.com"):
+            return jsonify({"success": False, "message": "Please use a Gmail address"})
+        
+        # Check if this email is already verified for any user
+        # In production, you would check this in a database
+        # For now, we'll allow one email per user (this is a simple check)
+        
+        # Generate 4-digit verification code
+        verification_code = f"{secrets.randbelow(10000):04d}"
+        
+        # Store code with timestamp (valid for 10 minutes)
+        GMAIL_CODES[email] = {
+            "code": verification_code,
+            "timestamp": datetime.now(),
+            "attempts": 0
+        }
+        
+        # Send verification email
+        if send_verification_email(email, verification_code):
+            return jsonify({
+                "success": True, 
+                "message": "Verification code sent to your email"
+            })
+        else:
+            return jsonify({
+                "success": False, 
+                "message": "Failed to send verification email. Please try again."
+            })
+            
+    except Exception as e:
+        print(f"Error in send_gmail_code: {e}")
+        return jsonify({"success": False, "message": "Server error"})
+
+@app.route("/verify_gmail_code", methods=["POST"])
+def verify_gmail_code():
+    """Verify the code entered by user"""
+    try:
+        data = request.json
+        email = data.get("email", "").lower().strip()
+        code = data.get("code", "").strip()
+        
+        if not email or not code:
+            return jsonify({"success": False, "message": "Email and code are required"})
+        
+        # Check if code exists for this email
+        if email not in GMAIL_CODES:
+            return jsonify({"success": False, "message": "No verification code found. Please request a new one."})
+        
+        code_data = GMAIL_CODES[email]
+        
+        # Check if code has expired (10 minutes)
+        time_diff = datetime.now() - code_data["timestamp"]
+        if time_diff.total_seconds() > 600:  # 10 minutes
+            del GMAIL_CODES[email]
+            return jsonify({"success": False, "message": "Verification code has expired. Please request a new one."})
+        
+        # Check if too many attempts (max 5)
+        if code_data["attempts"] >= 5:
+            del GMAIL_CODES[email]
+            return jsonify({"success": False, "message": "Too many attempts. Please request a new code."})
+        
+        # Increment attempts
+        code_data["attempts"] += 1
+        
+        # Verify code
+        if code_data["code"] == code:
+            # Code is correct - remove from temporary storage
+            del GMAIL_CODES[email]
+            return jsonify({"success": True, "message": "Email verified successfully"})
+        else:
+            return jsonify({"success": False, "message": "Invalid verification code"})
+            
+    except Exception as e:
+        print(f"Error in verify_gmail_code: {e}")
+        return jsonify({"success": False, "message": "Server error"})
+
+# ========== EXISTING ROUTES ==========
+
 @app.route("/nonce", methods=["POST"])
 def nonce():
     data = request.json
@@ -1584,6 +1926,7 @@ if __name__ == "__main__":
     print("Starting Averix Flask app on http://0.0.0.0:5000")
     print("X OAuth Integration: ACTIVE")
     print(f"Callback URL: {X_CALLBACK_URL}")
+    print("Gmail Verification: ACTIVE")
     print("To access from your phone, make sure you're on the same network")
     print("and use your computer's IP address followed by :5000")
     app.run(host="0.0.0.0", port=5000, debug=True)
