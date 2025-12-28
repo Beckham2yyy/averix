@@ -37,6 +37,7 @@ HTML_TEMPLATE = '''
 
 <!-- WalletConnect V2 SDK -->
 <script src="https://unpkg.com/@walletconnect/modal@2.6.2/dist/index.min.js"></script>
+<script src="https://unpkg.com/@walletconnect/ethereum-provider@2.10.2/dist/index.umd.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/@walletconnect/modal@2.6.2/dist/index.css">
 
 <style>
@@ -494,45 +495,6 @@ button.connected { background: #1a1a1f }
     font-weight: bold;
     margin-top: 4px;
 }
-
-/* WalletConnect button styling */
-.walletconnect-btn {
-    background: linear-gradient(135deg, #3396FF, #3B82F6);
-    color: white;
-    width: 100%;
-    padding: 16px;
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 12px;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.walletconnect-btn:hover {
-    transform: translateY(-2px);
-    transition: transform 0.2s;
-}
-
-.walletconnect-icon {
-    width: 20px;
-    height: 20px;
-    fill: white;
-}
-
-/* Connect wallet options */
-.connect-options {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 20px;
-    width: 100%;
-    max-width: 300px;
-}
 </style>
 </head>
 
@@ -542,22 +504,14 @@ button.connected { background: #1a1a1f }
     <div class="gate-box">
         <h1>Averix</h1>
         <p>Connect your wallet to access the platform</p>
-        <div class="connect-options">
-            <button onclick="connectSolana()">Connect Solana Wallet</button>
-            <button class="walletconnect-btn" onclick="connectWalletConnect()">
-                <svg class="walletconnect-icon" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
-                </svg>
-                Connect WalletConnect
-            </button>
-        </div>
+        <button onclick="connectWallet()">Connect Wallet</button>
     </div>
 </div>
 
 <nav>
     <div class="logo">Averix</div>
     <div>
-        <button id="connectBtn" onclick="showWalletOptions()">Connect Wallet</button>
+        <button id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
         <button id="disconnectBtn" onclick="disconnectWallet()">Disconnect</button>
     </div>
 </nav>
@@ -849,14 +803,18 @@ let isEditingUsername = false
 let walletConnectModal = null
 let walletConnectProvider = null
 
-// Initialize WalletConnect Modal
+// Initialize WalletConnect
 async function initWalletConnect() {
     try {
-        const projectId = '{{WALLETCONNECT_PROJECT_ID}}';
+        // Check for Phantom first
+        if (window.solana && window.solana.isPhantom) {
+            // Phantom is available, we'll use it by default
+            console.log("Phantom wallet detected");
+        }
         
-        // Create modal
+        // Initialize WalletConnect Modal
         walletConnectModal = new WalletConnectModal.default({
-            projectId: projectId,
+            projectId: '{{WALLETCONNECT_PROJECT_ID}}',
             themeMode: "dark",
             themeVariables: {
                 '--wcm-z-index': '9999',
@@ -872,7 +830,7 @@ async function initWalletConnect() {
     }
 }
 
-// Initialize WalletConnect when page loads
+// Check and display completed tasks when page loads
 document.addEventListener('DOMContentLoaded', function() {
     initWalletConnect();
     checkSavedWallet();
@@ -1454,9 +1412,30 @@ function uploadProfilePic() {
     reader.readAsDataURL(file);
 }
 
+async function connectWallet(){
+    try {
+        // First, try to connect with Phantom/Solana wallet if available
+        if (window.solana && window.solana.isPhantom) {
+            await connectSolana();
+        } else {
+            // If Phantom is not available, show WalletConnect modal
+            await connectWithWalletConnect();
+        }
+    } catch (error) {
+        console.error("Wallet connection error:", error);
+        // If Phantom fails, try WalletConnect as fallback
+        try {
+            await connectWithWalletConnect();
+        } catch (wcError) {
+            alert("Failed to connect wallet. Please make sure you have a wallet installed.");
+        }
+    }
+}
+
 async function connectSolana(){
     if(!window.solana) {
-        alert("Solana wallet not detected. Please install Phantom or another Solana wallet.");
+        // If no Solana wallet, try WalletConnect
+        await connectWithWalletConnect();
         return;
     }
     
@@ -1474,7 +1453,8 @@ async function connectSolana(){
         const {message} = await n.json();
         
         // Sign message
-        await window.solana.signMessage(new TextEncoder().encode(message), "utf8");
+        const encodedMessage = new TextEncoder().encode(message);
+        const signedMessage = await window.solana.signMessage(encodedMessage, "utf8");
         
         // Verify signature
         await fetch("/verify", {
@@ -1489,47 +1469,37 @@ async function connectSolana(){
         unlock(publicKey);
     } catch (error) {
         console.error("Solana connection error:", error);
-        alert("Failed to connect Solana wallet: " + error.message);
+        throw error; // Re-throw to handle in parent function
     }
 }
 
-async function connectWalletConnect() {
+async function connectWithWalletConnect() {
     try {
-        // First, try to use Solana provider through WalletConnect
-        // For simplicity, we'll simulate a connection since WalletConnect V2 with Solana requires more complex setup
-        // In a real implementation, you would use @walletconnect/solana-provider
+        // Show WalletConnect modal
+        if (!walletConnectModal) {
+            throw new Error("WalletConnect not initialized");
+        }
         
-        // For now, we'll use a mock address and handle it as a WalletConnect connection
-        const mockAddress = "So1anaWaL1etConnec7" + Math.random().toString(36).substring(2, 10);
+        // For Solana support with WalletConnect, we need to use a Solana-specific provider
+        // For now, we'll show a message and ask user to install Phantom
+        alert("For Solana support, please install Phantom wallet or use a Solana-compatible wallet app. For now, please use the desktop version with Phantom installed.");
         
-        // Save wallet type
-        localStorage.setItem("averix_wallet_type", "walletconnect");
-        
-        // Simulate successful connection
-        unlock(mockAddress);
-        
-        // In a real implementation, you would:
-        // 1. Initialize WalletConnect provider with Solana chain
+        // In a production implementation, you would:
+        // 1. Initialize WalletConnect with Solana chains
         // 2. Connect to the provider
-        // 3. Get the address
+        // 3. Get the Solana address
         // 4. Sign a message
         // 5. Verify with backend
         
+        // Since this is a simplified version, we'll fall back to asking for Phantom
+        if (confirm("Would you like to install Phantom wallet? It's the most popular Solana wallet.")) {
+            window.open('https://phantom.app/', '_blank');
+        }
+        
     } catch (error) {
         console.error("WalletConnect connection error:", error);
-        alert("Failed to connect via WalletConnect: " + error.message);
+        throw error;
     }
-}
-
-function showWalletOptions() {
-    // Show the gate with wallet options
-    gate.style.display = 'flex';
-}
-
-// Fallback function for backward compatibility
-async function connectWallet() {
-    // Default to Solana connection for backward compatibility
-    await connectSolana();
 }
 </script>
 
