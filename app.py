@@ -16,9 +16,6 @@ X_CLIENT_SECRET = "76fVQWJYM9OHxMRaafsPaH0LhbF4np3jhhZtbYnr2CywwQEF5L"
 X_CALLBACK_URL = "https://averix.up.railway.app/x/callback"
 # ===================================================
 
-# WalletConnect Project ID
-WALLETCONNECT_PROJECT_ID = "6c3db8e8c8dd89af808ec4d5e35f10ca"
-
 # Storage (simple dictionary - in production use a database)
 NONCES = {}
 USER_DATA = {}
@@ -34,11 +31,6 @@ HTML_TEMPLATE = '''
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Averix</title>
-
-<!-- WalletConnect V2 SDK -->
-<script src="https://unpkg.com/@walletconnect/modal@2.6.2/dist/index.min.js"></script>
-<script src="https://unpkg.com/@walletconnect/ethereum-provider@2.10.2/dist/index.umd.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/@walletconnect/modal@2.6.2/dist/index.css">
 
 <style>
 body {
@@ -800,39 +792,9 @@ button.connected { background: #1a1a1f }
 <script>
 let currentAccount = null
 let isEditingUsername = false
-let walletConnectModal = null
-let walletConnectProvider = null
-
-// Initialize WalletConnect
-async function initWalletConnect() {
-    try {
-        // Check for Phantom first
-        if (window.solana && window.solana.isPhantom) {
-            // Phantom is available, we'll use it by default
-            console.log("Phantom wallet detected");
-        }
-        
-        // Initialize WalletConnect Modal
-        walletConnectModal = new WalletConnectModal.default({
-            projectId: '{{WALLETCONNECT_PROJECT_ID}}',
-            themeMode: "dark",
-            themeVariables: {
-                '--wcm-z-index': '9999',
-                '--wcm-accent-color': '#7f5af0',
-                '--wcm-background-color': '#0b0b0f',
-                '--wcm-font-family': 'Arial, sans-serif'
-            }
-        });
-        
-        console.log("WalletConnect initialized");
-    } catch (error) {
-        console.error("Failed to initialize WalletConnect:", error);
-    }
-}
 
 // Check and display completed tasks when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    initWalletConnect();
     checkSavedWallet();
     checkCompletedTasks();
     updateDailyCheckinStatus();
@@ -843,28 +805,49 @@ document.addEventListener('DOMContentLoaded', function() {
 async function checkSavedWallet() {
     const savedWallet = localStorage.getItem("averix_wallet_address");
     const connectionTime = localStorage.getItem("averix_wallet_connection_time");
-    const walletType = localStorage.getItem("averix_wallet_type");
     
-    if (savedWallet && connectionTime) {
+    if (savedWallet && connectionTime && window.solana) {
         // Check if the connection is still valid (within 1 hour)
         const oneHourInMs = 60 * 60 * 1000; // 1 hour in milliseconds
         const currentTime = Date.now();
         const timeSinceConnection = currentTime - parseInt(connectionTime);
         
         if (timeSinceConnection <= oneHourInMs) {
-            // Wallet is still within 1 hour, unlock the app
-            unlock(savedWallet);
-            return;
+            try {
+                // Check if we can access the saved account
+                const accounts = await window.solana.request({ 
+                    method: 'connect' 
+                });
+                
+                if (accounts && accounts.publicKey) {
+                    const publicKey = accounts.publicKey.toString();
+                    // Check if the saved wallet matches the connected account
+                    if (publicKey === savedWallet) {
+                        // Wallet is still connected and within 1 hour, unlock the app
+                        unlock(publicKey);
+                        return;
+                    }
+                }
+                
+                // If we get here, the saved wallet is not currently connected but still within 1 hour
+                // We could try to auto-reconnect, but for security, we'll require manual reconnection
+                // after being away from the site for up to 1 hour
+                document.getElementById('gate').style.display = 'flex';
+                
+            } catch (error) {
+                console.error("Error checking saved wallet:", error);
+                // Show gate if there's an error
+                document.getElementById('gate').style.display = 'flex';
+            }
         } else {
             // Connection expired (more than 1 hour), require reconnection
             console.log("Wallet connection expired (more than 1 hour ago)");
             localStorage.removeItem("averix_wallet_address");
             localStorage.removeItem("averix_wallet_connection_time");
-            localStorage.removeItem("averix_wallet_type");
             document.getElementById('gate').style.display = 'flex';
         }
     } else {
-        // No saved wallet
+        // No saved wallet, no connection time, or no solana provider
         document.getElementById('gate').style.display = 'flex';
     }
 }
@@ -1017,22 +1000,9 @@ function unlock(a){
 }
 
 function disconnectWallet(){
-    // Check wallet type and disconnect appropriately
-    const walletType = localStorage.getItem("averix_wallet_type");
-    
-    if (walletType === "walletconnect" && walletConnectProvider) {
-        try {
-            walletConnectProvider.disconnect();
-        } catch (error) {
-            console.error("Error disconnecting WalletConnect:", error);
-        }
-    }
-    
-    // Remove saved wallet data
+    // Remove saved wallet address and connection time
     localStorage.removeItem("averix_wallet_address");
     localStorage.removeItem("averix_wallet_connection_time");
-    localStorage.removeItem("averix_wallet_type");
-    
     location.reload()
 }
 
@@ -1413,93 +1383,14 @@ function uploadProfilePic() {
 }
 
 async function connectWallet(){
-    try {
-        // First, try to connect with Phantom/Solana wallet if available
-        if (window.solana && window.solana.isPhantom) {
-            await connectSolana();
-        } else {
-            // If Phantom is not available, show WalletConnect modal
-            await connectWithWalletConnect();
-        }
-    } catch (error) {
-        console.error("Wallet connection error:", error);
-        // If Phantom fails, try WalletConnect as fallback
-        try {
-            await connectWithWalletConnect();
-        } catch (wcError) {
-            alert("Failed to connect wallet. Please make sure you have a wallet installed.");
-        }
-    }
-}
-
-async function connectSolana(){
-    if(!window.solana) {
-        // If no Solana wallet, try WalletConnect
-        await connectWithWalletConnect();
-        return;
-    }
-    
-    try {
-        const response = await window.solana.connect();
-        const publicKey = response.publicKey.toString();
-        
-        // Get nonce from server
-        const n = await fetch("/nonce", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({address: publicKey})
-        });
-        
-        const {message} = await n.json();
-        
-        // Sign message
-        const encodedMessage = new TextEncoder().encode(message);
-        const signedMessage = await window.solana.signMessage(encodedMessage, "utf8");
-        
-        // Verify signature
-        await fetch("/verify", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({address: publicKey})
-        });
-        
-        // Save wallet type
-        localStorage.setItem("averix_wallet_type", "solana");
-        
-        unlock(publicKey);
-    } catch (error) {
-        console.error("Solana connection error:", error);
-        throw error; // Re-throw to handle in parent function
-    }
-}
-
-async function connectWithWalletConnect() {
-    try {
-        // Show WalletConnect modal
-        if (!walletConnectModal) {
-            throw new Error("WalletConnect not initialized");
-        }
-        
-        // For Solana support with WalletConnect, we need to use a Solana-specific provider
-        // For now, we'll show a message and ask user to install Phantom
-        alert("For Solana support, please install Phantom wallet or use a Solana-compatible wallet app. For now, please use the desktop version with Phantom installed.");
-        
-        // In a production implementation, you would:
-        // 1. Initialize WalletConnect with Solana chains
-        // 2. Connect to the provider
-        // 3. Get the Solana address
-        // 4. Sign a message
-        // 5. Verify with backend
-        
-        // Since this is a simplified version, we'll fall back to asking for Phantom
-        if (confirm("Would you like to install Phantom wallet? It's the most popular Solana wallet.")) {
-            window.open('https://phantom.app/', '_blank');
-        }
-        
-    } catch (error) {
-        console.error("WalletConnect connection error:", error);
-        throw error;
-    }
+    if(!window.solana) return alert("Solana wallet not detected")
+    const response = await window.solana.connect();
+    const publicKey = response.publicKey.toString();
+    const n=await fetch("/nonce",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({address:publicKey})})
+    const {message}=await n.json()
+    await window.solana.signMessage(new TextEncoder().encode(message), "utf8");
+    await fetch("/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({address:publicKey})})
+    unlock(publicKey)
 }
 </script>
 
@@ -1509,7 +1400,7 @@ async function connectWithWalletConnect() {
 
 @app.route("/")
 def home():
-    return render_template_string(HTML_TEMPLATE.replace('{{WALLETCONNECT_PROJECT_ID}}', WALLETCONNECT_PROJECT_ID))
+    return render_template_string(HTML_TEMPLATE)
 
 # ========== X (TWITTER) OAUTH ROUTES ==========
 
@@ -1693,7 +1584,6 @@ if __name__ == "__main__":
     print("Starting Averix Flask app on http://0.0.0.0:5000")
     print("X OAuth Integration: ACTIVE")
     print(f"Callback URL: {X_CALLBACK_URL}")
-    print(f"WalletConnect Project ID: {WALLETCONNECT_PROJECT_ID}")
     print("To access from your phone, make sure you're on the same network")
     print("and use your computer's IP address followed by :5000")
     app.run(host="0.0.0.0", port=5000, debug=True)
