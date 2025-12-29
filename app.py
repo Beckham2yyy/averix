@@ -649,7 +649,7 @@ button.connected { background: #1a1a1f }
             <button class="follow-x-btn" onclick="followXAccount()" id="followXBtn">
                 <svg class="x-icon" viewBox="0 0 24 24" fill="white">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                </svg>
+            </svg>
                 Open & Follow @averix_app
             </button>
             <button id="markFollowedBtn" class="secondary" style="margin-top: 10px; width: 100%; display: none;" onclick="markXFollowed()">
@@ -1123,6 +1123,10 @@ async function sendGmailCode(){
             
             gmailStatus.innerText = "Verification code sent! Check your inbox."
             gmailStatus.style.color = "#2cb67d"
+            
+            // Re-enable button for next time
+            sendBtn.disabled = false;
+            sendBtn.textContent = "Send Verification Code";
         } else {
             gmailStatus.innerText = "Error: " + result.error
             gmailStatus.style.color = "#ff6b6b"
@@ -1133,7 +1137,7 @@ async function sendGmailCode(){
         }
     } catch (error) {
         console.error("Error sending Gmail code:", error);
-        gmailStatus.innerText = "Error sending code. Please try again."
+        gmailStatus.innerText = "Network error. Please try again."
         gmailStatus.style.color = "#ff6b6b"
         
         // Re-enable button
@@ -1200,7 +1204,7 @@ async function verifyGmailCode(){
         }
     } catch (error) {
         console.error("Error verifying Gmail code:", error);
-        gmailStatus.innerText = "Error verifying code. Please try again."
+        gmailStatus.innerText = "Network error. Please try again."
         gmailStatus.style.color = "#ff6b6b"
     }
 }
@@ -1236,7 +1240,7 @@ async function resendGmailCode(){
         }
     } catch (error) {
         console.error("Error resending Gmail code:", error);
-        gmailStatus.innerText = "Error resending code. Please try again."
+        gmailStatus.innerText = "Network error. Please try again."
         gmailStatus.style.color = "#ff6b6b"
     }
 }
@@ -1633,53 +1637,57 @@ def home():
 def send_verification_email(to_email, verification_code):
     """Send verification email with 4-digit code"""
     try:
+        print(f"Attempting to send email to: {to_email}")
+        print(f"From: {GMAIL_APP_EMAIL}")
+        
         # Create message
         msg = MIMEMultipart()
         msg['From'] = GMAIL_APP_EMAIL
         msg['To'] = to_email
         msg['Subject'] = 'Averix Verification Code'
         
-        # Email body
-        body = f"""
-        <html>
-        <body style="font-family: Arial, sans-serif; background-color: #0b0b0f; color: white; padding: 20px;">
-            <div style="max-width: 600px; margin: 0 auto; background-color: #111118; padding: 30px; border-radius: 15px;">
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #7f5af0; margin-bottom: 10px;">Averix Verification</h1>
-                    <p style="color: #bdbdbd;">Your verification code for Gmail verification task</p>
-                </div>
-                
-                <div style="background-color: #1a1a1f; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
-                    <p style="color: #8b8b9a; margin-bottom: 10px;">Enter this code in the Averix app:</p>
-                    <div style="font-size: 36px; font-weight: bold; letter-spacing: 10px; color: #7f5af0; margin: 20px 0;">
-                        {verification_code}
-                    </div>
-                    <p style="color: #ff8c00; font-size: 14px;">This code expires in 5 minutes</p>
-                </div>
-                
-                <div style="text-align: center; color: #8b8b9a; font-size: 12px; margin-top: 30px;">
-                    <p>If you didn't request this code, please ignore this email.</p>
-                    <p>Averix Team</p>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
+        # Simple email body (plain text works better)
+        body = f"""Your Averix Verification Code: {verification_code}
+
+Enter this 4-digit code in the Averix app to verify your Gmail account.
+
+This code expires in 5 minutes.
+
+If you didn't request this code, please ignore this email.
+
+Averix Team
+"""
         
-        msg.attach(MIMEText(body, 'html'))
+        msg.attach(MIMEText(body, 'plain'))
         
-        # Connect to Gmail SMTP server
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
+        # Connect to Gmail SMTP server with proper error handling
+        print("Connecting to SMTP server...")
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)  # Use SSL on port 465
+        server.set_debuglevel(1)  # Show debug info
+        
+        print("Logging in...")
         server.login(GMAIL_APP_EMAIL, GMAIL_APP_PASSWORD)
         
-        # Send email
+        print("Sending email...")
         server.send_message(msg)
         server.quit()
         
+        print("Email sent successfully!")
         return True
+        
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"SMTP Authentication Error: {e}")
+        print("Check if: 1) Email and password are correct")
+        print("2) Less secure apps is turned ON")
+        print("3) 2-factor authentication is disabled or app password is used")
+        return False
+    except smtplib.SMTPException as e:
+        print(f"SMTP Error: {e}")
+        return False
     except Exception as e:
-        print(f"Error sending email: {e}")
+        print(f"Unexpected Error sending email: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 @app.route("/send_gmail_code", methods=["POST"])
@@ -1689,6 +1697,9 @@ def send_gmail_code():
         data = request.json
         email = data.get("email", "").strip().lower()
         wallet_address = data.get("wallet_address", "").lower()
+        
+        print(f"Received request to send code to: {email}")
+        print(f"From wallet: {wallet_address}")
         
         if not email or not wallet_address:
             return jsonify({"ok": False, "error": "Missing email or wallet address"}), 400
@@ -1700,10 +1711,14 @@ def send_gmail_code():
         
         # Generate 4-digit code
         verification_code = str(secrets.randbelow(10000)).zfill(4)
+        print(f"Generated code: {verification_code}")
         
         # Send email
-        if not send_verification_email(email, verification_code):
-            return jsonify({"ok": False, "error": "Failed to send verification email"}), 500
+        email_sent = send_verification_email(email, verification_code)
+        
+        if not email_sent:
+            print("Email sending failed")
+            return jsonify({"ok": False, "error": "Failed to send verification email. Please try again later."}), 500
         
         # Store verification data
         GMAIL_VERIFICATIONS[wallet_address] = {
@@ -1714,14 +1729,18 @@ def send_gmail_code():
             "verified": False
         }
         
+        print(f"Stored verification for wallet: {wallet_address}")
+        
         # Clean up old verifications
         cleanup_old_verifications()
         
         return jsonify({"ok": True, "message": "Verification code sent successfully"})
         
     except Exception as e:
-        print(f"Error in send_gmail_code: {e}")
-        return jsonify({"ok": False, "error": str(e)}), 500
+        print(f"Error in send_gmail_code: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"ok": False, "error": "Server error. Please try again."}), 500
 
 @app.route("/verify_gmail_code", methods=["POST"])
 def verify_gmail_code():
@@ -1756,7 +1775,7 @@ def verify_gmail_code():
         
     except Exception as e:
         print(f"Error in verify_gmail_code: {e}")
-        return jsonify({"ok": False, "error": str(e)}), 500
+        return jsonify({"ok": False, "error": "Server error. Please try again."}), 500
 
 @app.route("/resend_gmail_code", methods=["POST"])
 def resend_gmail_code():
@@ -1778,7 +1797,7 @@ def resend_gmail_code():
         
         # Send email
         if not send_verification_email(email, verification_code):
-            return jsonify({"ok": False, "error": "Failed to send verification email"}), 500
+            return jsonify({"ok": False, "error": "Failed to send verification email. Please try again later."}), 500
         
         # Store verification data
         GMAIL_VERIFICATIONS[wallet_address] = {
@@ -1796,7 +1815,7 @@ def resend_gmail_code():
         
     except Exception as e:
         print(f"Error in resend_gmail_code: {e}")
-        return jsonify({"ok": False, "error": str(e)}), 500
+        return jsonify({"ok": False, "error": "Server error. Please try again."}), 500
 
 def cleanup_old_verifications():
     """Remove expired verifications"""
@@ -1989,11 +2008,14 @@ def upload_profile_pic():
     })
 
 if __name__ == "__main__":
+    print("=" * 50)
     print("Starting Averix Flask app on http://0.0.0.0:5000")
     print("X OAuth Integration: ACTIVE")
     print("Gmail Verification: ACTIVE")
-    print(f"Callback URL: {X_CALLBACK_URL}")
     print(f"Gmail Sender: {GMAIL_APP_EMAIL}")
+    print(f"Callback URL: {X_CALLBACK_URL}")
+    print("=" * 50)
     print("To access from your phone, make sure you're on the same network")
     print("and use your computer's IP address followed by :5000")
+    print("=" * 50)
     app.run(host="0.0.0.0", port=5000, debug=True)
