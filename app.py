@@ -363,7 +363,7 @@ button.connected { background: #1a1a1f }
 
 .upload-status {
     margin-top: 10px;
-    font-size = 14px;
+    font-size: 14px;
     color: #2cb67d;
 }
 
@@ -398,7 +398,7 @@ button.connected { background: #1a1a1f }
 .progress-text {
     position: absolute;
     font-weight: bold;
-    font-size = 14px;
+    font-size: 14px;
     color: #7f5af0;
 }
 
@@ -2091,6 +2091,20 @@ def upload_profile_pic():
         "ok": True,
         "message": "Profile picture uploaded successfully"
     })
+
+# ========== ERROR HANDLERS ==========
+
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify({"success": False, "error": "Not found"}), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return jsonify({"success": False, "error": "Internal server error"}), 500
+
+@app.errorhandler(400)
+def bad_request(e):
+    return jsonify({"success": False, "error": "Bad request"}), 400
 
 if __name__ == "__main__":
     print("Starting Averix Flask app on http://0.0.0.0:5000")
