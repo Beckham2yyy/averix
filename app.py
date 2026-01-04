@@ -751,6 +751,7 @@ button.connected { background: #1a1a1f }
             </div>
             <p id="editUsernameStatus" style="margin-top:10px;color:#2cb67d; font-size: 14px;"></p>
         </div>
+    </div>
 </div>
 
 <div class="bottom-nav">
@@ -971,7 +972,10 @@ function switchTab(tab, el) {
         updateFollowXButton();
     }
     if(tab==="refer") referPage.classList.remove("hidden")
-    if(tab==="mult") multPage.classList.remove("hidden")
+    if(tab==="mult") {
+        multPage.classList.remove("hidden")
+        // No longer need to update AVE display since we removed it
+    }
     if(tab==="profile"){
         profilePage.classList.remove("hidden")
         loadProfile()
