@@ -12,7 +12,7 @@ app.secret_key = "termux-dev-secret-123"
 
 # ========== X (TWITTER) API CONFIGURATION ==========
 X_CLIENT_ID = "SGJQUmgydDMySkhLcEE1Z2ZxMXo6MTpjaQ"
-X_CLIENT_SECRET = "76fVQWJYM9OHxMRaafsPaH0LhbF4np3jhhZtbYnr2CywwQEF5L"
+X_CLIENT_SECRET = "oSEnTSpZuDCEgwwXayCaH3_AaLp5p1ctLsF1m8c9rAVFHZflq1"
 X_CALLBACK_URL = "https://averix.up.railway.app/x/callback"
 # ===================================================
 
