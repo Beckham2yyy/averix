@@ -600,17 +600,17 @@ button.connected { background: #1a1a1f }
 
     <div class="card">
         <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Follow Averix on X</h3>
-        <p style="color: #bdbdbd; margin-bottom: 16px;">Follow <span style="color:#1DA1F2; font-weight:bold;">@averix_app</span> on X to earn 20 AVE.</p>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Follow <span style="color:#1DA1F2; font-weight:bold;">@averixapp</span> on X to earn 20 AVE.</p>
         
         <div id="followXForm">
             <button class="follow-x-btn" onclick="followXAccount()" id="followXBtn">
                 <svg class="x-icon" viewBox="0 0 24 24" fill="white">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
-                Open & Follow @averix_app
+                Open & Follow @averixapp
             </button>
             <button id="markFollowedBtn" class="secondary" style="margin-top: 10px; width: 100%; display: none;" onclick="markXFollowed()">
-                I've Followed @averix_app
+                I've Followed @averixapp
             </button>
         </div>
         
@@ -620,7 +620,7 @@ button.connected { background: #1a1a1f }
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="x-username">Followed: <span id="completedFollowX">@averix_app</span> • 20 AVE earned</div>
+                <div class="x-username">Followed: <span id="completedFollowX">@averixapp</span> • 20 AVE earned</div>
             </div>
         </div>
         
@@ -751,7 +751,6 @@ button.connected { background: #1a1a1f }
             </div>
             <p id="editUsernameStatus" style="margin-top:10px;color:#2cb67d; font-size: 14px;"></p>
         </div>
-    </div>
 </div>
 
 <div class="bottom-nav">
@@ -951,7 +950,7 @@ function updateFollowXButton() {
             <svg class="x-icon" viewBox="0 0 24 24" fill="white">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
             </svg>
-            Open & Follow @averix_app
+            Open & Follow @averixapp
         `;
     }
 }
@@ -972,10 +971,7 @@ function switchTab(tab, el) {
         updateFollowXButton();
     }
     if(tab==="refer") referPage.classList.remove("hidden")
-    if(tab==="mult") {
-        multPage.classList.remove("hidden")
-        // No longer need to update AVE display since we removed it
-    }
+    if(tab==="mult") multPage.classList.remove("hidden")
     if(tab==="profile"){
         profilePage.classList.remove("hidden")
         loadProfile()
@@ -1104,8 +1100,8 @@ function followXAccount() {
     // Mark that the user has clicked to follow
     localStorage.setItem("averix_x_follow_clicked", "true");
     
-    // Open @averix_app profile in a new tab
-    window.open('https://x.com/averix_app', '_blank');
+    // Open @averixapp profile in a new tab
+    window.open('https://x.com/averixapp', '_blank');
     
     // Show the "I've followed" button
     document.getElementById('markFollowedBtn').style.display = 'block';
@@ -1120,7 +1116,7 @@ function markXFollowed() {
     document.getElementById('followXCompleted').style.display = 'flex';
     
     // Update status message
-    document.getElementById('followXStatus').innerText = "Thank you for following @averix_app! 20 AVE earned";
+    document.getElementById('followXStatus').innerText = "Thank you for following @averixapp! 20 AVE earned";
     document.getElementById('followXStatus').style.color = "#2cb67d";
     
     // Update tasks completed count
