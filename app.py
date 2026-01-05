@@ -1469,21 +1469,14 @@ def x_callback():
         
         access_token = token_data['access_token']
         
-        # Get user info from X - specify which fields we want
-        user_url = "https://api.twitter.com/2/users/me?user.fields=username"
+        # Get user info from X
+        user_url = "https://api.twitter.com/2/users/me"
         user_headers = {
             'Authorization': f'Bearer {access_token}'
         }
         
         user_response = requests.get(user_url, headers=user_headers)
         user_data = user_response.json()
-        
-        # Debug: print what we got from Twitter
-        print(f"Twitter API Response Status: {user_response.status_code}")
-        print(f"Twitter API Response: {user_data}")
-        
-        if user_response.status_code != 200:
-            return f"Twitter API Error: {user_response.status_code} - {user_data}", 400
         
         if 'data' not in user_data or 'username' not in user_data['data']:
             return "Failed to get user info from X", 400
