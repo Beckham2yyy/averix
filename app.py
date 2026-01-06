@@ -490,6 +490,30 @@ button.connected { background: #1a1a1f }
     background: linear-gradient(135deg, #ff3838, #ff1e1e);
 }
 
+/* Disconnect Discord button styling */
+.disconnect-discord-btn {
+    background: linear-gradient(135deg, #ff4757, #ff3838);
+    color: white;
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.disconnect-discord-btn:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+    background: linear-gradient(135deg, #ff3838, #ff1e1e);
+}
+
 /* Follow X button styling */
 .follow-x-btn {
     background: linear-gradient(135deg, #1DA1F2, #1a91da);
@@ -654,7 +678,7 @@ button.connected { background: #1a1a1f }
             <button class="follow-x-btn" onclick="followXAccount()" id="followXBtn">
                 <svg class="x-icon" viewBox="0 0 24 24" fill="white">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                </svg>
+            </svg>
                 Open & Follow @averixapp
             </button>
             <button id="markFollowedBtn" class="secondary" style="margin-top: 10px; width: 100%; display: none;" onclick="markXFollowed()">
@@ -811,6 +835,13 @@ button.connected { background: #1a1a1f }
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
             </svg>
             Disconnect X Account
+        </button>
+        
+        <button id="disconnectDiscordBtn" class="disconnect-discord-btn" onclick="disconnectDiscordAccount()" style="display: none;">
+            <svg class="discord-icon" viewBox="0 0 24 24" fill="white">
+                <path d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.09.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12z"/>
+            </svg>
+            Disconnect Discord Account
         </button>
         
         <div id="editUsernameForm" class="edit-username-form" style="display: none;">
@@ -1184,6 +1215,37 @@ function disconnectXAccount() {
     }
 }
 
+// Function to disconnect Discord account
+function disconnectDiscordAccount() {
+    if (confirm("Are you sure you want to disconnect your Discord account? This will remove the 20 AVE you earned from this task.")) {
+        // Remove Discord connection data from localStorage
+        localStorage.removeItem("averix_discord_connected");
+        localStorage.removeItem("averix_discord_username");
+        
+        // Show the connect Discord form again
+        document.getElementById('discordForm').style.display = 'block';
+        document.getElementById('discordCompleted').style.display = 'none';
+        
+        // Hide the disconnect Discord button
+        document.getElementById('disconnectDiscordBtn').style.display = 'none';
+        
+        // Update identity section
+        document.getElementById('identityDiscord').textContent = "Discord: Not Connected";
+        
+        // Recalculate AVE earned (subtract 20 for Discord task)
+        updateTasksCompleted();
+        
+        // Update progress circle
+        updateProgressCircle();
+        
+        // Show success message
+        alert("Discord account disconnected successfully. 20 AVE has been removed from your total.");
+        
+        // Refresh the profile tab to update displays
+        loadProfile();
+    }
+}
+
 // Function to open X account for following
 function followXAccount() {
     // Check if X account is connected
@@ -1364,8 +1426,12 @@ function loadProfile(){
     const discordUsername = localStorage.getItem("averix_discord_username");
     if (localStorage.getItem("averix_discord_connected") === "true") {
         document.getElementById('identityDiscord').textContent = "Discord: " + (discordUsername || "user");
+        // Show disconnect Discord button
+        document.getElementById('disconnectDiscordBtn').style.display = 'block';
     } else {
         document.getElementById('identityDiscord').textContent = "Discord: Not Connected";
+        // Hide disconnect Discord button
+        document.getElementById('disconnectDiscordBtn').style.display = 'none';
     }
     
     if(currentAccount){
