@@ -16,6 +16,15 @@ X_CLIENT_SECRET = "oSEnTSpZuDCEgwwXayCaH3_AaLp5p1ctLsF1m8c9rAVFHZflq1"
 X_CALLBACK_URL = "https://averix.up.railway.app/x/callback"
 # ===================================================
 
+# ========== DISCORD API CONFIGURATION ==========
+DISCORD_CLIENT_ID = "1458119139695526042"
+DISCORD_CLIENT_SECRET = "9IRYUB6yTFaRQ0Lvcxq3Y8VzsLCEWwXr"
+DISCORD_CALLBACK_URL = "https://averix.up.railway.app/discord/callback"
+DISCORD_AUTH_URL = "https://discord.com/oauth2/authorize"
+DISCORD_TOKEN_URL = "https://discord.com/api/oauth2/token"
+DISCORD_USER_URL = "https://discord.com/api/users/@me"
+# ===============================================
+
 # Storage (simple dictionary - in production use a database)
 NONCES = {}
 USER_DATA = {}
@@ -424,6 +433,39 @@ button.connected { background: #1a1a1f }
     height: 20px;
 }
 
+/* Discord connection styling */
+.discord-connection-btn {
+    background: linear-gradient(135deg, #5865F2, #7289DA);
+    color: white;
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.discord-connection-btn:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+}
+
+.discord-connection-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.discord-icon {
+    width: 20px;
+    height: 20px;
+}
+
 /* Disconnect X button styling */
 .disconnect-x-btn {
     background: linear-gradient(135deg, #ff4757, #ff3838);
@@ -487,6 +529,12 @@ button.connected { background: #1a1a1f }
     font-weight: bold;
     margin-top: 4px;
 }
+
+.discord-username {
+    color: #5865F2;
+    font-weight: bold;
+    margin-top: 4px;
+}
 </style>
 </head>
 
@@ -517,7 +565,7 @@ button.connected { background: #1a1a1f }
     <div class="card">
         <div class="task-progress">
             <div class="progress-circle" id="progressCircle" style="--progress: 0%">
-                <div class="progress-text" id="progressText">0/4</div>
+                <div class="progress-text" id="progressText">0/5</div>
             </div>
             <div class="progress-info">
                 <h3>Task Progress</h3>
@@ -628,6 +676,32 @@ button.connected { background: #1a1a1f }
     </div>
 
     <div class="card">
+        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Connect Discord</h3>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Connect your Discord account to earn 20 AVE.</p>
+        
+        <div id="discordForm">
+            <button class="discord-connection-btn" onclick="connectDiscordAccount()">
+                <svg class="discord-icon" viewBox="0 0 24 24" fill="white">
+                    <path d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.09.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12z"/>
+                </svg>
+                Connect Discord Account
+            </button>
+        </div>
+        
+        <div id="discordCompleted" class="task-completed" style="display: none;">
+            <div class="checkbox-circle">
+                <div class="checkmark">✓</div>
+            </div>
+            <div class="task-details">
+                <div class="task-title">Task Completed</div>
+                <div class="discord-username">Discord Account: <span id="completedDiscord">user#1234</span> • 20 AVE earned</div>
+            </div>
+        </div>
+        
+        <p id="discordStatus" style="margin-top:10px;color:#2cb67d"></p>
+    </div>
+
+    <div class="card">
         <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">
             Daily Check-in 
             <span class="ave-badge">+20 AVE</span>
@@ -712,7 +786,7 @@ button.connected { background: #1a1a1f }
     <div class="card">
         <h3>Stats</h3>
         <p>Referrals: <b id="referralsCount">0</b></p>
-        <p>Tasks completed: <b id="tasksCompletedCount">0/4</b></p>
+        <p>Tasks completed: <b id="tasksCompletedCount">0/5</b></p>
         <p>AVE Earned: <b id="aveEarned">0</b></p>
         <p>Daily streak: <b id="profileDailyStreak">0 days</b></p>
     </div>
@@ -722,6 +796,7 @@ button.connected { background: #1a1a1f }
         <p id="identityUsername">Username: not set</p>
         <p id="identityWallet">Wallet: connected</p>
         <p id="identityX">X (Twitter): Not Connected</p>
+        <p id="identityDiscord">Discord: Not Connected</p>
     </div>
 
     <div class="card">
@@ -895,6 +970,18 @@ function checkCompletedTasks() {
         }
     }
     
+    // Check Discord task
+    const discord = localStorage.getItem("averix_discord_connected");
+    if(discord === "true") {
+        // Show completed Discord task immediately if Discord is already connected
+        const discordUsername = localStorage.getItem("averix_discord_username");
+        document.getElementById('discordForm').style.display = 'none';
+        document.getElementById('discordCompleted').style.display = 'flex';
+        if(discordUsername) {
+            document.getElementById('completedDiscord').textContent = discordUsername;
+        }
+    }
+    
     // Check daily check-in
     const lastCheckin = localStorage.getItem("averix_last_checkin");
     const today = new Date().toDateString();
@@ -1058,6 +1145,11 @@ function connectXAccount() {
     window.location.href = '/x/auth';
 }
 
+function connectDiscordAccount() {
+    // Redirect to Flask backend for Discord OAuth
+    window.location.href = '/discord/auth';
+}
+
 // Function to disconnect X account
 function disconnectXAccount() {
     if (confirm("Are you sure you want to disconnect your X account? This will remove the 20 AVE you earned from this task.")) {
@@ -1206,12 +1298,14 @@ function updateTasksCompleted() {
     const gmail = localStorage.getItem('averix_gmail');
     const xConnected = localStorage.getItem('averix_x_connected') === "true";
     const xFollowed = localStorage.getItem('averix_x_followed') === "true";
+    const discordConnected = localStorage.getItem('averix_discord_connected') === "true";
     
     // For the progress circle: count all one-time tasks
     if (username) completedTasks += 1; // Username task
     if (gmail) completedTasks += 1; // Gmail task
     if (xConnected) completedTasks += 1; // X connection task
     if (xFollowed) completedTasks += 1; // Follow X task
+    if (discordConnected) completedTasks += 1; // Discord connection task
     
     // Calculate AVE earned
     // One-time tasks: 20 AVE each
@@ -1229,7 +1323,7 @@ function updateTasksCompleted() {
     localStorage.setItem('averix_ave_earned', aveEarned.toString());
     
     // Update display
-    document.getElementById('tasksCompletedCount').textContent = completedTasks + "/4";
+    document.getElementById('tasksCompletedCount').textContent = completedTasks + "/5";
     document.getElementById('aveEarned').textContent = aveEarned + " AVE";
     
     return completedTasks;
@@ -1237,14 +1331,14 @@ function updateTasksCompleted() {
 
 function updateProgressCircle() {
     const completedTasks = updateTasksCompleted();
-    // 4 one-time tasks total (username, gmail, x connected, follow x)
-    const progress = (completedTasks / 4) * 100;
+    // 5 one-time tasks total (username, gmail, x connected, follow x, discord)
+    const progress = (completedTasks / 5) * 100;
     
     const progressCircle = document.getElementById('progressCircle');
     const progressText = document.getElementById('progressText');
     
     progressCircle.style.setProperty('--progress', progress + '%');
-    progressText.textContent = completedTasks + "/4";
+    progressText.textContent = completedTasks + "/5";
 }
 
 function loadProfile(){
@@ -1265,6 +1359,13 @@ function loadProfile(){
         document.getElementById('identityX').textContent = "X (Twitter): Not Connected";
         // Hide disconnect X button
         document.getElementById('disconnectXBtn').style.display = 'none';
+    }
+    
+    const discordUsername = localStorage.getItem("averix_discord_username");
+    if (localStorage.getItem("averix_discord_connected") === "true") {
+        document.getElementById('identityDiscord').textContent = "Discord: " + (discordUsername || "user");
+    } else {
+        document.getElementById('identityDiscord').textContent = "Discord: Not Connected";
     }
     
     if(currentAccount){
@@ -1509,6 +1610,110 @@ def x_callback():
         print(f"X OAuth error: {e}")
         return f"Error during X authentication: {str(e)}", 500
 
+# ========== DISCORD OAUTH ROUTES ==========
+
+@app.route("/discord/auth")
+def discord_auth():
+    """Start Discord OAuth flow - redirect user to Discord for authorization"""
+    # Generate state parameter for security
+    state = secrets.token_hex(16)
+    session['discord_state'] = state
+    
+    # Build Discord OAuth URL
+    auth_url = (
+        f"{DISCORD_AUTH_URL}?"
+        f"client_id={DISCORD_CLIENT_ID}&"
+        "response_type=code&"
+        f"redirect_uri={urllib.parse.quote(DISCORD_CALLBACK_URL)}&"
+        f"state={state}&"
+        "scope=identify%20email"
+    )
+    
+    return redirect(auth_url)
+
+@app.route("/discord/callback")
+def discord_callback():
+    """Handle Discord OAuth callback and exchange code for access token"""
+    # Get parameters from callback
+    code = request.args.get('code')
+    state = request.args.get('state')
+    
+    # Verify state parameter
+    if not code or not state or state != session.get('discord_state'):
+        return "Invalid callback parameters", 400
+    
+    # Clear state from session
+    session.pop('discord_state', None)
+    
+    try:
+        # Prepare token request
+        data = {
+            'client_id': DISCORD_CLIENT_ID,
+            'client_secret': DISCORD_CLIENT_SECRET,
+            'grant_type': 'authorization_code',
+            'code': code,
+            'redirect_uri': DISCORD_CALLBACK_URL,
+            'scope': 'identify email'
+        }
+        
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+        
+        # Exchange code for access token
+        response = requests.post(DISCORD_TOKEN_URL, data=data, headers=headers)
+        token_data = response.json()
+        
+        if 'access_token' not in token_data:
+            return "Failed to get access token from Discord", 400
+        
+        access_token = token_data['access_token']
+        
+        # Get user info from Discord
+        user_headers = {
+            'Authorization': f'Bearer {access_token}'
+        }
+        
+        user_response = requests.get(DISCORD_USER_URL, headers=user_headers)
+        user_data = user_response.json()
+        
+        if 'username' not in user_data:
+            return "Failed to get user info from Discord", 400
+        
+        discord_username = user_data['username']
+        discord_discriminator = user_data.get('discriminator', '0')
+        
+        # Format username with discriminator (if available)
+        if discord_discriminator and discord_discriminator != '0':
+            discord_full_username = f"{discord_username}#{discord_discriminator}"
+        else:
+            discord_full_username = discord_username
+        
+        # Return HTML page that will save to localStorage and redirect back
+        return f'''
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Averix - Discord Connection Complete</title>
+            <script>
+                // Save Discord connection to localStorage
+                localStorage.setItem("averix_discord_connected", "true");
+                localStorage.setItem("averix_discord_username", "{discord_full_username}");
+                
+                // Redirect back to Averix app
+                window.location.href = "/";
+            </script>
+        </head>
+        <body>
+            <p>Discord connection successful! Redirecting back to Averix...</p>
+        </body>
+        </html>
+        '''
+        
+    except Exception as e:
+        print(f"Discord OAuth error: {e}")
+        return f"Error during Discord authentication: {str(e)}", 500
+
 @app.route("/nonce", methods=["POST"])
 def nonce():
     data = request.json
@@ -1583,7 +1788,9 @@ def upload_profile_pic():
 if __name__ == "__main__":
     print("Starting Averix Flask app on http://0.0.0.0:5000")
     print("X OAuth Integration: ACTIVE")
-    print(f"Callback URL: {X_CALLBACK_URL}")
+    print(f"X Callback URL: {X_CALLBACK_URL}")
+    print("Discord OAuth Integration: ACTIVE")
+    print(f"Discord Callback URL: {DISCORD_CALLBACK_URL}")
     print("To access from your phone, make sure you're on the same network")
     print("and use your computer's IP address followed by :5000")
     app.run(host="0.0.0.0", port=5000, debug=True)
