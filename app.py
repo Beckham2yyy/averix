@@ -657,7 +657,7 @@ button.connected { background: #1a1a1f }
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="task-username">Username: <span id="completedUsername">Beckham</span> • 20 AVE earned</div>
+                <div class="task-username">Username: <span id="completedUsername">Beckham</span> •</div>
             </div>
         </div>
         
@@ -680,7 +680,7 @@ button.connected { background: #1a1a1f }
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="task-username">Gmail: <span id="completedGmail">example@gmail.com</span> • 20 AVE earned</div>
+                <div class="task-username">Gmail: <span id="completedGmail">example@gmail.com</span> •</div>
             </div>
         </div>
         
@@ -706,7 +706,7 @@ button.connected { background: #1a1a1f }
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="task-username">X Account: <span id="completedX">@user</span> • 20 AVE earned</div>
+                <div class="task-username">X Account: <span id="completedX">@user</span> •</div>
             </div>
         </div>
         
@@ -735,7 +735,7 @@ button.connected { background: #1a1a1f }
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="x-username">Followed: <span id="completedFollowX">@averixapp</span> • 20 AVE earned</div>
+                <div class="x-username">Followed: <span id="completedFollowX">@averixapp</span> •</div>
             </div>
         </div>
         
@@ -761,7 +761,7 @@ button.connected { background: #1a1a1f }
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="discord-username">Discord Account: <span id="completedDiscord">user#1234</span> • 20 AVE earned</div>
+                <div class="discord-username">Discord Account: <span id="completedDiscord">user#1234</span> •</div>
             </div>
         </div>
         
@@ -790,7 +790,7 @@ button.connected { background: #1a1a1f }
             </div>
             <div class="task-details">
                 <div class="task-title">Daily Check-in Completed</div>
-                <div class="task-username">20 AVE earned</div>
+                <div class="task-username"></div>
             </div>
         </div>
         
