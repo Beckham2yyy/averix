@@ -18,7 +18,7 @@ X_CALLBACK_URL = "https://averix.up.railway.app/x/callback"
 # ===================================================
 
 # ========== DISCORD API CONFIGURATION ==========
-DISCORD_CLIENT_ID = "1458119139895526042"
+DISCORD_CLIENT_ID = "1458119139695526042"
 DISCORD_CLIENT_SECRET = "9IRYUB6yTFaRQ0Lvcxq3Y8VzsLCEWwXr"
 DISCORD_CALLBACK_URL = "https://averix.up.railway.app/discord/callback"
 DISCORD_AUTH_URL = "https://discord.com/oauth2/authorize"
@@ -293,6 +293,11 @@ button.connected { background: #1a1a1f }
     font-weight: bold;
     color: #7f5af0;
     margin-bottom: 4px;
+}
+
+.profile-name.gold-username {
+    color: #FFD700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
 }
 
 .profile-wallet {
@@ -1066,7 +1071,6 @@ button.connected { background: #1a1a1f }
         <p>Tasks completed: <b id="tasksCompletedCount">0/5</b></p>
         <p>AVE Earned: <b id="aveEarned">0</b></p>
         <p>Daily streak: <b id="profileDailyStreak">0 days</b></p>
-        <p>Multiplier: <b id="multiplierDisplay">1x</b></p>
     </div>
 
     <div class="card">
@@ -1422,6 +1426,9 @@ function setUsername(){
     // Update profile picture with first letter of username
     updateProfilePic(u)
     
+    // Update username color based on multiplier status
+    updateUsernameColor()
+    
     // Update tasks completed count
     updateTasksCompleted()
     updateProgressCircle()
@@ -1746,8 +1753,23 @@ function loadProfile(){
         profilePic.textContent = '';
     }
     
-    // Load multiplier status
+    // Load multiplier status and update username color
     loadMultiplierStatus();
+    updateUsernameColor();
+}
+
+// Function to update username color based on multiplier status
+function updateUsernameColor() {
+    const hasMultiplier = localStorage.getItem('averix_has_multiplier') === 'true';
+    const profileName = document.getElementById('profileName');
+    
+    if (profileName) {
+        if (hasMultiplier) {
+            profileName.classList.add('gold-username');
+        } else {
+            profileName.classList.remove('gold-username');
+        }
+    }
 }
 
 // Username editing functions
@@ -1776,8 +1798,9 @@ function saveNewUsername() {
     document.getElementById('identityUsername').innerText = "Username: " + newUsername
     document.getElementById('completedUsername').textContent = newUsername
     
-    // Update profile picture
+    // Update profile picture and username color
     updateProfilePic(newUsername)
+    updateUsernameColor()
     
     // Show success message
     document.getElementById('editUsernameStatus').innerText = "Username updated successfully!"
@@ -1923,12 +1946,13 @@ function loadMultiplierStatus() {
     if (hasMultiplier) {
         document.getElementById('ownedBadge').style.display = 'block';
         document.getElementById('buyMultiplierBtn').style.display = 'none';
-        document.getElementById('multiplierDisplay').textContent = '2x';
     } else {
         document.getElementById('ownedBadge').style.display = 'none';
         document.getElementById('buyMultiplierBtn').style.display = 'block';
-        document.getElementById('multiplierDisplay').textContent = '1x';
     }
+    
+    // Update username color based on multiplier status
+    updateUsernameColor();
     
     // Update referral amount based on multiplier
     updateReferralAmount();
@@ -2004,7 +2028,7 @@ async function buyMultiplier() {
             // Success! Save multiplier status
             localStorage.setItem('averix_has_multiplier', 'true');
             loadMultiplierStatus();
-            showPurchaseStatus('2x Multiplier purchased successfully!', 'success');
+            showPurchaseStatus('2x Multiplier purchased successfully! Your username is now GOLD!', 'success');
             
             // Update wallet balance
             setTimeout(() => checkWalletBalance(), 2000);
