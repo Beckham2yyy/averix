@@ -801,7 +801,7 @@ button.connected { background: #1a1a1f }
 <div id="referPage" class="hidden">
     <div class="card highlight">
         <span class="badge">LIVE</span>
-        <h3>$30,000 Referral Contest</h3>
+        <h3>$50,000 Referral Contest</h3>
         <p>Invite verified wallets and climb the leaderboard</p>
     </div>
 
