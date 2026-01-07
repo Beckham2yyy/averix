@@ -439,7 +439,7 @@ button.connected { background: #1a1a1f }
     color: white;
     width: 100%;
     padding: 16px;
-    font-size: 16px;
+    font-size = 16px;
     font-weight: bold;
     margin-top: 12px;
     border: none;
@@ -802,7 +802,7 @@ button.connected { background: #1a1a1f }
     <div class="card highlight">
         <span class="badge">LIVE</span>
         <h3>$50,000 Referral Contest</h3>
-        <p>Invite verified wallets and climb the leaderboard</p>
+        <p>Invite verified wallets and earn 30 AVE</p>
     </div>
 
     <div class="card">
