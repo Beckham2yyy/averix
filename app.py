@@ -825,7 +825,7 @@ button.connected { background: #1a1a1f }
 <div id="multPage" class="hidden">
     <div class="card">
         <h3>Multipliers</h3>
-        p>Earn AVE by completing tasks</p>
+        <p>Buy Multipliers to boost your referral rewards</p>
     </div>
 </div>
 
