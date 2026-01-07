@@ -6,7 +6,6 @@ from flask import Flask, request, jsonify, render_template_string, session, redi
 import json
 import urllib.parse
 import base64
-import time
 
 app = Flask(__name__)
 app.secret_key = "termux-dev-secret-123"
@@ -18,7 +17,7 @@ X_CALLBACK_URL = "https://averix.up.railway.app/x/callback"
 # ===================================================
 
 # ========== DISCORD API CONFIGURATION ==========
-DISCORD_CLIENT_ID = "1458119139895526042"
+DISCORD_CLIENT_ID = "1458119139695526042"
 DISCORD_CLIENT_SECRET = "9IRYUB6yTFaRQ0Lvcxq3Y8VzsLCEWwXr"
 DISCORD_CALLBACK_URL = "https://averix.up.railway.app/discord/callback"
 DISCORD_AUTH_URL = "https://discord.com/oauth2/authorize"
@@ -26,18 +25,11 @@ DISCORD_TOKEN_URL = "https://discord.com/api/oauth2/token"
 DISCORD_USER_URL = "https://discord.com/api/users/@me"
 # ===============================================
 
-# ========== PAYMENT CONFIGURATION ==========
-ALCHEMY_ENDPOINT = "https://solana-mainnet.g.alchemy.com/v2/RWQPlYVPXc7j6x8Fmlair"
-COINMARKETCAP_API_KEY = "6881c6f6d56b4cf58727255319ec235e"
-RECEIVER_WALLET = "9e2Bho4YhYV4iTL2Y4hGe3QXXms2eoq2JajtJeKmMetN"
-# ===========================================
-
 # Storage (simple dictionary - in production use a database)
 NONCES = {}
 USER_DATA = {}
 DAILY_CHECKINS = {}  # Store last check-in date by address
 PROFILE_PICS = {}    # Store profile picture data
-MULTIPLIER_PURCHASES = {}  # Store multiplier purchases
 
 # Create uploads directory
 os.makedirs('static/uploads', exist_ok=True)
@@ -365,7 +357,7 @@ button.connected { background: #1a1a1f }
 
 .upload-status {
     margin-top: 10px;
-    font-size: 14px;
+    font-size = 14px;
     color: #2cb67d;
 }
 
@@ -400,7 +392,7 @@ button.connected { background: #1a1a1f }
 .progress-text {
     position: absolute;
     font-weight: bold;
-    font-size: 14px;
+    font-size = 14px;
     color: #7f5af0;
 }
 
@@ -447,7 +439,7 @@ button.connected { background: #1a1a1f }
     color: white;
     width: 100%;
     padding: 16px;
-    font-size: 16px;
+    font-size = 16px;
     font-weight: bold;
     margin-top: 12px;
     border: none;
@@ -609,164 +601,6 @@ button.connected { background: #1a1a1f }
 
 .advanced-toggle-btn.rotated .advanced-arrow {
     transform: rotate(180deg);
-}
-
-/* Multiplier purchase styling */
-.multiplier-card {
-    background: linear-gradient(135deg, #1a1a2e, #16213e);
-    border-radius: 18px;
-    padding: 22px;
-    margin: 16px 20px;
-    border: 2px solid #7f5af0;
-}
-
-.multiplier-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-}
-
-.multiplier-icon {
-    font-size: 28px;
-    font-weight: bold;
-    background: linear-gradient(135deg, #ff8c00, #ff5e00);
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.multiplier-title {
-    font-size: 22px;
-    font-weight: bold;
-}
-
-.multiplier-price {
-    color: #2cb67d;
-    font-weight: bold;
-    font-size: 20px;
-    margin: 10px 0;
-}
-
-.multiplier-desc {
-    color: #bdbdbd;
-    margin-bottom: 20px;
-    line-height: 1.5;
-}
-
-.multiplier-benefits {
-    background: rgba(127, 90, 240, 0.1);
-    border-radius: 12px;
-    padding: 16px;
-    margin: 16px 0;
-}
-
-.benefit-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-
-.benefit-check {
-    color: #2cb67d;
-    font-weight: bold;
-}
-
-.buy-multiplier-btn {
-    background: linear-gradient(135deg, #ff8c00, #ff5e00);
-    color: white;
-    width: 100%;
-    padding: 18px;
-    font-size: 18px;
-    font-weight: bold;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.buy-multiplier-btn:hover {
-    transform: translateY(-2px);
-    transition: transform 0.2s;
-    box-shadow: 0 8px 20px rgba(255, 140, 0, 0.3);
-}
-
-.buy-multiplier-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.owned-badge {
-    background: linear-gradient(135deg, #2cb67d, #1e9c6d);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 12px;
-    font-weight: bold;
-    text-align: center;
-    margin-top: 16px;
-}
-
-.sol-amount {
-    font-size: 16px;
-    color: #7f5af0;
-    margin-top: 10px;
-    text-align: center;
-}
-
-.purchase-status {
-    margin-top: 15px;
-    padding: 12px;
-    border-radius: 10px;
-    text-align: center;
-    font-weight: bold;
-}
-
-.purchase-success {
-    background: rgba(44, 182, 125, 0.2);
-    color: #2cb67d;
-    border: 1px solid #2cb67d;
-}
-
-.purchase-error {
-    background: rgba(255, 71, 87, 0.2);
-    color: #ff6b6b;
-    border: 1px solid #ff6b6b;
-}
-
-.loading-spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid rgba(255,255,255,.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-.wallet-balance {
-    background: rgba(127, 90, 240, 0.1);
-    border-radius: 10px;
-    padding: 12px;
-    margin: 10px 0;
-    display: flex;
-    justify-content: space-between;
-}
-
-.wallet-balance span {
-    color: #7f5af0;
-    font-weight: bold;
 }
 </style>
 </head>
@@ -968,7 +802,7 @@ button.connected { background: #1a1a1f }
     <div class="card highlight">
         <span class="badge">LIVE</span>
         <h3>$50,000 Referral Contest</h3>
-        <p>Invite verified wallets and earn <span id="referralAmount">30</span> AVE</p>
+        <p>Invite verified wallets and earn 30 AVE</p>
     </div>
 
     <div class="card">
@@ -992,50 +826,6 @@ button.connected { background: #1a1a1f }
     <div class="card">
         <h3>Multipliers</h3>
         <p>Buy Multipliers to boost your referral rewards</p>
-    </div>
-
-    <div class="multiplier-card">
-        <div class="multiplier-header">
-            <div class="multiplier-icon">2x</div>
-            <div class="multiplier-title">2x Referral Multiplier</div>
-        </div>
-        
-        <div class="multiplier-price" id="solPriceDisplay">Price: $1.00</div>
-        <div class="sol-amount" id="solAmountDisplay">Loading SOL amount...</div>
-        
-        <div class="multiplier-desc">
-            Permanently double your referral earnings! After purchase, you'll earn 60 AVE per referral instead of 30.
-        </div>
-        
-        <div class="multiplier-benefits">
-            <div class="benefit-item">
-                <span class="benefit-check">✓</span>
-                <span>Double referral rewards (60 AVE per user)</span>
-            </div>
-            <div class="benefit-item">
-                <span class="benefit-check">✓</span>
-                <span>One-time payment, permanent benefit</span>
-            </div>
-            <div class="benefit-item">
-                <span class="benefit-check">✓</span>
-                <span>Supports the Averix ecosystem</span>
-            </div>
-        </div>
-        
-        <div class="wallet-balance">
-            <span>Your Wallet Balance:</span>
-            <span id="walletBalance">Checking...</span>
-        </div>
-        
-        <button id="buyMultiplierBtn" class="buy-multiplier-btn" onclick="buyMultiplier()">
-            Buy 2x Multiplier for $1
-        </button>
-        
-        <div id="ownedBadge" class="owned-badge" style="display: none;">
-            ✓ You own the 2x Multiplier!
-        </div>
-        
-        <div id="purchaseStatus" class="purchase-status"></div>
     </div>
 </div>
 
@@ -1066,7 +856,6 @@ button.connected { background: #1a1a1f }
         <p>Tasks completed: <b id="tasksCompletedCount">0/5</b></p>
         <p>AVE Earned: <b id="aveEarned">0</b></p>
         <p>Daily streak: <b id="profileDailyStreak">0 days</b></p>
-        <p>Multiplier: <b id="multiplierDisplay">1x</b></p>
     </div>
 
     <div class="card">
@@ -1158,9 +947,6 @@ button.connected { background: #1a1a1f }
 <script>
 let currentAccount = null
 let isEditingUsername = false
-let currentSolPrice = 0
-let requiredSolAmount = 0
-let walletBalance = 0
 
 // Check and display completed tasks when page loads
 document.addEventListener('DOMContentLoaded', function() {
@@ -1168,11 +954,6 @@ document.addEventListener('DOMContentLoaded', function() {
     checkCompletedTasks();
     updateDailyCheckinStatus();
     updateFollowXButton();
-    loadMultiplierStatus();
-    updateReferralAmount();
-    
-    // Load SOL price when multiplier page might be shown
-    getSolPrice();
 });
 
 // Check if wallet was previously connected and if it's still valid (within 1 hour)
@@ -1357,15 +1138,10 @@ function switchTab(tab, el) {
         checkCompletedTasks();
         updateFollowXButton();
     }
-    if(tab==="refer") {
-        referPage.classList.remove("hidden")
-        updateReferralAmount();
-    }
+    if(tab==="refer") referPage.classList.remove("hidden")
     if(tab==="mult") {
         multPage.classList.remove("hidden")
-        loadMultiplierStatus();
-        getSolPrice();
-        checkWalletBalance();
+        // No longer need to update AVE display since we removed it
     }
     if(tab==="profile"){
         profilePage.classList.remove("hidden")
@@ -1388,12 +1164,6 @@ function unlock(a){
     // Check for completed tasks after wallet connects
     checkCompletedTasks();
     updateFollowXButton();
-    loadMultiplierStatus();
-    updateReferralAmount();
-    
-    // Get SOL price and check balance
-    getSolPrice();
-    checkWalletBalance();
 }
 
 function disconnectWallet(){
@@ -1745,9 +1515,6 @@ function loadProfile(){
         profilePic.style.backgroundImage = `url('${customPic}')`;
         profilePic.textContent = '';
     }
-    
-    // Load multiplier status
-    loadMultiplierStatus();
 }
 
 // Username editing functions
@@ -1856,218 +1623,6 @@ async function connectWallet(){
     await window.solana.signMessage(new TextEncoder().encode(message), "utf8");
     await fetch("/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({address:publicKey})})
     unlock(publicKey)
-}
-
-// ========== MULTIPLIER FUNCTIONS ==========
-
-async function getSolPrice() {
-    try {
-        const response = await fetch('/get_sol_price');
-        const data = await response.json();
-        
-        if (data.success) {
-            currentSolPrice = data.sol_price;
-            requiredSolAmount = data.required_sol;
-            
-            // Update display
-            document.getElementById('solPriceDisplay').textContent = 'Price: $1.00';
-            document.getElementById('solAmountDisplay').textContent = `≈ ${requiredSolAmount.toFixed(4)} SOL`;
-            
-            return true;
-        } else {
-            console.error('Failed to get SOL price:', data.error);
-            document.getElementById('solAmountDisplay').textContent = 'Error loading price';
-            return false;
-        }
-    } catch (error) {
-        console.error('Error getting SOL price:', error);
-        document.getElementById('solAmountDisplay').textContent = 'Error loading price';
-        return false;
-    }
-}
-
-async function checkWalletBalance() {
-    if (!currentAccount) return;
-    
-    try {
-        const response = await fetch('/check_balance', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ address: currentAccount })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            walletBalance = data.balance;
-            document.getElementById('walletBalance').textContent = `${walletBalance.toFixed(4)} SOL`;
-            
-            // Update button state based on balance
-            const buyBtn = document.getElementById('buyMultiplierBtn');
-            if (walletBalance < requiredSolAmount) {
-                buyBtn.disabled = true;
-                buyBtn.innerHTML = 'Insufficient SOL Balance';
-            } else {
-                buyBtn.disabled = false;
-                buyBtn.innerHTML = 'Buy 2x Multiplier for $1';
-            }
-        }
-    } catch (error) {
-        console.error('Error checking balance:', error);
-    }
-}
-
-function loadMultiplierStatus() {
-    const hasMultiplier = localStorage.getItem('averix_has_multiplier') === 'true';
-    
-    if (hasMultiplier) {
-        document.getElementById('ownedBadge').style.display = 'block';
-        document.getElementById('buyMultiplierBtn').style.display = 'none';
-        document.getElementById('multiplierDisplay').textContent = '2x';
-    } else {
-        document.getElementById('ownedBadge').style.display = 'none';
-        document.getElementById('buyMultiplierBtn').style.display = 'block';
-        document.getElementById('multiplierDisplay').textContent = '1x';
-    }
-    
-    // Update referral amount based on multiplier
-    updateReferralAmount();
-}
-
-function updateReferralAmount() {
-    const hasMultiplier = localStorage.getItem('averix_has_multiplier') === 'true';
-    const referralAmount = hasMultiplier ? 60 : 30;
-    document.getElementById('referralAmount').textContent = referralAmount;
-}
-
-async function buyMultiplier() {
-    if (!currentAccount) {
-        showPurchaseStatus('Please connect your wallet first', 'error');
-        return;
-    }
-    
-    if (walletBalance < requiredSolAmount) {
-        showPurchaseStatus('Insufficient SOL balance', 'error');
-        return;
-    }
-    
-    const buyBtn = document.getElementById('buyMultiplierBtn');
-    const originalText = buyBtn.innerHTML;
-    buyBtn.disabled = true;
-    buyBtn.innerHTML = '<div class="loading-spinner"></div> Processing...';
-    
-    try {
-        // First, get the transaction data from server
-        const response = await fetch('/create_multiplier_transaction', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ 
-                address: currentAccount,
-                sol_amount: requiredSolAmount
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (!data.success) {
-            throw new Error(data.error || 'Failed to create transaction');
-        }
-        
-        // Parse the transaction
-        const transaction = data.transaction;
-        
-        // Sign and send the transaction using the wallet
-        const signedTransaction = await window.solana.signTransaction(transaction);
-        const signature = await window.solana.sendTransaction(signedTransaction, {
-            skipPreflight: false,
-            maxRetries: 3
-        });
-        
-        showPurchaseStatus('Transaction sent! Confirming...', 'success');
-        
-        // Wait for confirmation
-        await waitForTransactionConfirmation(signature);
-        
-        // Verify the purchase with the server
-        const verifyResponse = await fetch('/verify_multiplier_purchase', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ 
-                address: currentAccount,
-                signature: signature
-            })
-        });
-        
-        const verifyData = await verifyResponse.json();
-        
-        if (verifyData.success) {
-            // Success! Save multiplier status
-            localStorage.setItem('averix_has_multiplier', 'true');
-            loadMultiplierStatus();
-            showPurchaseStatus('2x Multiplier purchased successfully!', 'success');
-            
-            // Update wallet balance
-            setTimeout(() => checkWalletBalance(), 2000);
-        } else {
-            throw new Error(verifyData.error || 'Purchase verification failed');
-        }
-        
-    } catch (error) {
-        console.error('Purchase error:', error);
-        showPurchaseStatus('Error: ' + error.message, 'error');
-    } finally {
-        buyBtn.disabled = false;
-        buyBtn.innerHTML = originalText;
-    }
-}
-
-async function waitForTransactionConfirmation(signature) {
-    // Wait a moment for transaction to be processed
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Check confirmation with server
-    const maxAttempts = 10;
-    for (let i = 0; i < maxAttempts; i++) {
-        try {
-            const response = await fetch('/check_transaction', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ signature: signature })
-            });
-            
-            const data = await response.json();
-            
-            if (data.confirmed) {
-                return true;
-            }
-            
-            if (data.error) {
-                throw new Error(data.error);
-            }
-            
-            // Wait before retrying
-            await new Promise(resolve => setTimeout(resolve, 2000));
-        } catch (error) {
-            console.error('Confirmation check error:', error);
-        }
-    }
-    
-    throw new Error('Transaction confirmation timeout');
-}
-
-function showPurchaseStatus(message, type) {
-    const statusDiv = document.getElementById('purchaseStatus');
-    statusDiv.textContent = message;
-    statusDiv.className = 'purchase-status';
-    statusDiv.classList.add(type === 'success' ? 'purchase-success' : 'purchase-error');
-    statusDiv.style.display = 'block';
-    
-    // Clear status after 5 seconds
-    if (type === 'success') {
-        setTimeout(() => {
-            statusDiv.style.display = 'none';
-        }, 5000);
-    }
 }
 </script>
 
@@ -2337,8 +1892,7 @@ def verify():
             "email": "",
             "daily_streak": 0,
             "last_checkin": None,
-            "tasks_completed": 0,
-            "has_multiplier": address in MULTIPLIER_PURCHASES
+            "tasks_completed": 0
         }
     
     return jsonify({
@@ -2362,190 +1916,12 @@ def upload_profile_pic():
         "message": "Profile picture uploaded successfully"
     })
 
-# ========== MULTIPLIER PURCHASE ROUTES ==========
-
-def get_sol_price():
-    """Get current SOL price from CoinMarketCap"""
-    try:
-        url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest"
-        parameters = {
-            'symbol': 'SOL',
-            'convert': 'USD'
-        }
-        headers = {
-            'Accepts': 'application/json',
-            'X-CMC_PRO_API_KEY': COINMARKETCAP_API_KEY,
-        }
-        
-        response = requests.get(url, headers=headers, params=parameters)
-        data = response.json()
-        
-        if 'data' in data and 'SOL' in data['data']:
-            price = data['data']['SOL']['quote']['USD']['price']
-            return price
-        else:
-            # Fallback price if API fails
-            return 150.0  # Approximate SOL price
-    except Exception as e:
-        print(f"Error getting SOL price: {e}")
-        return 150.0  # Fallback price
-
-@app.route("/get_sol_price", methods=["GET"])
-def get_sol_price_route():
-    """API endpoint to get current SOL price and required amount for $1"""
-    try:
-        sol_price = get_sol_price()
-        required_sol = 1.0 / sol_price  # SOL needed for $1
-        
-        return jsonify({
-            "success": True,
-            "sol_price": sol_price,
-            "required_sol": required_sol
-        })
-    except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        })
-
-@app.route("/check_balance", methods=["POST"])
-def check_balance():
-    """Check user's SOL balance using Alchemy"""
-    try:
-        data = request.json
-        address = data.get("address")
-        
-        if not address:
-            return jsonify({"success": False, "error": "No address provided"})
-        
-        # Use Alchemy RPC to get balance
-        payload = {
-            "jsonrpc": "2.0",
-            "id": 1,
-            "method": "getBalance",
-            "params": [address]
-        }
-        
-        response = requests.post(ALCHEMY_ENDPOINT, json=payload)
-        result = response.json()
-        
-        if 'result' in result:
-            # Convert lamports to SOL (1 SOL = 1,000,000,000 lamports)
-            lamports = result['result']['value']
-            sol_balance = lamports / 1_000_000_000
-            
-            return jsonify({
-                "success": True,
-                "balance": sol_balance
-            })
-        else:
-            return jsonify({"success": False, "error": "Failed to get balance"})
-            
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
-
-@app.route("/create_multiplier_transaction", methods=["POST"])
-def create_multiplier_transaction():
-    """Create a SOL transfer transaction for multiplier purchase"""
-    try:
-        data = request.json
-        user_address = data.get("address")
-        sol_amount = data.get("sol_amount", 0.0067)  # Default approximate value
-        
-        if not user_address:
-            return jsonify({"success": False, "error": "No address provided"})
-        
-        # Convert SOL to lamports
-        lamports = int(sol_amount * 1_000_000_000)
-        
-        # Create a simple transfer instruction
-        # Note: In production, you'd create a proper transaction
-        # For now, we'll return a mock transaction that the frontend will use
-        # with the wallet's signTransaction method
-        
-        transaction_data = {
-            "type": "transfer",
-            "from": user_address,
-            "to": RECEIVER_WALLET,
-            "lamports": lamports,
-            "memo": f"Buy 2x Multiplier - Averix - {int(time.time())}"
-        }
-        
-        return jsonify({
-            "success": True,
-            "transaction": transaction_data,
-            "message": "Sign this transaction to purchase the 2x multiplier"
-        })
-        
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
-
-@app.route("/verify_multiplier_purchase", methods=["POST"])
-def verify_multiplier_purchase():
-    """Verify that a multiplier purchase transaction was successful"""
-    try:
-        data = request.json
-        user_address = data.get("address", "").lower()
-        signature = data.get("signature")
-        
-        if not user_address or not signature:
-            return jsonify({"success": False, "error": "Missing data"})
-        
-        # In production, you would:
-        # 1. Use Alchemy to verify the transaction
-        # 2. Check that the transaction transferred the correct amount
-        # 3. Confirm it was sent to the correct wallet
-        
-        # For simplicity, we'll simulate verification
-        # Check if transaction exists (mock)
-        if signature and len(signature) > 10:
-            # Mark user as having purchased multiplier
-            MULTIPLIER_PURCHASES[user_address] = {
-                "purchased_at": datetime.now().isoformat(),
-                "multiplier": 2
-            }
-            
-            if user_address in USER_DATA:
-                USER_DATA[user_address]["has_multiplier"] = True
-            
-            return jsonify({
-                "success": True,
-                "message": "Multiplier purchase verified successfully"
-            })
-        else:
-            return jsonify({"success": False, "error": "Invalid transaction"})
-            
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
-
-@app.route("/check_transaction", methods=["POST"])
-def check_transaction():
-    """Check if a transaction is confirmed"""
-    try:
-        data = request.json
-        signature = data.get("signature")
-        
-        if not signature:
-            return jsonify({"success": False, "error": "No signature provided"})
-        
-        # In production, use Alchemy to check transaction status
-        # For now, simulate confirmation after a short delay
-        return jsonify({
-            "success": True,
-            "confirmed": True  # Simulate confirmation
-        })
-        
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
-
 if __name__ == "__main__":
     print("Starting Averix Flask app on http://0.0.0.0:5000")
     print("X OAuth Integration: ACTIVE")
     print(f"X Callback URL: {X_CALLBACK_URL}")
     print("Discord OAuth Integration: ACTIVE")
     print(f"Discord Callback URL: {DISCORD_CALLBACK_URL}")
-    print("Multiplier Purchase System: ACTIVE")
-    print(f"Receiver Wallet: {RECEIVER_WALLET}")
     print("To access from your phone, make sure you're on the same network")
     print("and use your computer's IP address followed by :5000")
     app.run(host="0.0.0.0", port=5000, debug=True)
