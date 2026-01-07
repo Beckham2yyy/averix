@@ -6,6 +6,16 @@ from flask import Flask, request, jsonify, render_template_string, session, redi
 import json
 import urllib.parse
 import base64
+import asyncio
+from solders.keypair import Keypair
+from solders.pubkey import Pubkey
+from solders.system_program import TransferParams, transfer
+from solana.rpc.api import Client
+from solana.transaction import Transaction
+from solders.message import MessageV0
+from solana.rpc.commitment import Confirmed
+from solders.signature import Signature
+import base58
 
 app = Flask(__name__)
 app.secret_key = "termux-dev-secret-123"
@@ -25,11 +35,18 @@ DISCORD_TOKEN_URL = "https://discord.com/api/oauth2/token"
 DISCORD_USER_URL = "https://discord.com/api/users/@me"
 # ===============================================
 
+# ========== SOLANA CONFIGURATION ==========
+SOLANA_RPC_URL = "https://solana-mainnet.g.alchemy.com/v2/RWQPlYVPXc7j6x8Fmlair"
+COINMARKETCAP_API_KEY = "6881c6f6d56b4cf58727255319ec235e"
+PROJECT_WALLET = "9e2Bho4YhYV4iTL2Y4hGe3QXXms2eoq2JajtJeKmMetN"
+# ==========================================
+
 # Storage (simple dictionary - in production use a database)
 NONCES = {}
 USER_DATA = {}
 DAILY_CHECKINS = {}  # Store last check-in date by address
 PROFILE_PICS = {}    # Store profile picture data
+MULTIPLIER_PURCHASES = {}  # Store multiplier purchases
 
 # Create uploads directory
 os.makedirs('static/uploads', exist_ok=True)
@@ -357,7 +374,7 @@ button.connected { background: #1a1a1f }
 
 .upload-status {
     margin-top: 10px;
-    font-size = 14px;
+    font-size: 14px;
     color: #2cb67d;
 }
 
@@ -392,7 +409,7 @@ button.connected { background: #1a1a1f }
 .progress-text {
     position: absolute;
     font-weight: bold;
-    font-size = 14px;
+    font-size: 14px;
     color: #7f5af0;
 }
 
@@ -439,7 +456,7 @@ button.connected { background: #1a1a1f }
     color: white;
     width: 100%;
     padding: 16px;
-    font-size = 16px;
+    font-size: 16px;
     font-weight: bold;
     margin-top: 12px;
     border: none;
@@ -601,6 +618,102 @@ button.connected { background: #1a1a1f }
 
 .advanced-toggle-btn.rotated .advanced-arrow {
     transform: rotate(180deg);
+}
+
+/* Multiplier page styling */
+.multiplier-card {
+    border: 2px solid #7f5af0;
+    background: linear-gradient(135deg, rgba(127, 90, 240, 0.1), rgba(44, 182, 125, 0.1));
+}
+
+.multiplier-badge {
+    background: linear-gradient(135deg, #ff8c00, #ff5e00);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    display: inline-block;
+    margin: 10px 0;
+}
+
+.price-tag {
+    font-size: 24px;
+    font-weight: bold;
+    color: #7f5af0;
+    margin: 10px 0;
+}
+
+.benefit-list {
+    margin: 15px 0;
+    padding-left: 20px;
+}
+
+.benefit-list li {
+    margin: 8px 0;
+    color: #bdbdbd;
+}
+
+.benefit-list li strong {
+    color: #2cb67d;
+}
+
+.sol-amount {
+    background: rgba(127, 90, 240, 0.2);
+    padding: 10px;
+    border-radius: 10px;
+    margin: 15px 0;
+    text-align: center;
+    font-weight: bold;
+}
+
+.purchase-success {
+    background: rgba(44, 182, 125, 0.1);
+    border: 2px solid #2cb67d;
+    padding: 15px;
+    border-radius: 12px;
+    margin: 15px 0;
+    text-align: center;
+}
+
+.purchase-success h4 {
+    color: #2cb67d;
+    margin: 0;
+}
+
+.reward-badge {
+    background: linear-gradient(135deg, #7f5af0, #2cb67d);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+.status-message {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.status-success {
+    background: rgba(44, 182, 125, 0.1);
+    color: #2cb67d;
+    border: 1px solid #2cb67d;
+}
+
+.status-error {
+    background: rgba(255, 71, 87, 0.1);
+    color: #ff6b6b;
+    border: 1px solid #ff6b6b;
+}
+
+.status-info {
+    background: rgba(127, 90, 240, 0.1);
+    color: #7f5af0;
+    border: 1px solid #7f5af0;
 }
 </style>
 </head>
@@ -802,7 +915,7 @@ button.connected { background: #1a1a1f }
     <div class="card highlight">
         <span class="badge">LIVE</span>
         <h3>$50,000 Referral Contest</h3>
-        <p>Invite verified wallets and earn 30 AVE</p>
+        <p>Invite verified wallets and earn <span id="referralReward">30</span> AVE per referral</p>
     </div>
 
     <div class="card">
@@ -826,6 +939,46 @@ button.connected { background: #1a1a1f }
     <div class="card">
         <h3>Multipliers</h3>
         <p>Buy Multipliers to boost your referral rewards</p>
+    </div>
+
+    <div class="card multiplier-card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+            <h3 style="margin: 0; color: #7f5af0;">2X Multiplier</h3>
+            <span class="multiplier-badge">PERMANENT</span>
+        </div>
+        
+        <div class="price-tag">$1.00 USD</div>
+        
+        <div class="sol-amount" id="solAmountContainer">
+            <p>Calculating SOL amount...</p>
+        </div>
+        
+        <div class="benefit-list">
+            <p><strong>Benefits:</strong></p>
+            <ul>
+                <li>Double your referral rewards from <strong>30 AVE</strong> to <strong>60 AVE</strong> per user</li>
+                <li>Permanent - never expires</li>
+                <li>Applied immediately after purchase</li>
+            </ul>
+        </div>
+        
+        <div id="multiplierStatusMessage" class="status-message"></div>
+        
+        <div id="buyMultiplierSection">
+            <button id="buy2xBtn" style="width: 100%; padding: 16px; font-size: 16px; font-weight: bold;"
+                    onclick="buy2xMultiplier()">
+                Buy 2X Multiplier
+            </button>
+            <p style="text-align: center; margin-top: 10px; color: #bdbdbd; font-size: 14px;">
+                You'll be prompted to sign the transaction in your wallet
+            </p>
+        </div>
+        
+        <div id="alreadyPurchased" class="purchase-success" style="display: none;">
+            <h4>✓ 2X Multiplier Active</h4>
+            <p>Your referral rewards are now <strong>60 AVE</strong> per user</p>
+            <p>Thank you for your purchase!</p>
+        </div>
     </div>
 </div>
 
@@ -856,6 +1009,7 @@ button.connected { background: #1a1a1f }
         <p>Tasks completed: <b id="tasksCompletedCount">0/5</b></p>
         <p>AVE Earned: <b id="aveEarned">0</b></p>
         <p>Daily streak: <b id="profileDailyStreak">0 days</b></p>
+        <p>Multiplier: <b id="multiplierStatus">1x</b> <span id="multiplierBadge" class="reward-badge" style="display: none;">2x ACTIVE</span></p>
     </div>
 
     <div class="card">
@@ -947,6 +1101,7 @@ button.connected { background: #1a1a1f }
 <script>
 let currentAccount = null
 let isEditingUsername = false
+let currentSolPrice = null
 
 // Check and display completed tasks when page loads
 document.addEventListener('DOMContentLoaded', function() {
@@ -954,6 +1109,7 @@ document.addEventListener('DOMContentLoaded', function() {
     checkCompletedTasks();
     updateDailyCheckinStatus();
     updateFollowXButton();
+    loadSolPrice();
 });
 
 // Check if wallet was previously connected and if it's still valid (within 1 hour)
@@ -1076,6 +1232,9 @@ function checkCompletedTasks() {
     // Update tasks completed count
     updateTasksCompleted();
     updateProgressCircle();
+    
+    // Check multiplier purchase
+    checkMultiplierStatus();
 }
 
 function updateDailyCheckinStatus() {
@@ -1123,6 +1282,195 @@ function updateFollowXButton() {
     }
 }
 
+async function loadSolPrice() {
+    try {
+        const response = await fetch('/sol_price');
+        const data = await response.json();
+        if (data.ok && data.price) {
+            currentSolPrice = data.price;
+            // Calculate and display SOL amount for $1
+            const solAmount = 1 / data.price;
+            document.getElementById('solAmountContainer').innerHTML = `
+                <p>≈ ${solAmount.toFixed(6)} SOL</p>
+                <p style="font-size: 12px; color: #bdbdbd; margin-top: 5px;">Based on current price: $${data.price.toFixed(2)} per SOL</p>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading SOL price:', error);
+        document.getElementById('solAmountContainer').innerHTML = `
+            <p style="color: #ff6b6b;">Error loading SOL price</p>
+        `;
+    }
+}
+
+function checkMultiplierStatus() {
+    const hasMultiplier = localStorage.getItem("averix_2x_multiplier") === "true";
+    
+    if (hasMultiplier) {
+        // Show already purchased message
+        document.getElementById('buyMultiplierSection').style.display = 'none';
+        document.getElementById('alreadyPurchased').style.display = 'block';
+        
+        // Update referral page
+        document.getElementById('referralReward').textContent = '60';
+        
+        // Update profile page
+        document.getElementById('multiplierStatus').textContent = '2x';
+        document.getElementById('multiplierBadge').style.display = 'inline-block';
+    } else {
+        // Show purchase section
+        document.getElementById('buyMultiplierSection').style.display = 'block';
+        document.getElementById('alreadyPurchased').style.display = 'none';
+        
+        // Update referral page
+        document.getElementById('referralReward').textContent = '30';
+        
+        // Update profile page
+        document.getElementById('multiplierStatus').textContent = '1x';
+        document.getElementById('multiplierBadge').style.display = 'none';
+    }
+}
+
+async function buy2xMultiplier() {
+    if (!currentAccount) {
+        showMultiplierStatus("Please connect your wallet first", "error");
+        return;
+    }
+    
+    if (!currentSolPrice) {
+        showMultiplierStatus("Loading SOL price... Please try again", "error");
+        return;
+    }
+    
+    // Calculate SOL amount for $1
+    const solAmount = 1 / currentSolPrice;
+    const solAmountLamports = Math.floor(solAmount * 1e9); // Convert to lamports (1 SOL = 1e9 lamports)
+    
+    showMultiplierStatus("Preparing transaction...", "info");
+    
+    try {
+        // Check user's SOL balance
+        const balanceResponse = await fetch('/check_balance', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                address: currentAccount,
+                requiredLamports: solAmountLamports
+            })
+        });
+        
+        const balanceData = await balanceResponse.json();
+        
+        if (!balanceData.ok) {
+            showMultiplierStatus("Insufficient SOL balance. You need at least $" + (solAmount * currentSolPrice).toFixed(2) + " worth of SOL", "error");
+            return;
+        }
+        
+        // Create transaction
+        showMultiplierStatus("Creating transaction... Please sign in your wallet", "info");
+        
+        const transactionResponse = await fetch('/create_multiplier_transaction', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                address: currentAccount,
+                solAmount: solAmount
+            })
+        });
+        
+        const transactionData = await transactionResponse.json();
+        
+        if (!transactionData.ok) {
+            showMultiplierStatus("Error creating transaction: " + transactionData.error, "error");
+            return;
+        }
+        
+        // Get transaction from response
+        const transaction = transactionData.transaction;
+        
+        // Sign and send transaction using user's wallet
+        const { publicKey, signTransaction } = window.solana;
+        
+        // Deserialize transaction
+        const transactionObj = new Uint8Array(transaction);
+        
+        // Sign transaction
+        const signedTransaction = await signTransaction(transactionObj);
+        
+        // Send transaction
+        showMultiplierStatus("Sending transaction...", "info");
+        
+        const sendResponse = await fetch('/send_transaction', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                signedTransaction: Array.from(signedTransaction.signature)
+            })
+        });
+        
+        const sendData = await sendResponse.json();
+        
+        if (sendData.ok) {
+            // Success! Save multiplier status
+            localStorage.setItem("averix_2x_multiplier", "true");
+            
+            // Update UI
+            checkMultiplierStatus();
+            
+            showMultiplierStatus("✓ 2X Multiplier purchased successfully! Your referral rewards are now 60 AVE per user", "success");
+            
+            // Also save to server
+            await fetch('/update_multiplier', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    address: currentAccount,
+                    hasMultiplier: true
+                })
+            });
+            
+        } else {
+            showMultiplierStatus("Transaction failed: " + (sendData.error || "Unknown error"), "error");
+        }
+        
+    } catch (error) {
+        console.error('Error buying multiplier:', error);
+        showMultiplierStatus("Error: " + error.message, "error");
+    }
+}
+
+function showMultiplierStatus(message, type) {
+    const statusDiv = document.getElementById('multiplierStatusMessage');
+    statusDiv.textContent = message;
+    statusDiv.className = 'status-message';
+    
+    if (type === 'success') {
+        statusDiv.classList.add('status-success');
+    } else if (type === 'error') {
+        statusDiv.classList.add('status-error');
+    } else if (type === 'info') {
+        statusDiv.classList.add('status-info');
+    }
+    
+    // Clear message after 5 seconds if it's info
+    if (type === 'info') {
+        setTimeout(() => {
+            if (statusDiv.textContent === message) {
+                statusDiv.textContent = '';
+                statusDiv.className = 'status-message';
+            }
+        }, 5000);
+    }
+}
+
 function switchTab(tab, el) {
     document.querySelectorAll(".bottom-item").forEach(i=>i.classList.remove("active"))
     el.classList.add("active")
@@ -1138,10 +1486,17 @@ function switchTab(tab, el) {
         checkCompletedTasks();
         updateFollowXButton();
     }
-    if(tab==="refer") referPage.classList.remove("hidden")
+    if(tab==="refer") {
+        referPage.classList.remove("hidden")
+        checkMultiplierStatus(); // Update referral reward display
+    }
     if(tab==="mult") {
         multPage.classList.remove("hidden")
-        // No longer need to update AVE display since we removed it
+        // Load SOL price when switching to multiplier tab
+        if (!currentSolPrice) {
+            loadSolPrice();
+        }
+        checkMultiplierStatus();
     }
     if(tab==="profile"){
         profilePage.classList.remove("hidden")
@@ -1515,6 +1870,9 @@ function loadProfile(){
         profilePic.style.backgroundImage = `url('${customPic}')`;
         profilePic.textContent = '';
     }
+    
+    // Check multiplier status
+    checkMultiplierStatus();
 }
 
 // Username editing functions
@@ -1621,7 +1979,7 @@ async function connectWallet(){
     const n=await fetch("/nonce",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({address:publicKey})})
     const {message}=await n.json()
     await window.solana.signMessage(new TextEncoder().encode(message), "utf8");
-    await fetch("/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({address:publicKey})})
+    await fetch("/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({address:publicKey}))
     unlock(publicKey)
 }
 </script>
@@ -1845,6 +2203,205 @@ def discord_callback():
         print(f"Discord OAuth error: {e}")
         return f"Error during Discord authentication: {str(e)}", 500
 
+@app.route("/sol_price")
+def get_sol_price():
+    """Get current SOL price from CoinMarketCap"""
+    try:
+        url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest"
+        parameters = {
+            'symbol': 'SOL',
+            'convert': 'USD'
+        }
+        headers = {
+            'Accepts': 'application/json',
+            'X-CMC_PRO_API_KEY': COINMARKETCAP_API_KEY,
+        }
+        
+        response = requests.get(url, headers=headers, params=parameters)
+        data = response.json()
+        
+        if 'data' in data and 'SOL' in data['data']:
+            price = data['data']['SOL']['quote']['USD']['price']
+            return jsonify({
+                "ok": True,
+                "price": price
+            })
+        else:
+            return jsonify({
+                "ok": False,
+                "error": "Could not fetch SOL price"
+            }), 400
+            
+    except Exception as e:
+        print(f"Error fetching SOL price: {e}")
+        return jsonify({
+            "ok": False,
+            "error": str(e)
+        }), 500
+
+@app.route("/check_balance", methods=["POST"])
+def check_balance():
+    """Check if user has enough SOL balance"""
+    try:
+        data = request.json
+        user_address = data.get("address")
+        required_lamports = data.get("requiredLamports", 0)
+        
+        if not user_address:
+            return jsonify({"ok": False, "error": "No address provided"}), 400
+        
+        # Create Solana client
+        client = Client(SOLANA_RPC_URL)
+        
+        # Get balance
+        pubkey = Pubkey.from_string(user_address)
+        balance_response = client.get_balance(pubkey)
+        
+        if balance_response.value is None:
+            return jsonify({"ok": False, "error": "Could not fetch balance"}), 400
+        
+        current_balance = balance_response.value
+        
+        # Check if balance is sufficient (add some buffer for transaction fees)
+        required_with_buffer = required_lamports + 5000  # 5000 lamports buffer for fees
+        
+        if current_balance >= required_with_buffer:
+            return jsonify({
+                "ok": True,
+                "balance": current_balance,
+                "required": required_lamports,
+                "sufficient": True
+            })
+        else:
+            return jsonify({
+                "ok": False,
+                "balance": current_balance,
+                "required": required_lamports,
+                "sufficient": False,
+                "error": "Insufficient SOL balance"
+            })
+            
+    except Exception as e:
+        print(f"Error checking balance: {e}")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+@app.route("/create_multiplier_transaction", methods=["POST"])
+def create_multiplier_transaction():
+    """Create a transaction to transfer $1 worth of SOL"""
+    try:
+        data = request.json
+        user_address = data.get("address")
+        sol_amount = float(data.get("solAmount", 0))
+        
+        if not user_address or sol_amount <= 0:
+            return jsonify({"ok": False, "error": "Invalid parameters"}), 400
+        
+        # Convert SOL to lamports
+        lamports = int(sol_amount * 1_000_000_000)  # 1 SOL = 1,000,000,000 lamports
+        
+        # Create Solana client
+        client = Client(SOLANA_RPC_URL)
+        
+        # Get recent blockhash
+        recent_blockhash = client.get_latest_blockhash().value.blockhash
+        
+        # Create transaction
+        from_pubkey = Pubkey.from_string(user_address)
+        to_pubkey = Pubkey.from_string(PROJECT_WALLET)
+        
+        # Create transfer instruction
+        transfer_ix = transfer(
+            TransferParams(
+                from_pubkey=from_pubkey,
+                to_pubkey=to_pubkey,
+                lamports=lamports
+            )
+        )
+        
+        # Create message
+        message = MessageV0.try_compile(
+            payer=from_pubkey,
+            instructions=[transfer_ix],
+            recent_blockhash=recent_blockhash
+        )
+        
+        # Convert transaction to bytes
+        transaction_bytes = bytes(message)
+        
+        return jsonify({
+            "ok": True,
+            "transaction": list(transaction_bytes),
+            "lamports": lamports,
+            "solAmount": sol_amount
+        })
+        
+    except Exception as e:
+        print(f"Error creating transaction: {e}")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+@app.route("/send_transaction", methods=["POST"])
+def send_transaction():
+    """Send a signed transaction"""
+    try:
+        data = request.json
+        signed_transaction = data.get("signedTransaction")
+        
+        if not signed_transaction:
+            return jsonify({"ok": False, "error": "No transaction provided"}), 400
+        
+        # Create Solana client
+        client = Client(SOLANA_RPC_URL)
+        
+        # Send transaction
+        signature = Signature.from_bytes(bytes(signed_transaction))
+        result = client.send_raw_transaction(bytes(signed_transaction))
+        
+        # Wait for confirmation
+        confirmation = client.confirm_transaction(
+            signature,
+            commitment=Confirmed,
+            sleep_seconds=0.5
+        )
+        
+        if confirmation.value:
+            return jsonify({
+                "ok": True,
+                "signature": str(signature),
+                "confirmed": True
+            })
+        else:
+            return jsonify({
+                "ok": False,
+                "error": "Transaction not confirmed"
+            })
+            
+    except Exception as e:
+        print(f"Error sending transaction: {e}")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+@app.route("/update_multiplier", methods=["POST"])
+def update_multiplier():
+    """Update user's multiplier status"""
+    try:
+        data = request.json
+        user_address = data.get("address")
+        has_multiplier = data.get("hasMultiplier", False)
+        
+        if not user_address:
+            return jsonify({"ok": False, "error": "No address provided"}), 400
+        
+        # Store multiplier status
+        MULTIPLIER_PURCHASES[user_address] = has_multiplier
+        
+        return jsonify({
+            "ok": True,
+            "hasMultiplier": has_multiplier
+        })
+        
+    except Exception as e:
+        print(f"Error updating multiplier: {e}")
+        return jsonify({"ok": False, "error": str(e)}), 500
+
 @app.route("/nonce", methods=["POST"])
 def nonce():
     data = request.json
@@ -1895,10 +2452,14 @@ def verify():
             "tasks_completed": 0
         }
     
+    # Check if user has multiplier
+    has_multiplier = MULTIPLIER_PURCHASES.get(address, False)
+    
     return jsonify({
         "ok": True,
         "address": address,
-        "user_data": USER_DATA[address]
+        "user_data": USER_DATA[address],
+        "has_multiplier": has_multiplier
     })
 
 @app.route("/upload_profile_pic", methods=["POST"])
@@ -1922,6 +2483,8 @@ if __name__ == "__main__":
     print(f"X Callback URL: {X_CALLBACK_URL}")
     print("Discord OAuth Integration: ACTIVE")
     print(f"Discord Callback URL: {DISCORD_CALLBACK_URL}")
+    print("Solana Multiplier Purchase: ACTIVE")
+    print(f"Project Wallet: {PROJECT_WALLET}")
     print("To access from your phone, make sure you're on the same network")
     print("and use your computer's IP address followed by :5000")
     app.run(host="0.0.0.0", port=5000, debug=True)
