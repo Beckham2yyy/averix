@@ -968,7 +968,7 @@ button.connected { background: #1a1a1f }
     <div class="card highlight">
         <span class="badge">LIVE</span>
         <h3>$50,000 Referral Contest</h3>
-        <p>Invite verified wallets and earn <span id="referralAmount">30</span> AVE per referral</p>
+        <p>Invite verified wallets and earn <span id="referralAmount">30</span> AVE</p>
     </div>
 
     <div class="card">
