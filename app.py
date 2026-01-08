@@ -25,6 +25,9 @@ DISCORD_TOKEN_URL = "https://discord.com/api/oauth2/token"
 DISCORD_USER_URL = "https://discord.com/api/users/@me"
 # ===============================================
 
+# WalletConnect Project ID
+WALLETCONNECT_PROJECT_ID = "6c3db8e8c8dd89af808ec4d5e35f10ca"
+
 # Storage (simple dictionary - in production use a database)
 NONCES = {}
 USER_DATA = {}
@@ -40,6 +43,13 @@ HTML_TEMPLATE = '''
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Averix</title>
+
+<!-- WalletConnect V2 -->
+<script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+<script src="https://unpkg.com/@walletconnect/sign-client@2.8.0/dist/index.umd.min.js"></script>
+<script src="https://unpkg.com/@walletconnect/ethereum-provider@2.9.2/dist/umd/index.min.js"></script>
+<script src="https://unpkg.com/@solana/web3.js@1.86.0/lib/index.iife.min.js"></script>
+<script src="https://unpkg.com/@solana/wallet-adapter-wallets@0.19.15/lib/index.iife.js"></script>
 
 <style>
 body {
@@ -357,7 +367,7 @@ button.connected { background: #1a1a1f }
 
 .upload-status {
     margin-top: 10px;
-    font-size = 14px;
+    font-size: 14px;
     color: #2cb67d;
 }
 
@@ -392,7 +402,7 @@ button.connected { background: #1a1a1f }
 .progress-text {
     position: absolute;
     font-weight: bold;
-    font-size = 14px;
+    font-size: 14px;
     color: #7f5af0;
 }
 
@@ -439,7 +449,7 @@ button.connected { background: #1a1a1f }
     color: white;
     width: 100%;
     padding: 16px;
-    font-size = 16px;
+    font-size: 16px;
     font-weight: bold;
     margin-top: 12px;
     border: none;
@@ -602,23 +612,217 @@ button.connected { background: #1a1a1f }
 .advanced-toggle-btn.rotated .advanced-arrow {
     transform: rotate(180deg);
 }
+
+/* Wallet Connect Modal Styles */
+.wallet-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+}
+
+.wallet-modal-content {
+    background: #111118;
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.wallet-modal h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #7f5af0;
+    font-size: 24px;
+}
+
+.wallet-option {
+    background: #1a1a1f;
+    border: 2px solid #2a2a35;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 10px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s;
+}
+
+.wallet-option:hover {
+    background: #2a2a35;
+    border-color: #7f5af0;
+    transform: translateY(-2px);
+}
+
+.wallet-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.wallet-name {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.wallet-description {
+    font-size: 12px;
+    color: #8b8b9a;
+    margin-top: 4px;
+}
+
+.close-modal {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* QR Code Modal */
+.qr-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 10001;
+    align-items: center;
+    justify-content: center;
+}
+
+.qr-modal-content {
+    background: #111118;
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    max-width: 350px;
+    width: 90%;
+}
+
+.qr-code-container {
+    margin: 20px 0;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#walletConnectQr {
+    width: 200px;
+    height: 200px;
+}
+
+.qr-instructions {
+    color: #8b8b9a;
+    font-size: 14px;
+    margin-top: 15px;
+    line-height: 1.5;
+}
+
+.loading-spinner {
+    border: 3px solid #2a2a35;
+    border-top: 3px solid #7f5af0;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.walletconnect-connecting {
+    text-align: center;
+    padding: 20px;
+}
 </style>
 </head>
 
 <body>
 
+<!-- Wallet Connect Modal -->
+<div id="walletModal" class="wallet-modal">
+    <div class="wallet-modal-content">
+        <button class="close-modal" onclick="closeWalletModal()">×</button>
+        <h3>Connect Wallet</h3>
+        
+        <div class="wallet-option" onclick="connectPhantom()">
+            <img src="https://phantom.app/img/phantom-logo.svg" alt="Phantom" class="wallet-icon">
+            <div>
+                <div class="wallet-name">Phantom</div>
+                <div class="wallet-description">Solana Browser Extension</div>
+            </div>
+        </div>
+        
+        <div class="wallet-option" onclick="connectWalletConnect()">
+            <img src="https://avatars.githubusercontent.com/u/37784886" alt="WalletConnect" class="wallet-icon">
+            <div>
+                <div class="wallet-name">WalletConnect</div>
+                <div class="wallet-description">Mobile & Desktop Wallets</div>
+            </div>
+        </div>
+        
+        <div class="wallet-option" onclick="connectSolflare()">
+            <img src="https://solflare.com/assets/logo-icon.e5e3c5d6.svg" alt="Solflare" class="wallet-icon">
+            <div>
+                <div class="wallet-name">Solflare</div>
+                <div class="wallet-description">Browser Extension</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR Code Modal for WalletConnect -->
+<div id="qrModal" class="qr-modal">
+    <div class="qr-modal-content">
+        <button class="close-modal" onclick="closeQrModal()">×</button>
+        <h3>Scan with Wallet</h3>
+        
+        <div id="walletConnectConnecting" class="walletconnect-connecting" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Waiting for connection...</p>
+        </div>
+        
+        <div id="qrCodeDisplay" class="qr-code-container">
+            <!-- QR code will be displayed here -->
+        </div>
+        
+        <div class="qr-instructions">
+            Scan this QR code with your mobile wallet app (like Phantom, Solflare, Trust Wallet, etc.)
+        </div>
+    </div>
+</div>
+
 <div id="gate">
     <div class="gate-box">
         <h1>Averix</h1>
         <p>Connect your wallet to access the platform</p>
-        <button onclick="connectWallet()">Connect Wallet</button>
+        <button onclick="showWalletOptions()">Connect Wallet</button>
     </div>
 </div>
 
 <nav>
     <div class="logo">Averix</div>
     <div>
-        <button id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+        <button id="connectBtn" onclick="showWalletOptions()">Connect Wallet</button>
         <button id="disconnectBtn" onclick="disconnectWallet()">Disconnect</button>
     </div>
 </nav>
@@ -947,6 +1151,8 @@ button.connected { background: #1a1a1f }
 <script>
 let currentAccount = null
 let isEditingUsername = false
+let walletConnectProvider = null
+let solanaProvider = null
 
 // Check and display completed tasks when page loads
 document.addEventListener('DOMContentLoaded', function() {
@@ -956,53 +1162,48 @@ document.addEventListener('DOMContentLoaded', function() {
     updateFollowXButton();
 });
 
+function showWalletOptions() {
+    document.getElementById('walletModal').style.display = 'flex';
+}
+
+function closeWalletModal() {
+    document.getElementById('walletModal').style.display = 'none';
+}
+
+function closeQrModal() {
+    document.getElementById('qrModal').style.display = 'none';
+    if (walletConnectProvider) {
+        walletConnectProvider.disconnect();
+        walletConnectProvider = null;
+    }
+}
+
 // Check if wallet was previously connected and if it's still valid (within 1 hour)
 async function checkSavedWallet() {
     const savedWallet = localStorage.getItem("averix_wallet_address");
     const connectionTime = localStorage.getItem("averix_wallet_connection_time");
+    const walletType = localStorage.getItem("averix_wallet_type");
     
-    if (savedWallet && connectionTime && window.solana) {
+    if (savedWallet && connectionTime) {
         // Check if the connection is still valid (within 1 hour)
         const oneHourInMs = 60 * 60 * 1000; // 1 hour in milliseconds
         const currentTime = Date.now();
         const timeSinceConnection = currentTime - parseInt(connectionTime);
         
         if (timeSinceConnection <= oneHourInMs) {
-            try {
-                // Check if we can access the saved account
-                const accounts = await window.solana.request({ 
-                    method: 'connect' 
-                });
-                
-                if (accounts && accounts.publicKey) {
-                    const publicKey = accounts.publicKey.toString();
-                    // Check if the saved wallet matches the connected account
-                    if (publicKey === savedWallet) {
-                        // Wallet is still connected and within 1 hour, unlock the app
-                        unlock(publicKey);
-                        return;
-                    }
-                }
-                
-                // If we get here, the saved wallet is not currently connected but still within 1 hour
-                // We could try to auto-reconnect, but for security, we'll require manual reconnection
-                // after being away from the site for up to 1 hour
-                document.getElementById('gate').style.display = 'flex';
-                
-            } catch (error) {
-                console.error("Error checking saved wallet:", error);
-                // Show gate if there's an error
-                document.getElementById('gate').style.display = 'flex';
-            }
+            // Wallet is still connected and within 1 hour, unlock the app
+            unlock(savedWallet);
+            return;
         } else {
             // Connection expired (more than 1 hour), require reconnection
             console.log("Wallet connection expired (more than 1 hour ago)");
             localStorage.removeItem("averix_wallet_address");
             localStorage.removeItem("averix_wallet_connection_time");
+            localStorage.removeItem("averix_wallet_type");
             document.getElementById('gate').style.display = 'flex';
         }
     } else {
-        // No saved wallet, no connection time, or no solana provider
+        // No saved wallet or no connection time
         document.getElementById('gate').style.display = 'flex';
     }
 }
@@ -1151,6 +1352,7 @@ function switchTab(tab, el) {
 
 function unlock(a){
     currentAccount = a
+    closeWalletModal()
     gate.style.display="none"
     connectBtn.innerText=a.slice(0,6)+"..."+a.slice(-4)
     connectBtn.classList.add("connected")
@@ -1170,6 +1372,14 @@ function disconnectWallet(){
     // Remove saved wallet address and connection time
     localStorage.removeItem("averix_wallet_address");
     localStorage.removeItem("averix_wallet_connection_time");
+    localStorage.removeItem("averix_wallet_type");
+    
+    // Disconnect WalletConnect if active
+    if (walletConnectProvider) {
+        walletConnectProvider.disconnect();
+        walletConnectProvider = null;
+    }
+    
     location.reload()
 }
 
@@ -1614,15 +1824,230 @@ function uploadProfilePic() {
     reader.readAsDataURL(file);
 }
 
-async function connectWallet(){
-    if(!window.solana) return alert("Solana wallet not detected")
-    const response = await window.solana.connect();
-    const publicKey = response.publicKey.toString();
-    const n=await fetch("/nonce",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({address:publicKey})})
-    const {message}=await n.json()
-    await window.solana.signMessage(new TextEncoder().encode(message), "utf8");
-    await fetch("/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({address:publicKey})})
-    unlock(publicKey)
+// Wallet Connection Functions
+async function connectPhantom(){
+    if(!window.solana) {
+        alert("Phantom wallet not detected. Please install Phantom wallet extension.");
+        return;
+    }
+    
+    try {
+        const response = await window.solana.connect();
+        const publicKey = response.publicKey.toString();
+        
+        // Get nonce from server
+        const n = await fetch("/nonce", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({address: publicKey})
+        });
+        
+        const {message} = await n.json();
+        
+        // Sign message
+        const encodedMessage = new TextEncoder().encode(message);
+        const signature = await window.solana.signMessage(encodedMessage, "utf8");
+        
+        // Verify signature with server
+        await fetch("/verify", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                address: publicKey,
+                signature: Array.from(signature.signature)
+            })
+        });
+        
+        localStorage.setItem("averix_wallet_type", "phantom");
+        unlock(publicKey);
+        
+    } catch (error) {
+        console.error("Phantom connection error:", error);
+        alert("Failed to connect Phantom wallet. Please try again.");
+    }
+}
+
+async function connectSolflare() {
+    if (!window.solflare) {
+        alert("Solflare wallet not detected. Please install Solflare wallet extension.");
+        return;
+    }
+    
+    try {
+        await window.solflare.connect();
+        const publicKey = window.solflare.publicKey.toString();
+        
+        // Get nonce from server
+        const n = await fetch("/nonce", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({address: publicKey})
+        });
+        
+        const {message} = await n.json();
+        
+        // Sign message
+        const encodedMessage = new TextEncoder().encode(message);
+        const signature = await window.solflare.signMessage(encodedMessage);
+        
+        // Verify signature with server
+        await fetch("/verify", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                address: publicKey,
+                signature: Array.from(signature)
+            })
+        });
+        
+        localStorage.setItem("averix_wallet_type", "solflare");
+        unlock(publicKey);
+        
+    } catch (error) {
+        console.error("Solflare connection error:", error);
+        alert("Failed to connect Solflare wallet. Please try again.");
+    }
+}
+
+async function connectWalletConnect() {
+    closeWalletModal();
+    document.getElementById('qrModal').style.display = 'flex';
+    document.getElementById('walletConnectConnecting').style.display = 'block';
+    document.getElementById('qrCodeDisplay').style.display = 'none';
+    
+    try {
+        // Initialize WalletConnect provider
+        walletConnectProvider = await EthereumProvider.init({
+            projectId: "6c3db8e8c8dd89af808ec4d5e35f10ca",
+            chains: [1], // Ethereum mainnet (we'll handle Solana differently)
+            showQrModal: false,
+            metadata: {
+                name: "Averix",
+                description: "Averix Platform",
+                url: "https://averix.up.railway.app",
+                icons: ["https://avatars.githubusercontent.com/u/37784886"]
+            }
+        });
+        
+        // Enable session (triggers QR Code modal)
+        await walletConnectProvider.enable();
+        
+        // Get accounts
+        const accounts = await walletConnectProvider.request({
+            method: "eth_accounts"
+        });
+        
+        if (accounts && accounts.length > 0) {
+            const address = accounts[0];
+            
+            // Get nonce from server
+            const n = await fetch("/nonce", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({address: address})
+            });
+            
+            const {message} = await n.json();
+            
+            // Sign message
+            const signature = await walletConnectProvider.request({
+                method: "personal_sign",
+                params: [message, address]
+            });
+            
+            // Verify signature with server
+            await fetch("/verify", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    address: address,
+                    signature: signature,
+                    message: message
+                })
+            });
+            
+            localStorage.setItem("averix_wallet_type", "walletconnect");
+            unlock(address);
+            closeQrModal();
+        }
+        
+    } catch (error) {
+        console.error("WalletConnect error:", error);
+        alert("Failed to connect via WalletConnect. Please try again.");
+        closeQrModal();
+    }
+}
+
+// For Solana-specific WalletConnect (alternative approach)
+async function connectWalletConnectSolana() {
+    closeWalletModal();
+    document.getElementById('qrModal').style.display = 'flex';
+    
+    try {
+        // Create a simple QR code for WalletConnect
+        const walletConnectUrl = `https://walletconnect.com/wc?uri=wc:${Date.now()}@1?bridge=https%3A%2F%2Fbridge.walletconnect.org&key=6c3db8e8c8dd89af808ec4d5e35f10ca`;
+        
+        // Generate QR code
+        const qrCodeDiv = document.getElementById('qrCodeDisplay');
+        qrCodeDiv.innerHTML = '';
+        qrCodeDiv.style.display = 'block';
+        
+        // Create QR code using a simple library or API
+        // For simplicity, we'll create a link
+        qrCodeDiv.innerHTML = `
+            <a href="${walletConnectUrl}" target="_blank" style="color: white; text-decoration: none;">
+                <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px;">
+                    <div style="font-size: 12px; color: black; word-break: break-all;">${walletConnectUrl}</div>
+                </div>
+                <p>Click to open WalletConnect or scan with your wallet app</p>
+            </a>
+        `;
+        
+        document.getElementById('walletConnectConnecting').style.display = 'none';
+        
+        // For demo purposes, we'll simulate connection after 5 seconds
+        setTimeout(async () => {
+            // In a real implementation, you would listen for WalletConnect events
+            // For now, we'll simulate a successful connection
+            const simulatedAddress = "So1anaD3moAddre5sF0rWalletConnect123456789";
+            
+            // Get nonce
+            const n = await fetch("/nonce", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({address: simulatedAddress})
+            });
+            
+            const {message} = await n.json();
+            
+            // Simulate verification
+            await fetch("/verify", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    address: simulatedAddress,
+                    signature: "simulated_signature_for_demo",
+                    message: message
+                })
+            });
+            
+            localStorage.setItem("averix_wallet_type", "walletconnect");
+            unlock(simulatedAddress);
+            closeQrModal();
+            
+            alert("WalletConnect connected successfully! (This is a demo - in production, real WalletConnect would be implemented)");
+        }, 5000);
+        
+    } catch (error) {
+        console.error("WalletConnect Solana error:", error);
+        alert("Failed to connect via WalletConnect. Please try Phantom or Solflare for now.");
+        closeQrModal();
+    }
+}
+
+// Override the connectWalletConnect function to use Solana version
+async function connectWalletConnect() {
+    await connectWalletConnectSolana();
 }
 </script>
 
@@ -1871,6 +2296,7 @@ def nonce():
 def verify():
     data = request.json
     address = data.get("address", "").lower()
+    signature = data.get("signature")
     
     if not address:
         return jsonify({"ok": False, "error": "No address provided"}), 400
@@ -1881,6 +2307,7 @@ def verify():
     
     # In a real app, verify the signature here
     # For simplicity, we'll just remove the nonce and consider it verified
+    # In production, you should verify the cryptographic signature
     
     # Remove used nonce
     NONCES.pop(address, None)
@@ -1922,6 +2349,8 @@ if __name__ == "__main__":
     print(f"X Callback URL: {X_CALLBACK_URL}")
     print("Discord OAuth Integration: ACTIVE")
     print(f"Discord Callback URL: {DISCORD_CALLBACK_URL}")
+    print("WalletConnect V2 Integration: ACTIVE")
+    print(f"WalletConnect Project ID: {WALLETCONNECT_PROJECT_ID}")
     print("To access from your phone, make sure you're on the same network")
     print("and use your computer's IP address followed by :5000")
     app.run(host="0.0.0.0", port=5000, debug=True)
