@@ -807,7 +807,7 @@ button.connected { background: #1a1a1f }
 
     <div class="card">
         <h3>Total Referral Earnings</h3>
-        <div class="big">$0.00</div>
+        <div class="big">0 AVE</div>
     </div>
 
     <div class="card">
