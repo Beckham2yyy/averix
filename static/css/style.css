@@ -1,0 +1,560 @@
+body {
+    margin: 0;
+    background: #0b0b0f;
+    color: white;
+    font-family: Arial, sans-serif;
+    padding-bottom: 90px;
+}
+
+.hidden { display: none }
+
+#gate {
+    position: fixed;
+    inset: 0;
+    background: #0b0b0f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.gate-box {
+    text-align: center;
+    padding: 30px;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+}
+
+.logo { font-size: 20px; font-weight: bold }
+
+button {
+    background: linear-gradient(90deg,#7f5af0,#2cb67d);
+    border: none;
+    padding: 10px 18px;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+button.connected { background: #1a1a1f }
+
+#disconnectBtn {
+    margin-top: 6px;
+    background: #1a1a1f;
+    display: none;
+}
+
+.hero {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.hero h1 { font-size: 30px }
+.hero p { color: #bdbdbd }
+
+.card {
+    background: #111118;
+    border-radius: 18px;
+    padding: 22px;
+    margin: 16px 20px;
+}
+
+.highlight {
+    background: linear-gradient(135deg,#2a1b4d,#1a1a2e);
+}
+
+.badge {
+    background: #7f5af0;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    display: inline-block;
+}
+
+.big {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.ref-box input {
+    width: 100%;
+    background: #0b0b0f;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    color: white;
+}
+
+.row {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.secondary {
+    background: #1a1a1f;
+    flex: 1;
+}
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #0f0f16;
+    border-top: 2px solid #1f1f2a;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+}
+
+.bottom-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #8b8b9a;
+}
+
+.bottom-item svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2.4;
+}
+
+.bottom-item.active {
+    color: #7f5af0;
+}
+
+.bottom-item.active svg {
+    stroke: #7f5af0;
+}
+
+/* Task completed styling */
+.task-completed {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    padding: 12px;
+    background: rgba(127, 90, 240, 0.1);
+    border-radius: 10px;
+    border: 1px solid #7f5af0;
+}
+
+.checkbox-circle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #2cb67d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkmark {
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.task-details {
+    flex: 1;
+}
+
+.task-title {
+    font-weight: bold;
+    color: #2cb67d;
+}
+
+.task-username {
+    color: #7f5af0;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+/* Profile picture styling */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.profile-pic-container {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.profile-pic {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7f5af0, #2cb67d);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: bold;
+    color: white;
+    flex-shrink: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.upload-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #7f5af0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px solid #0b0b0f;
+}
+
+.upload-overlay svg {
+    width: 16px;
+    height: 16px;
+    color: white;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-name {
+    font-size: 26px;
+    font-weight: bold;
+    color: #7f5af0;
+    margin-bottom: 4px;
+}
+
+.profile-wallet {
+    font-size: 14px;
+    color: #8b8b9a;
+}
+
+/* Username edit form */
+.edit-username-form {
+    margin-top: 16px;
+    padding: 16px;
+    background: rgba(30, 30, 46, 0.8);
+    border-radius: 12px;
+    border: 1px solid #2a2a35;
+}
+
+.edit-username-form input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: #0b0b0f;
+    color: white;
+    margin-top: 10px;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+/* Daily Check-in button */
+.daily-checkin-btn {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
+}
+
+.daily-checkin-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ave-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #ff8c00, #ff5e00);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.ave-info {
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(255, 140, 0, 0.1);
+    border-radius: 10px;
+    border-left: 3px solid #ff8c00;
+}
+
+/* File upload styling */
+#profilePicUpload {
+    display: none;
+}
+
+.upload-status {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #2cb67d;
+}
+
+/* Task progress */
+.task-progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.progress-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: conic-gradient(#7f5af0 0% var(--progress), #1a1a1f 0%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.progress-circle::before {
+    content: '';
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #111118;
+}
+
+.progress-text {
+    position: absolute;
+    font-weight: bold;
+    font-size: 14px;
+    color: #7f5af0;
+}
+
+.progress-info {
+    flex: 1;
+}
+
+/* X (Twitter) connection styling */
+.x-connection-btn {
+    background: linear-gradient(135deg, #000000, #1DA1F2);
+    color: white;
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.x-connection-btn:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+}
+
+.x-connection-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.x-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Discord connection styling */
+.discord-connection-btn {
+    background: linear-gradient(135deg, #5865F2, #7289DA);
+    color: white;
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.discord-connection-btn:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+}
+
+.discord-connection-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.discord-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Disconnect X button styling */
+.disconnect-x-btn {
+    background: linear-gradient(135deg, #ff4757, #ff3838);
+    color: white;
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.disconnect-x-btn:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+    background: linear-gradient(135deg, #ff3838, #ff1e1e);
+}
+
+/* Disconnect Discord button styling */
+.disconnect-discord-btn {
+    background: linear-gradient(135deg, #ff4757, #ff3838);
+    color: white;
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.disconnect-discord-btn:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+    background: linear-gradient(135deg, #ff3838, #ff1e1e);
+}
+
+/* Follow X button styling */
+.follow-x-btn {
+    background: linear-gradient(135deg, #1DA1F2, #1a91da);
+    color: white;
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.follow-x-btn:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+    background: linear-gradient(135deg, #1a91da, #1a8cd0);
+}
+
+.follow-x-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.follow-x-btn.disabled-text {
+    background: #1a1a1f;
+    cursor: not-allowed;
+}
+
+.x-username {
+    color: #1DA1F2;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.discord-username {
+    color: #5865F2;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+/* Advanced settings styling */
+#advancedSettings {
+    margin-top: 12px;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    max-height: 0;
+}
+
+#advancedSettings.show {
+    max-height: 500px;
+}
+
+.advanced-toggle-btn {
+    background: linear-gradient(135deg, #7f5af0, #2cb67d);
+    color: white;
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.advanced-toggle-btn:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+}
+
+.advanced-arrow {
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+.advanced-toggle-btn.rotated .advanced-arrow {
+    transform: rotate(180deg);
+}
