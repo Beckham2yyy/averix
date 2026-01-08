@@ -18,12 +18,16 @@ X_CALLBACK_URL = "https://averix.up.railway.app/x/callback"
 
 # ========== DISCORD API CONFIGURATION ==========
 DISCORD_CLIENT_ID = "1458119139695526042"
-DISCORD_CLIENT_SECRET = "9IRYUB6yTFaRQ0Lvcxq3Y8VzsLCEWwXr"
+DISCORD_CLIENT_SECRET = "9IRYUB6yTFaRQ0Lvcxq3Y8V1zsLCEWwXr"
 DISCORD_CALLBACK_URL = "https://averix.up.railway.app/discord/callback"
 DISCORD_AUTH_URL = "https://discord.com/oauth2/authorize"
 DISCORD_TOKEN_URL = "https://discord.com/api/oauth2/token"
 DISCORD_USER_URL = "https://discord.com/api/users/@me"
 # ===============================================
+
+# ========== WALLETCONNECT CONFIGURATION ==========
+WALLETCONNECT_PROJECT_ID = "6c3db8e8c8dd89af808ec4d5e35f10ca"
+# =================================================
 
 # Storage (simple dictionary - in production use a database)
 NONCES = {}
@@ -40,6 +44,11 @@ HTML_TEMPLATE = '''
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Averix</title>
+
+<!-- WalletConnect V2 SDK -->
+<script src="https://unpkg.com/@walletconnect/modal@2.6.2/dist/index.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/@walletconnect/modal@2.6.2/dist/index.css" />
+<script src="https://unpkg.com/@walletconnect/universal-provider@2.10.0/dist/umd/index.min.js"></script>
 
 <style>
 body {
@@ -357,7 +366,7 @@ button.connected { background: #1a1a1f }
 
 .upload-status {
     margin-top: 10px;
-    font-size = 14px;
+    font-size: 14px;
     color: #2cb67d;
 }
 
@@ -392,7 +401,7 @@ button.connected { background: #1a1a1f }
 .progress-text {
     position: absolute;
     font-weight: bold;
-    font-size = 14px;
+    font-size: 14px;
     color: #7f5af0;
 }
 
@@ -439,7 +448,7 @@ button.connected { background: #1a1a1f }
     color: white;
     width: 100%;
     padding: 16px;
-    font-size = 16px;
+    font-size: 16px;
     font-weight: bold;
     margin-top: 12px;
     border: none;
@@ -602,6 +611,103 @@ button.connected { background: #1a1a1f }
 .advanced-toggle-btn.rotated .advanced-arrow {
     transform: rotate(180deg);
 }
+
+/* Wallet Connect Modal Styling */
+.wallet-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.wallet-modal-content {
+    background: #111118;
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 400px;
+    border: 2px solid #7f5af0;
+}
+
+.wallet-modal-title {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 24px;
+    color: #7f5af0;
+}
+
+.wallet-option {
+    background: #1a1a1f;
+    border: none;
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+}
+
+.wallet-option:hover {
+    background: #2a2a35;
+    transform: translateY(-2px);
+}
+
+.wallet-option-icon {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #7f5af0, #2cb67d);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.wallet-option-text {
+    flex: 1;
+    text-align: left;
+    margin-left: 15px;
+}
+
+.close-modal {
+    background: #ff4757;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    width: 100%;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+/* Loading spinner */
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #7f5af0;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 </style>
 </head>
 
@@ -611,14 +717,41 @@ button.connected { background: #1a1a1f }
     <div class="gate-box">
         <h1>Averix</h1>
         <p>Connect your wallet to access the platform</p>
-        <button onclick="connectWallet()">Connect Wallet</button>
+        <button onclick="showWalletOptions()">Connect Wallet</button>
+    </div>
+</div>
+
+<!-- Wallet Connect Modal -->
+<div id="walletModal" class="wallet-modal">
+    <div class="wallet-modal-content">
+        <div class="wallet-modal-title">Connect Wallet</div>
+        
+        <button class="wallet-option" onclick="connectWithPhantom()">
+            <div class="wallet-option-icon">P</div>
+            <div class="wallet-option-text">Phantom Wallet</div>
+            <span>→</span>
+        </button>
+        
+        <button class="wallet-option" onclick="connectWithWalletConnect()">
+            <div class="wallet-option-icon">WC</div>
+            <div class="wallet-option-text">WalletConnect V2</div>
+            <span>→</span>
+        </button>
+        
+        <button class="wallet-option" onclick="connectWithSolflare()">
+            <div class="wallet-option-icon">S</div>
+            <div class="wallet-option-text">Solflare Wallet</div>
+            <span>→</span>
+        </button>
+        
+        <button class="close-modal" onclick="closeWalletModal()">Cancel</button>
     </div>
 </div>
 
 <nav>
     <div class="logo">Averix</div>
     <div>
-        <button id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+        <button id="connectBtn" onclick="showWalletOptions()">Connect Wallet</button>
         <button id="disconnectBtn" onclick="disconnectWallet()">Disconnect</button>
     </div>
 </nav>
@@ -947,62 +1080,300 @@ button.connected { background: #1a1a1f }
 <script>
 let currentAccount = null
 let isEditingUsername = false
+let walletConnectProvider = null
+let walletConnectModal = null
 
-// Check and display completed tasks when page loads
+// Initialize WalletConnect when page loads
 document.addEventListener('DOMContentLoaded', function() {
     checkSavedWallet();
     checkCompletedTasks();
     updateDailyCheckinStatus();
     updateFollowXButton();
+    
+    // Initialize WalletConnect Modal
+    if (typeof WalletConnectModal !== 'undefined') {
+        walletConnectModal = new WalletConnectModal.default({
+            projectId: "6c3db8e8c8dd89af808ec4d5e35f10ca",
+            chains: ["solana:mainnet"],
+            themeMode: "dark",
+            themeVariables: {
+                '--wcm-z-index': '10001'
+            }
+        });
+    }
 });
 
-// Check if wallet was previously connected and if it's still valid (within 1 hour)
-async function checkSavedWallet() {
+// Show wallet options modal
+function showWalletOptions() {
+    document.getElementById('walletModal').style.display = 'block';
+}
+
+// Close wallet options modal
+function closeWalletModal() {
+    document.getElementById('walletModal').style.display = 'none';
+}
+
+// Connect with Phantom wallet
+async function connectWithPhantom() {
+    closeWalletModal();
+    
+    if (!window.solana || !window.solana.isPhantom) {
+        alert("Phantom wallet not detected. Please install Phantom wallet from https://phantom.app/");
+        return;
+    }
+    
+    try {
+        const response = await window.solana.connect();
+        const publicKey = response.publicKey.toString();
+        
+        // Get nonce from server
+        const nonceResponse = await fetch("/nonce", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({address: publicKey})
+        });
+        
+        const {message} = await nonceResponse.json();
+        
+        // Sign message with Phantom
+        const encodedMessage = new TextEncoder().encode(message);
+        const signedMessage = await window.solana.signMessage(encodedMessage, "utf8");
+        
+        // Verify signature with server
+        await fetch("/verify", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({address: publicKey, signature: Array.from(signedMessage.signature)})
+        });
+        
+        unlock(publicKey);
+    } catch (error) {
+        console.error("Phantom connection error:", error);
+        alert("Failed to connect with Phantom wallet: " + error.message);
+    }
+}
+
+// Connect with Solflare wallet
+async function connectWithSolflare() {
+    closeWalletModal();
+    
+    if (!window.solflare) {
+        alert("Solflare wallet not detected. Please install Solflare wallet from https://solflare.com/");
+        return;
+    }
+    
+    try {
+        // Check if Solflare is installed
+        if (!window.solflare.isConnected) {
+            await window.solflare.connect();
+        }
+        
+        const publicKey = window.solflare.publicKey.toString();
+        
+        // Get nonce from server
+        const nonceResponse = await fetch("/nonce", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({address: publicKey})
+        });
+        
+        const {message} = await nonceResponse.json();
+        
+        // Sign message with Solflare
+        const encodedMessage = new TextEncoder().encode(message);
+        const signedMessage = await window.solflare.signMessage(encodedMessage, "utf8");
+        
+        // Verify signature with server
+        await fetch("/verify", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({address: publicKey, signature: Array.from(signedMessage.signature)})
+        });
+        
+        unlock(publicKey);
+    } catch (error) {
+        console.error("Solflare connection error:", error);
+        alert("Failed to connect with Solflare wallet: " + error.message);
+    }
+}
+
+// Connect with WalletConnect V2
+async function connectWithWalletConnect() {
+    closeWalletModal();
+    
+    try {
+        // Initialize WalletConnect provider
+        walletConnectProvider = await WalletConnectUniversalProvider.init({
+            projectId: "6c3db8e8c8dd89af808ec4d5e35f10ca",
+            metadata: {
+                name: "Averix",
+                description: "Averix Platform",
+                url: "https://averix.up.railway.app",
+                icons: ["https://averix.up.railway.app/static/icon.png"]
+            },
+            chains: ["solana:mainnet"],
+            showQrModal: true,
+            qrModalOptions: {
+                themeMode: "dark"
+            }
+        });
+        
+        // Connect to wallet
+        await walletConnectProvider.connect();
+        
+        // Get accounts (wallet addresses)
+        const accounts = await walletConnectProvider.request({
+            method: "solana_accounts",
+            params: []
+        });
+        
+        if (!accounts || accounts.length === 0) {
+            throw new Error("No accounts found");
+        }
+        
+        const publicKey = accounts[0];
+        
+        // Get nonce from server
+        const nonceResponse = await fetch("/nonce", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({address: publicKey})
+        });
+        
+        const {message} = await nonceResponse.json();
+        
+        // Sign message with WalletConnect
+        const signature = await walletConnectProvider.request({
+            method: "solana_signMessage",
+            params: {
+                message: message,
+                pubkey: publicKey
+            }
+        });
+        
+        // Verify signature with server
+        await fetch("/verify", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                address: publicKey,
+                signature: signature,
+                walletType: "walletconnect"
+            })
+        });
+        
+        unlock(publicKey);
+        
+        // Store WalletConnect session for reconnection
+        localStorage.setItem("averix_walletconnect_session", JSON.stringify(walletConnectProvider.session));
+        
+    } catch (error) {
+        console.error("WalletConnect error:", error);
+        alert("Failed to connect with WalletConnect: " + error.message);
+    }
+}
+
+// Check and display completed tasks when page loads
+function checkSavedWallet() {
     const savedWallet = localStorage.getItem("averix_wallet_address");
     const connectionTime = localStorage.getItem("averix_wallet_connection_time");
+    const walletType = localStorage.getItem("averix_wallet_type");
     
-    if (savedWallet && connectionTime && window.solana) {
+    if (savedWallet && connectionTime) {
         // Check if the connection is still valid (within 1 hour)
-        const oneHourInMs = 60 * 60 * 1000; // 1 hour in milliseconds
+        const oneHourInMs = 60 * 60 * 1000;
         const currentTime = Date.now();
         const timeSinceConnection = currentTime - parseInt(connectionTime);
         
         if (timeSinceConnection <= oneHourInMs) {
-            try {
-                // Check if we can access the saved account
-                const accounts = await window.solana.request({ 
-                    method: 'connect' 
-                });
-                
-                if (accounts && accounts.publicKey) {
-                    const publicKey = accounts.publicKey.toString();
-                    // Check if the saved wallet matches the connected account
-                    if (publicKey === savedWallet) {
-                        // Wallet is still connected and within 1 hour, unlock the app
-                        unlock(publicKey);
+            // Check wallet type and reconnect accordingly
+            if (walletType === "walletconnect") {
+                // Try to reconnect WalletConnect session
+                const sessionData = localStorage.getItem("averix_walletconnect_session");
+                if (sessionData) {
+                    try {
+                        reconnectWalletConnect(JSON.parse(sessionData));
                         return;
+                    } catch (error) {
+                        console.error("Failed to reconnect WalletConnect:", error);
                     }
                 }
-                
-                // If we get here, the saved wallet is not currently connected but still within 1 hour
-                // We could try to auto-reconnect, but for security, we'll require manual reconnection
-                // after being away from the site for up to 1 hour
-                document.getElementById('gate').style.display = 'flex';
-                
-            } catch (error) {
-                console.error("Error checking saved wallet:", error);
-                // Show gate if there's an error
+            } else if (walletType === "phantom" && window.solana) {
+                // Try to reconnect Phantom
+                window.solana.connect({ onlyIfTrusted: true })
+                    .then(() => {
+                        if (window.solana.publicKey.toString() === savedWallet) {
+                            unlock(savedWallet);
+                            return;
+                        }
+                    })
+                    .catch(() => {
+                        // Connection requires user approval
+                        document.getElementById('gate').style.display = 'flex';
+                    });
+            } else if (walletType === "solflare" && window.solflare) {
+                // Try to reconnect Solflare
+                if (window.solflare.isConnected && window.solflare.publicKey.toString() === savedWallet) {
+                    unlock(savedWallet);
+                    return;
+                }
+            } else {
                 document.getElementById('gate').style.display = 'flex';
             }
         } else {
-            // Connection expired (more than 1 hour), require reconnection
-            console.log("Wallet connection expired (more than 1 hour ago)");
+            // Connection expired
             localStorage.removeItem("averix_wallet_address");
             localStorage.removeItem("averix_wallet_connection_time");
+            localStorage.removeItem("averix_wallet_type");
+            localStorage.removeItem("averix_walletconnect_session");
             document.getElementById('gate').style.display = 'flex';
         }
     } else {
-        // No saved wallet, no connection time, or no solana provider
+        // No saved wallet
+        document.getElementById('gate').style.display = 'flex';
+    }
+}
+
+// Reconnect WalletConnect session
+async function reconnectWalletConnect(sessionData) {
+    try {
+        walletConnectProvider = await WalletConnectUniversalProvider.init({
+            projectId: "6c3db8e8c8dd89af808ec4d5e35f10ca",
+            metadata: {
+                name: "Averix",
+                description: "Averix Platform",
+                url: "https://averix.up.railway.app",
+                icons: ["https://averix.up.railway.app/static/icon.png"]
+            },
+            chains: ["solana:mainnet"]
+        });
+        
+        // Restore session
+        if (sessionData) {
+            walletConnectProvider.session = sessionData;
+        }
+        
+        // Get accounts
+        const accounts = await walletConnectProvider.request({
+            method: "solana_accounts",
+            params: []
+        });
+        
+        if (accounts && accounts.length > 0) {
+            const publicKey = accounts[0];
+            const savedWallet = localStorage.getItem("averix_wallet_address");
+            
+            if (publicKey === savedWallet) {
+                unlock(publicKey);
+                return;
+            }
+        }
+        
+        // If we get here, reconnection failed
+        document.getElementById('gate').style.display = 'flex';
+        
+    } catch (error) {
+        console.error("WalletConnect reconnection error:", error);
         document.getElementById('gate').style.display = 'flex';
     }
 }
@@ -1010,7 +1381,6 @@ async function checkSavedWallet() {
 function checkCompletedTasks() {
     const u = localStorage.getItem("averix_username");
     if(u) {
-        // Show completed username task immediately if username is already set
         document.getElementById('usernameForm').style.display = 'none';
         document.getElementById('taskCompleted').style.display = 'flex';
         document.getElementById('completedUsername').textContent = u;
@@ -1018,7 +1388,6 @@ function checkCompletedTasks() {
     
     const g = localStorage.getItem("averix_gmail");
     if(g) {
-        // Show completed Gmail task immediately if Gmail is already verified
         document.getElementById('gmailForm').style.display = 'none';
         document.getElementById('gmailCompleted').style.display = 'flex';
         document.getElementById('completedGmail').textContent = g;
@@ -1026,7 +1395,6 @@ function checkCompletedTasks() {
     
     const x = localStorage.getItem("averix_x_connected");
     if(x === "true") {
-        // Show completed X task immediately if X is already connected
         const xUsername = localStorage.getItem("averix_x_username");
         document.getElementById('xForm').style.display = 'none';
         document.getElementById('xCompleted').style.display = 'flex';
@@ -1035,25 +1403,19 @@ function checkCompletedTasks() {
         }
     }
     
-    // Check follow X task
     const followX = localStorage.getItem("averix_x_followed");
     if(followX === "true") {
-        // Show completed follow X task immediately if already followed
         document.getElementById('followXForm').style.display = 'none';
         document.getElementById('followXCompleted').style.display = 'flex';
     } else {
-        // Check if user has clicked to follow (but hasn't marked as completed yet)
         const hasClickedFollow = localStorage.getItem("averix_x_follow_clicked");
         if (hasClickedFollow === "true") {
-            // Show the "I've followed" button
             document.getElementById('markFollowedBtn').style.display = 'block';
         }
     }
     
-    // Check Discord task
     const discord = localStorage.getItem("averix_discord_connected");
     if(discord === "true") {
-        // Show completed Discord task immediately if Discord is already connected
         const discordUsername = localStorage.getItem("averix_discord_username");
         document.getElementById('discordForm').style.display = 'none';
         document.getElementById('discordCompleted').style.display = 'flex';
@@ -1062,18 +1424,15 @@ function checkCompletedTasks() {
         }
     }
     
-    // Check daily check-in
     const lastCheckin = localStorage.getItem("averix_last_checkin");
     const today = new Date().toDateString();
     if(lastCheckin === today) {
-        // Already checked in today
         document.getElementById('dailyCheckinBtn').style.display = 'none';
         document.getElementById('dailyCompleted').style.display = 'flex';
         document.getElementById('dailyCheckinBtn').classList.add('disabled');
         document.getElementById('dailyCheckinBtn').disabled = true;
     }
     
-    // Update tasks completed count
     updateTasksCompleted();
     updateProgressCircle();
 }
@@ -1087,19 +1446,16 @@ function updateDailyCheckinStatus() {
     document.getElementById('profileDailyStreak').textContent = streak + " days";
 }
 
-// Function to update the Follow X button based on X connection status
 function updateFollowXButton() {
     const xConnected = localStorage.getItem("averix_x_connected") === "true";
     const followXCompleted = localStorage.getItem("averix_x_followed") === "true";
     const followXBtn = document.getElementById('followXBtn');
     
     if (followXCompleted) {
-        // Task already completed, button should not be visible
         return;
     }
     
     if (!xConnected) {
-        // X not connected, disable the button
         followXBtn.disabled = true;
         followXBtn.classList.add('disabled');
         followXBtn.classList.add('disabled-text');
@@ -1110,7 +1466,6 @@ function updateFollowXButton() {
             Connect X Account First
         `;
     } else {
-        // X connected, enable the button
         followXBtn.disabled = false;
         followXBtn.classList.remove('disabled');
         followXBtn.classList.remove('disabled-text');
@@ -1134,14 +1489,12 @@ function switchTab(tab, el) {
 
     if(tab==="task") {
         taskPage.classList.remove("hidden")
-        // Check again when switching to task tab
         checkCompletedTasks();
         updateFollowXButton();
     }
     if(tab==="refer") referPage.classList.remove("hidden")
     if(tab==="mult") {
         multPage.classList.remove("hidden")
-        // No longer need to update AVE display since we removed it
     }
     if(tab==="profile"){
         profilePage.classList.remove("hidden")
@@ -1157,19 +1510,57 @@ function unlock(a){
     disconnectBtn.style.display="block"
     refLink.value="https://averix.up.railway.app/?ref="+a
     
-    // Save wallet address and connection time to localStorage for auto-reconnect (valid for 1 hour)
+    // Save wallet address and connection time
     localStorage.setItem("averix_wallet_address", a);
     localStorage.setItem("averix_wallet_connection_time", Date.now());
     
-    // Check for completed tasks after wallet connects
+    // Determine wallet type
+    let walletType = "phantom";
+    if (walletConnectProvider) {
+        walletType = "walletconnect";
+    } else if (window.solflare && window.solflare.isConnected) {
+        walletType = "solflare";
+    }
+    localStorage.setItem("averix_wallet_type", walletType);
+    
     checkCompletedTasks();
     updateFollowXButton();
 }
 
 function disconnectWallet(){
-    // Remove saved wallet address and connection time
+    // Disconnect WalletConnect if connected
+    if (walletConnectProvider) {
+        try {
+            walletConnectProvider.disconnect();
+            walletConnectProvider = null;
+        } catch (error) {
+            console.error("Error disconnecting WalletConnect:", error);
+        }
+    }
+    
+    // Disconnect Phantom if connected
+    if (window.solana && window.solana.isConnected) {
+        try {
+            window.solana.disconnect();
+        } catch (error) {
+            console.error("Error disconnecting Phantom:", error);
+        }
+    }
+    
+    // Disconnect Solflare if connected
+    if (window.solflare && window.solflare.isConnected) {
+        try {
+            window.solflare.disconnect();
+        } catch (error) {
+            console.error("Error disconnecting Solflare:", error);
+        }
+    }
+    
+    // Remove saved wallet data
     localStorage.removeItem("averix_wallet_address");
     localStorage.removeItem("averix_wallet_connection_time");
+    localStorage.removeItem("averix_wallet_type");
+    localStorage.removeItem("averix_walletconnect_session");
     location.reload()
 }
 
@@ -1184,15 +1575,12 @@ function setUsername(){
     localStorage.setItem("averix_username", u)
     usernameStatus.innerText = "Username set: " + u + " • 20 AVE earned"
     
-    // Show completed task UI
     document.getElementById('usernameForm').style.display = 'none'
     document.getElementById('taskCompleted').style.display = 'flex'
     document.getElementById('completedUsername').textContent = u
     
-    // Update profile picture with first letter of username
     updateProfilePic(u)
     
-    // Update tasks completed count
     updateTasksCompleted()
     updateProgressCircle()
 }
@@ -1210,27 +1598,22 @@ function verifyGmail(){
     gmailStatus.innerText = "Gmail verified: " + g + " • 20 AVE earned"
     gmailStatus.style.color = "#2cb67d"
     
-    // Show completed task UI
     document.getElementById('gmailForm').style.display = 'none'
     document.getElementById('gmailCompleted').style.display = 'flex'
     document.getElementById('completedGmail').textContent = g
     
-    // Update tasks completed count
     updateTasksCompleted()
     updateProgressCircle()
 }
 
 function connectXAccount() {
-    // Redirect to Flask backend for X OAuth
     window.location.href = '/x/auth';
 }
 
 function connectDiscordAccount() {
-    // Redirect to Flask backend for Discord OAuth
     window.location.href = '/discord/auth';
 }
 
-// Function to toggle advanced settings visibility
 function toggleAdvancedSettings() {
     const advancedSettings = document.getElementById('advancedSettings');
     const toggleBtn = document.getElementById('advancedToggleBtn');
@@ -1246,103 +1629,75 @@ function toggleAdvancedSettings() {
     }
 }
 
-// Function to disconnect X account
 function disconnectXAccount() {
     if (confirm("Are you sure you want to disconnect your X account? This will remove the 20 AVE you earned from this task.")) {
-        // Remove X connection data from localStorage
         localStorage.removeItem("averix_x_connected");
         localStorage.removeItem("averix_x_username");
         
-        // Show the connect X form again
         document.getElementById('xForm').style.display = 'block';
         document.getElementById('xCompleted').style.display = 'none';
         
-        // Hide the disconnect X button
         document.getElementById('disconnectXBtn').style.display = 'none';
         
-        // Update identity section
         document.getElementById('identityX').textContent = "X (Twitter): Not Connected";
         
-        // Update the Follow X button to disabled state
         updateFollowXButton();
         
-        // Recalculate AVE earned (subtract 20 for X task)
         updateTasksCompleted();
         
-        // Update progress circle
         updateProgressCircle();
         
-        // Show success message
         alert("X account disconnected successfully. 20 AVE has been removed from your total.");
         
-        // Refresh the profile tab to update displays
         loadProfile();
     }
 }
 
-// Function to disconnect Discord account
 function disconnectDiscordAccount() {
     if (confirm("Are you sure you want to disconnect your Discord account? This will remove the 20 AVE you earned from this task.")) {
-        // Remove Discord connection data from localStorage
         localStorage.removeItem("averix_discord_connected");
         localStorage.removeItem("averix_discord_username");
         
-        // Show the connect Discord form again
         document.getElementById('discordForm').style.display = 'block';
         document.getElementById('discordCompleted').style.display = 'none';
         
-        // Hide the disconnect Discord button
         document.getElementById('disconnectDiscordBtn').style.display = 'none';
         
-        // Update identity section
         document.getElementById('identityDiscord').textContent = "Discord: Not Connected";
         
-        // Recalculate AVE earned (subtract 20 for Discord task)
         updateTasksCompleted();
         
-        // Update progress circle
         updateProgressCircle();
         
-        // Show success message
         alert("Discord account disconnected successfully. 20 AVE has been removed from your total.");
         
-        // Refresh the profile tab to update displays
         loadProfile();
     }
 }
 
-// Function to open X account for following
 function followXAccount() {
-    // Check if X account is connected
     const xConnected = localStorage.getItem("averix_x_connected");
     if (xConnected !== "true") {
         alert("Please connect your X account first before attempting this task!");
         return;
     }
     
-    // Mark that the user has clicked to follow
     localStorage.setItem("averix_x_follow_clicked", "true");
     
-    // Open @averixapp profile in a new tab
     window.open('https://x.com/averixapp', '_blank');
     
-    // Show the "I've followed" button
     document.getElementById('markFollowedBtn').style.display = 'block';
 }
 
-// Function to mark X account as followed
 function markXFollowed() {
     localStorage.setItem("averix_x_followed", "true");
     
-    // Show completed task UI
     document.getElementById('followXForm').style.display = 'none';
     document.getElementById('followXCompleted').style.display = 'flex';
     
-    // Update status message
     document.getElementById('followXStatus').innerText = "Thank you for following @averixapp! 20 AVE earned";
     document.getElementById('followXStatus').style.color = "#2cb67d";
     
-    // Update tasks completed count
     updateTasksCompleted();
     updateProgressCircle();
 }
@@ -1361,28 +1716,23 @@ function dailyCheckin() {
         return;
     }
     
-    // Check if yesterday was the last check-in (maintain streak)
     if (lastCheckin === yesterday.toDateString()) {
         streak += 1;
     } else if (!lastCheckin) {
-        streak = 1; // First check-in
+        streak = 1;
     } else {
-        streak = 1; // Broken streak, restart
+        streak = 1;
     }
     
-    // Save check-in
     localStorage.setItem("averix_last_checkin", today);
     localStorage.setItem("averix_daily_streak", streak.toString());
     
-    // Mark daily check-in task as completed
     localStorage.setItem("averix_daily_completed", "true");
     
-    // IMPORTANT: Track total daily check-ins for cumulative AVE calculation
     let totalDailyCheckins = parseInt(localStorage.getItem("averix_total_daily_checkins") || "0");
     totalDailyCheckins += 1;
     localStorage.setItem("averix_total_daily_checkins", totalDailyCheckins.toString());
     
-    // Update UI
     document.getElementById('dailyCheckinBtn').style.display = 'none';
     document.getElementById('dailyCompleted').style.display = 'flex';
     document.getElementById('dailyCheckinBtn').classList.add('disabled');
@@ -1391,10 +1741,8 @@ function dailyCheckin() {
     dailyStatus.innerText = "Daily check-in completed! 20 AVE earned (Total: " + totalDailyCheckins + " check-ins)";
     dailyStatus.style.color = "#2cb67d";
     
-    // Update streak display
     updateDailyCheckinStatus();
     
-    // Update tasks completed count
     updateTasksCompleted();
     updateProgressCircle();
 }
@@ -1402,10 +1750,8 @@ function dailyCheckin() {
 function updateProfilePic(username) {
     const profilePic = document.getElementById('profilePic');
     if (username && username.length > 0) {
-        // Get first letter of username and make it uppercase
         const firstLetter = username.charAt(0).toUpperCase();
         
-        // Check if user has uploaded a custom profile picture
         const customPic = localStorage.getItem("averix_profile_pic");
         if (customPic) {
             profilePic.style.backgroundImage = `url('${customPic}')`;
@@ -1420,36 +1766,28 @@ function updateProfilePic(username) {
 function updateTasksCompleted() {
     let completedTasks = 0;
     
-    // Check which tasks are completed (one-time tasks only)
     const username = localStorage.getItem('averix_username');
     const gmail = localStorage.getItem('averix_gmail');
     const xConnected = localStorage.getItem('averix_x_connected') === "true";
     const xFollowed = localStorage.getItem('averix_x_followed') === "true";
     const discordConnected = localStorage.getItem('averix_discord_connected') === "true";
     
-    // For the progress circle: count all one-time tasks
-    if (username) completedTasks += 1; // Username task
-    if (gmail) completedTasks += 1; // Gmail task
-    if (xConnected) completedTasks += 1; // X connection task
-    if (xFollowed) completedTasks += 1; // Follow X task
-    if (discordConnected) completedTasks += 1; // Discord connection task
+    if (username) completedTasks += 1;
+    if (gmail) completedTasks += 1;
+    if (xConnected) completedTasks += 1;
+    if (xFollowed) completedTasks += 1;
+    if (discordConnected) completedTasks += 1;
     
-    // Calculate AVE earned
-    // One-time tasks: 20 AVE each
     const oneTimeAve = completedTasks * 20;
     
-    // Daily check-ins: 20 AVE for each check-in (including first)
     const totalDailyCheckins = parseInt(localStorage.getItem('averix_total_daily_checkins') || '0');
     const dailyAve = totalDailyCheckins * 20;
     
-    // Total AVE = one-time tasks + all daily check-ins
     const aveEarned = oneTimeAve + dailyAve;
     
-    // Save to localStorage
     localStorage.setItem('averix_completed_tasks', completedTasks.toString());
     localStorage.setItem('averix_ave_earned', aveEarned.toString());
     
-    // Update display
     document.getElementById('tasksCompletedCount').textContent = completedTasks + "/5";
     document.getElementById('aveEarned').textContent = aveEarned + " AVE";
     
@@ -1458,7 +1796,6 @@ function updateTasksCompleted() {
 
 function updateProgressCircle() {
     const completedTasks = updateTasksCompleted();
-    // 5 one-time tasks total (username, gmail, x connected, follow x, discord)
     const progress = (completedTasks / 5) * 100;
     
     const progressCircle = document.getElementById('progressCircle');
@@ -1473,29 +1810,24 @@ function loadProfile(){
     if(u){
         profileName.innerText = u
         identityUsername.innerText = "Username: " + u
-        // Update profile picture with first letter of username
         updateProfilePic(u)
     }
     
     const xUsername = localStorage.getItem("averix_x_username");
     if (localStorage.getItem("averix_x_connected") === "true") {
         document.getElementById('identityX').textContent = "X (Twitter): @" + (xUsername || "user");
-        // Show disconnect X button
         document.getElementById('disconnectXBtn').style.display = 'block';
     } else {
         document.getElementById('identityX').textContent = "X (Twitter): Not Connected";
-        // Hide disconnect X button
         document.getElementById('disconnectXBtn').style.display = 'none';
     }
     
     const discordUsername = localStorage.getItem("averix_discord_username");
     if (localStorage.getItem("averix_discord_connected") === "true") {
         document.getElementById('identityDiscord').textContent = "Discord: " + (discordUsername || "user");
-        // Show disconnect Discord button
         document.getElementById('disconnectDiscordBtn').style.display = 'block';
     } else {
         document.getElementById('identityDiscord').textContent = "Discord: Not Connected";
-        // Hide disconnect Discord button
         document.getElementById('disconnectDiscordBtn').style.display = 'none';
     }
     
@@ -1504,11 +1836,9 @@ function loadProfile(){
             currentAccount.slice(0,6)+"..."+currentAccount.slice(-4)
     }
     
-    // Update tasks completed count when loading profile
     updateTasksCompleted()
     updateDailyCheckinStatus()
     
-    // Load custom profile picture if exists
     const customPic = localStorage.getItem("averix_profile_pic");
     if (customPic) {
         const profilePic = document.getElementById('profilePic');
@@ -1517,7 +1847,6 @@ function loadProfile(){
     }
 }
 
-// Username editing functions
 function startEditingUsername() {
     const currentUsername = localStorage.getItem("averix_username") || ""
     document.getElementById('editUsernameInput').value = currentUsername
@@ -1535,22 +1864,17 @@ function saveNewUsername() {
         return
     }
     
-    // Save new username
     localStorage.setItem("averix_username", newUsername)
     
-    // Update all username displays
     document.getElementById('profileName').textContent = newUsername
     document.getElementById('identityUsername').innerText = "Username: " + newUsername
     document.getElementById('completedUsername').textContent = newUsername
     
-    // Update profile picture
     updateProfilePic(newUsername)
     
-    // Show success message
     document.getElementById('editUsernameStatus').innerText = "Username updated successfully!"
     document.getElementById('editUsernameStatus').style.color = "#2cb67d"
     
-    // Hide the edit form after a delay
     setTimeout(() => {
         document.getElementById('editUsernameForm').style.display = 'none'
         isEditingUsername = false
@@ -1570,29 +1894,24 @@ function uploadProfilePic() {
     
     if (!file) return;
     
-    // Check file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
         status.innerText = "File too large! Max 2MB.";
         status.style.color = "#ff6b6b";
         return;
     }
     
-    // Check file type
     if (!file.type.match('image.*')) {
         status.innerText = "Please select an image file.";
         status.style.color = "#ff6b6b";
         return;
     }
     
-    // Create a FileReader to read the file
     const reader = new FileReader();
     
     reader.onload = function(e) {
-        // Convert image to base64 and save to localStorage
         const base64Image = e.target.result;
         localStorage.setItem("averix_profile_pic", base64Image);
         
-        // Update profile picture display
         const profilePic = document.getElementById('profilePic');
         profilePic.style.backgroundImage = `url('${base64Image}')`;
         profilePic.textContent = '';
@@ -1600,7 +1919,6 @@ function uploadProfilePic() {
         status.innerText = "Profile picture updated successfully!";
         status.style.color = "#2cb67d";
         
-        // Clear status after 3 seconds
         setTimeout(() => {
             status.innerText = "";
         }, 3000);
@@ -1612,17 +1930,6 @@ function uploadProfilePic() {
     };
     
     reader.readAsDataURL(file);
-}
-
-async function connectWallet(){
-    if(!window.solana) return alert("Solana wallet not detected")
-    const response = await window.solana.connect();
-    const publicKey = response.publicKey.toString();
-    const n=await fetch("/nonce",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({address:publicKey})})
-    const {message}=await n.json()
-    await window.solana.signMessage(new TextEncoder().encode(message), "utf8");
-    await fetch("/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({address:publicKey})})
-    unlock(publicKey)
 }
 </script>
 
@@ -1871,6 +2178,7 @@ def nonce():
 def verify():
     data = request.json
     address = data.get("address", "").lower()
+    wallet_type = data.get("walletType", "phantom")
     
     if not address:
         return jsonify({"ok": False, "error": "No address provided"}), 400
@@ -1879,20 +2187,20 @@ def verify():
     if address not in NONCES:
         return jsonify({"ok": False, "error": "Nonce expired or not found"}), 400
     
-    # In a real app, verify the signature here
+    # Note: In a production app, you would verify the signature here
     # For simplicity, we'll just remove the nonce and consider it verified
+    # You should implement proper signature verification for each wallet type
     
-    # Remove used nonce
     NONCES.pop(address, None)
     
-    # Initialize user data if not exists
     if address not in USER_DATA:
         USER_DATA[address] = {
             "username": "",
             "email": "",
             "daily_streak": 0,
             "last_checkin": None,
-            "tasks_completed": 0
+            "tasks_completed": 0,
+            "wallet_type": wallet_type
         }
     
     return jsonify({
@@ -1908,9 +2216,6 @@ def upload_profile_pic():
     # 2. Save the file to disk
     # 3. Store the filename in a database
     
-    # For Termux simplicity, we'll just return success
-    # You'd need to implement actual file handling here
-    
     return jsonify({
         "ok": True,
         "message": "Profile picture uploaded successfully"
@@ -1922,6 +2227,8 @@ if __name__ == "__main__":
     print(f"X Callback URL: {X_CALLBACK_URL}")
     print("Discord OAuth Integration: ACTIVE")
     print(f"Discord Callback URL: {DISCORD_CALLBACK_URL}")
+    print("WalletConnect V2 Integration: ACTIVE")
+    print(f"WalletConnect Project ID: {WALLETCONNECT_PROJECT_ID}")
     print("To access from your phone, make sure you're on the same network")
     print("and use your computer's IP address followed by :5000")
     app.run(host="0.0.0.0", port=5000, debug=True)
