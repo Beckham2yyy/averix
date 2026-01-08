@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Averix</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div id="gate">
+    <div class="gate-box">
+        <h1>Averix</h1>
+        <p>Connect your wallet to access the platform</p>
+        <button onclick="connectWallet()">Connect Wallet</button>
+    </div>
+</div>
+
+<nav>
+    <div class="logo">Averix</div>
+    <div>
+        <button id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+        <button id="disconnectBtn" onclick="disconnectWallet()">Disconnect</button>
+    </div>
+</nav>
+
+<div id="taskPage">
+    <div class="hero">
+        <h1>Welcome to Averix</h1>
+        <p>Complete tasks to earn AVE</p>
+    </div>
+
+    <div class="card">
+        <div class="task-progress">
+            <div class="progress-circle" id="progressCircle" style="--progress: 0%">
+                <div class="progress-text" id="progressText">0/5</div>
+            </div>
+            <div class="progress-info">
+                <h3>Task Progress</h3>
+                <p>Complete tasks to earn AVE</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Set Username</h3>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Choose a username to earn 20 AVE.</p>
+        
+        <div id="usernameForm">
+            <input id="usernameInput" placeholder="Enter username"
+            style="width:100%;padding:12px;border-radius:10px;border:none;background:#0b0b0f;color:white;margin-top:10px">
+            <button style="margin-top:12px; width: 100%;" onclick="setUsername()">Save Username</button>
+        </div>
+        
+        <div id="taskCompleted" class="task-completed" style="display: none;">
+            <div class="checkbox-circle">
+                <div class="checkmark">✓</div>
+            </div>
+            <div class="task-details">
+                <div class="task-title">Task Completed</div>
+                <div class="task-username">Username: <span id="completedUsername">Beckham</span> •</div>
+            </div>
+        </div>
+        
+        <p id="usernameStatus" style="margin-top:10px;color:#2cb67d"></p>
+    </div>
+
+    <div class="card">
+        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Verify Gmail</h3>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Verify your Gmail account to earn 20 AVE.</p>
+        
+        <div id="gmailForm">
+            <input id="gmailInput" placeholder="Enter your Gmail address"
+            style="width:100%;padding:12px;border-radius:10px;border:none;background:#0b0b0f;color:white;margin-top:10px">
+            <button style="margin-top:12px; width: 100%;" onclick="verifyGmail()">Verify Gmail</button>
+        </div>
+        
+        <div id="gmailCompleted" class="task-completed" style="display: none;">
+            <div class="checkbox-circle">
+                <div class="checkmark">✓</div>
+            </div>
+            <div class="task-details">
+                <div class="task-title">Task Completed</div>
+                <div class="task-username">Gmail: <span id="completedGmail">example@gmail.com</span> •</div>
+            </div>
+        </div>
+        
+        <p id="gmailStatus" style="margin-top:10px;color:#2cb67d"></p>
+    </div>
+
+    <div class="card">
+        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Connect X</h3>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Connect your X account to earn 20 AVE.</p>
+        
+        <div id="xForm">
+            <button class="x-connection-btn" onclick="connectXAccount()">
+                <svg class="x-icon" viewBox="0 0 24 24" fill="white">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                Connect X Account
+            </button>
+        </div>
+        
+        <div id="xCompleted" class="task-completed" style="display: none;">
+            <div class="checkbox-circle">
+                <div class="checkmark">✓</div>
+            </div>
+            <div class="task-details">
+                <div class="task-title">Task Completed</div>
+                <div class="task-username">X Account: <span id="completedX">@user</span> •</div>
+            </div>
+        </div>
+        
+        <p id="xStatus" style="margin-top:10px;color:#2cb67d"></p>
+    </div>
+
+    <div class="card">
+        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Follow Averix on X</h3>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Follow <span style="color:#1DA1F2; font-weight:bold;">@averixapp</span> on X to earn 20 AVE.</p>
+        
+        <div id="followXForm">
+            <button class="follow-x-btn" onclick="followXAccount()" id="followXBtn">
+                <svg class="x-icon" viewBox="0 0 24 24" fill="white">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+                Open & Follow @averixapp
+            </button>
+            <button id="markFollowedBtn" class="secondary" style="margin-top: 10px; width: 100%; display: none;" onclick="markXFollowed()">
+                I've Followed @averixapp
+            </button>
+        </div>
+        
+        <div id="followXCompleted" class="task-completed" style="display: none;">
+            <div class="checkbox-circle">
+                <div class="checkmark">✓</div>
+            </div>
+            <div class="task-details">
+                <div class="task-title">Task Completed</div>
+                <div class="x-username">Followed: <span id="completedFollowX">@averixapp</span> •</div>
+            </div>
+        </div>
+        
+        <p id="followXStatus" style="margin-top:10px;color:#2cb67d"></p>
+    </div>
+
+    <div class="card">
+        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Connect Discord</h3>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Connect your Discord account to earn 20 AVE.</p>
+        
+        <div id="discordForm">
+            <button class="discord-connection-btn" onclick="connectDiscordAccount()">
+                <svg class="discord-icon" viewBox="0 0 24 24" fill="white">
+                    <path d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.09.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12z"/>
+                </svg>
+                Connect Discord Account
+            </button>
+        </div>
+        
+        <div id="discordCompleted" class="task-completed" style="display: none;">
+            <div class="checkbox-circle">
+                <div class="checkmark">✓</div>
+            </div>
+            <div class="task-details">
+                <div class="task-title">Task Completed</div>
+                <div class="discord-username">Discord Account: <span id="completedDiscord">user#1234</span> •</div>
+            </div>
+        </div>
+        
+        <p id="discordStatus" style="margin-top:10px;color:#2cb67d"></p>
+    </div>
+
+    <div class="card">
+        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">
+            Daily Check-in 
+            <span class="ave-badge">+20 AVE</span>
+        </h3>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Check in daily to earn 20 AVE.</p>
+        
+        <div class="ave-info">
+            <p><b>Current daily streak:</b> <span id="dailyStreak">0</span> days</p>
+            <p><b>Last check-in:</b> <span id="lastCheckin">Never</span></p>
+        </div>
+        
+        <button id="dailyCheckinBtn" class="daily-checkin-btn" onclick="dailyCheckin()">
+            Check In Today
+        </button>
+        
+        <div id="dailyCompleted" class="task-completed" style="display: none;">
+            <div class="checkbox-circle">
+                <div class="checkmark">✓</div>
+            </div>
+            <div class="task-details">
+                <div class="task-title">Daily Check-in Completed</div>
+                <div class="task-username"></div>
+            </div>
+        </div>
+        
+        <p id="dailyStatus" style="margin-top:10px;color:#2cb67d"></p>
+    </div>
+</div>
+
+<div id="referPage" class="hidden">
+    <div class="card highlight">
+        <span class="badge">LIVE</span>
+        <h3>$50,000 Referral Contest</h3>
+        <p>Invite verified wallets and earn 30 AVE</p>
+    </div>
+
+    <div class="card">
+        <h3>Total Referral Earnings</h3>
+        <div class="big">$0.00</div>
+    </div>
+
+    <div class="card">
+        <h3>Your Referral Link</h3>
+        <div class="ref-box">
+            <input id="refLink" readonly>
+        </div>
+        <div class="row">
+            <button class="secondary" onclick="copyRef()">Copy</button>
+            <button class="secondary">Share</button>
+        </div>
+    </div>
+</div>
+
+<div id="multPage" class="hidden">
+    <div class="card">
+        <h3>Multipliers</h3>
+        <p>Buy Multipliers to boost your referral rewards</p>
+    </div>
+</div>
+
+<div id="profilePage" class="hidden">
+    <div class="card">
+        <div class="profile-header">
+            <div class="profile-pic-container">
+                <div class="profile-pic" id="profilePic">A</div>
+                <div class="upload-overlay" onclick="document.getElementById('profilePicUpload').click()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </div>
+                <input type="file" id="profilePicUpload" accept="image/*" onchange="uploadProfilePic()">
+            </div>
+            <div class="profile-info">
+                <div class="profile-name" id="profileName">Username</div>
+                <div class="profile-wallet" id="profileWallet">0x0000...0000</div>
+            </div>
+        </div>
+        <p id="uploadStatus" class="upload-status"></p>
+    </div>
+
+    <div class="card">
+        <h3>Stats</h3>
+        <p>Referrals: <b id="referralsCount">0</b></p>
+        <p>Tasks completed: <b id="tasksCompletedCount">0/5</b></p>
+        <p>AVE Earned: <b id="aveEarned">0</b></p>
+        <p>Daily streak: <b id="profileDailyStreak">0 days</b></p>
+    </div>
+
+    <div class="card">
+        <h3>Identity</h3>
+        <p id="identityUsername">Username: not set</p>
+        <p id="identityWallet">Wallet: connected</p>
+        <p id="identityX">X (Twitter): Not Connected</p>
+        <p id="identityDiscord">Discord: Not Connected</p>
+    </div>
+
+    <div class="card">
+        <h3>Settings</h3>
+        <button class="secondary" style="width:100%; margin-bottom: 12px;"
+        onclick="startEditingUsername()">
+            Change username
+        </button>
+        
+        <button id="advancedToggleBtn" class="advanced-toggle-btn" onclick="toggleAdvancedSettings()">
+            Advanced <span class="advanced-arrow">↓</span>
+        </button>
+        
+        <div id="advancedSettings">
+            <button id="disconnectXBtn" class="disconnect-x-btn" onclick="disconnectXAccount()" style="display: none;">
+                <svg class="x-icon" viewBox="0 0 24 24" fill="white">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                Disconnect X Account
+            </button>
+            
+            <button id="disconnectDiscordBtn" class="disconnect-discord-btn" onclick="disconnectDiscordAccount()" style="display: none;">
+                <svg class="discord-icon" viewBox="0 0 24 24" fill="white">
+                    <path d="M19.27 5.33C17.94 4.71 16.5 4.26 15 4a.09.09 0 0 0-.07.03c-.18.33-.39.76-.53 1.09a16.09 16.09 0 0 0-4.8 0c-.14-.34-.35-.76-.54-1.09c-.01-.02-.04-.03-.07-.03c-1.5.26-2.93.71-4.27 1.33c-.01 0-.02.01-.03.02c-2.72 4.07-3.47 8.03-3.1 11.95c0 .02.01.04.03.05c1.8 1.32 3.53 2.12 5.24 2.65c.03.01.06 0 .07-.02c.4-.55.76-1.13 1.07-1.74c.02-.04 0-.08-.04-.09c-.57-.22-1.11-.48-1.64-.78c-.04-.02-.04-.08-.01-.11c.11-.08.22-.17.33-.25c.02-.02.05-.02.07-.01c3.44 1.57 7.15 1.57 10.55 0c.02-.01.05-.01.07.01c.11.09.22.17.33.26c.04.03.04.09-.01.11c-.52.31-1.07.56-1.64.78c-.04.01-.05.06-.04.09c.32.61.68 1.19 1.07 1.74c.03.01.06.02.09.01c1.72-.53 3.45-1.33 5.25-2.65c.02-.01.03-.03.03-.05c.44-4.53-.73-8.46-3.1-11.95c-.01-.01-.02-.02-.04-.02zM8.52 14.91c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.84 2.12-1.89 2.12zm6.97 0c-1.03 0-1.89-.95-1.89-2.12s.84-2.12 1.89-2.12c1.06 0 1.9.96 1.89 2.12c0 1.17-.83 2.12-1.89 2.12z"/>
+                </svg>
+                Disconnect Discord Account
+            </button>
+        </div>
+        
+        <div id="editUsernameForm" class="edit-username-form" style="display: none;">
+            <h4 style="margin-top: 0; margin-bottom: 12px;">Edit Username</h4>
+            <input type="text" id="editUsernameInput" placeholder="Enter new username">
+            <div class="edit-actions">
+                <button class="secondary" style="flex: 1;" onclick="saveNewUsername()">
+                    Save
+                </button>
+                <button class="secondary" style="flex: 1;" onclick="cancelEditUsername()">
+                    Cancel
+                </button>
+            </div>
+            <p id="editUsernameStatus" style="margin-top:10px;color:#2cb67d; font-size: 14px;"></p>
+        </div>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <div class="bottom-item active" onclick="switchTab('task',this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M3 7h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/>
+            <path d="M16 11a2 2 0 0 1-4 0"/>
+        </svg>
+        Task
+    </div>
+
+    <div class="bottom-item" onclick="switchTab('refer',this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="9" cy="8" r="3"/>
+            <circle cx="17" cy="8" r="3"/>
+            <path d="M2 20c1.5-4 10.5-4 12 0"/>
+            <path d="M12 20c1-3 7-3 8 0"/>
+        </svg>
+        Refer
+    </div>
+
+    <div class="bottom-item" onclick="switchTab('mult',this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/>
+        </svg>
+        Multipliers
+    </div>
+
+    <div class="bottom-item" onclick="switchTab('profile',this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 20c2-4 14-4 16 0"/>
+        </svg>
+        Profile
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>
