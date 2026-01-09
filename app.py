@@ -42,38 +42,22 @@ HTML_TEMPLATE = '''
 <title>Averix</title>
 
 <style>
-:root {
-    --primary: #7f5af0;
-    --secondary: #2cb67d;
-    --dark: #0b0b0f;
-    --darker: #08080c;
-    --card-bg: #111118;
-    --card-border: #1f1f2a;
-    --text: #ffffff;
-    --text-secondary: #8b8b9a;
-    --text-muted: #6b6b7a;
-    --accent: #ff8c00;
-    --success: #2cb67d;
-    --warning: #ffd166;
-    --danger: #ff4757;
-}
-
 body {
     margin: 0;
-    background: var(--dark);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-    line-height: 1.6;
+    background: #0b0b0f;
+    color: white;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    padding-bottom: 90px;
     -webkit-font-smoothing: antialiased;
-    padding-bottom: 100px;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-.hidden { display: none !important; }
+.hidden { display: none }
 
 #gate {
     position: fixed;
     inset: 0;
-    background: var(--darker);
+    background: #0b0b0f;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -82,167 +66,157 @@ body {
 
 .gate-box {
     text-align: center;
-    padding: 40px 30px;
+    padding: 40px;
     max-width: 320px;
     width: 100%;
 }
 
 .gate-box h1 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin: 0 0 16px 0;
-    background: linear-gradient(90deg, var(--primary), var(--secondary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: white;
 }
 
 .gate-box p {
-    color: var(--text-secondary);
+    color: #8b8b9a;
     margin-bottom: 32px;
-    font-size: 1.1rem;
+    font-size: 15px;
+    line-height: 1.5;
 }
 
 nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 24px;
-    background: var(--darker);
-    border-bottom: 1px solid var(--card-border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    padding: 18px 20px;
+    background: #0b0b0f;
+    border-bottom: 1px solid #1a1a1f;
+    backdrop-filter: blur(10px);
 }
 
-.logo {
-    font-size: 1.5rem;
-    font-weight: 800;
-    background: linear-gradient(90deg, var(--primary), var(--secondary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.logo { 
+    font-size: 20px; 
+    font-weight: 600;
+    letter-spacing: -0.5px;
 }
 
 button {
-    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    background: linear-gradient(90deg, #7f5af0, #2cb67d);
     border: none;
-    padding: 12px 24px;
+    padding: 10px 20px;
     color: white;
-    border-radius: 12px;
+    border-radius: 10px;
     cursor: pointer;
-    font-weight: 600;
-    font-size: 0.95rem;
+    font-weight: 500;
+    font-size: 14px;
     transition: all 0.2s ease;
-    min-height: 44px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(127, 90, 240, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(127, 90, 240, 0.2);
 }
 
 button:active {
     transform: translateY(0);
 }
 
-button.connected {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
+button.connected { 
+    background: #1a1a1f;
+    border: 1px solid #2a2a35;
 }
 
 #disconnectBtn {
-    margin-top: 8px;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    width: 100%;
-}
-
-#disconnectBtn:hover {
-    background: rgba(255, 71, 87, 0.1);
-    border-color: var(--danger);
-    color: var(--danger);
+    margin-top: 6px;
+    background: #1a1a1f;
+    display: none;
+    border: 1px solid #2a2a35;
 }
 
 .hero {
-    padding: 48px 24px;
+    padding: 40px 20px;
     text-align: center;
 }
 
-.hero h1 {
-    font-size: 2.2rem;
-    font-weight: 700;
-    margin: 0 0 16px 0;
+.hero h1 { 
+    font-size: 28px; 
+    font-weight: 600;
+    margin-bottom: 8px;
 }
-
-.hero p {
-    color: var(--text-secondary);
-    font-size: 1.1rem;
-    margin: 0;
+.hero p { 
+    color: #8b8b9a; 
+    font-size: 15px;
 }
 
 .card {
-    background: var(--card-bg);
-    border-radius: 20px;
-    padding: 28px;
-    margin: 20px 24px;
-    border: 1px solid var(--card-border);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: #111118;
+    border-radius: 16px;
+    padding: 24px;
+    margin: 16px 20px;
+    border: 1px solid #1a1a1f;
+    transition: border-color 0.2s ease;
 }
 
 .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+    border-color: #2a2a35;
 }
 
 .highlight {
-    background: linear-gradient(135deg, rgba(42, 27, 77, 0.8), rgba(26, 26, 46, 0.8));
-    border: 1px solid var(--primary);
+    background: linear-gradient(135deg, #2a1b4d, #1a1a2e);
+    border-color: #7f5af0;
 }
 
 .badge {
-    background: var(--primary);
-    padding: 6px 12px;
-    border-radius: 10px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
+    background: #7f5af0;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
     display: inline-block;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .big {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin: 8px 0;
+    font-size: 30px;
+    font-weight: 600;
 }
 
 .ref-box input {
     width: 100%;
-    background: var(--darker);
-    border: 1px solid var(--card-border);
-    padding: 16px;
-    border-radius: 12px;
-    color: var(--text);
-    font-size: 1rem;
+    background: #0b0b0f;
+    border: 1px solid #1a1a1f;
+    padding: 14px;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
     margin-top: 12px;
+}
+
+.ref-box input:focus {
+    outline: none;
+    border-color: #7f5af0;
 }
 
 .row {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     margin-top: 16px;
 }
 
 .secondary {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
+    background: #1a1a1f;
     flex: 1;
+    border: 1px solid #2a2a35;
 }
 
 .secondary:hover {
-    background: rgba(127, 90, 240, 0.1);
-    border-color: var(--primary);
+    background: #22222a;
+    border-color: #7f5af0;
 }
 
 .bottom-nav {
@@ -250,11 +224,11 @@ button.connected {
     bottom: 0;
     left: 0;
     right: 0;
-    background: var(--darker);
-    border-top: 1px solid var(--card-border);
+    background: #0f0f16;
+    border-top: 1px solid #1a1a1f;
     display: flex;
     justify-content: space-around;
-    padding: 16px 0 24px 0;
+    padding: 12px 0 20px;
     backdrop-filter: blur(10px);
 }
 
@@ -262,47 +236,47 @@ button.connected {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    padding: 8px 16px;
-    border-radius: 12px;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #8b8b9a;
+    padding: 8px;
+    border-radius: 8px;
     transition: all 0.2s ease;
 }
 
 .bottom-item svg {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     stroke-width: 2;
 }
 
 .bottom-item.active {
-    color: var(--primary);
+    color: #7f5af0;
     background: rgba(127, 90, 240, 0.1);
 }
 
 .bottom-item.active svg {
-    stroke: var(--primary);
+    stroke: #7f5af0;
 }
 
 /* Task completed styling */
 .task-completed {
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin-top: 20px;
-    padding: 18px;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 16px;
     background: rgba(127, 90, 240, 0.08);
-    border-radius: 14px;
-    border: 1px solid rgba(127, 90, 240, 0.3);
+    border-radius: 12px;
+    border: 1px solid rgba(127, 90, 240, 0.2);
 }
 
 .checkbox-circle {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    background: var(--success);
+    background: #2cb67d;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -311,8 +285,8 @@ button.connected {
 
 .checkmark {
     color: white;
-    font-size: 14px;
-    font-weight: bold;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .task-details {
@@ -320,73 +294,73 @@ button.connected {
 }
 
 .task-title {
-    font-weight: 700;
-    color: var(--success);
-    font-size: 1rem;
+    font-weight: 500;
+    color: #2cb67d;
+    font-size: 14px;
 }
 
 .task-username {
-    color: var(--primary);
-    font-weight: 600;
-    margin-top: 4px;
-    font-size: 0.95rem;
+    color: #7f5af0;
+    font-weight: 500;
+    margin-top: 2px;
+    font-size: 13px;
 }
 
 /* Profile picture styling */
 .profile-header {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
 }
 
 .profile-pic-container {
     position: relative;
-    width: 96px;
-    height: 96px;
+    width: 80px;
+    height: 80px;
 }
 
 .profile-pic {
-    width: 96px;
-    height: 96px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: linear-gradient(135deg, #7f5af0, #2cb67d);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.5rem;
-    font-weight: 700;
+    font-size: 28px;
+    font-weight: 600;
     color: white;
     flex-shrink: 0;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    border: 3px solid var(--card-bg);
+    border: 3px solid #111118;
 }
 
 .upload-overlay {
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    background: var(--primary);
+    background: #7f5af0;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border: 3px solid var(--card-bg);
+    border: 3px solid #111118;
     transition: all 0.2s ease;
 }
 
 .upload-overlay:hover {
-    transform: scale(1.1);
-    background: var(--secondary);
+    background: #6b48e0;
+    transform: scale(1.05);
 }
 
 .upload-overlay svg {
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
     color: white;
 }
 
@@ -395,52 +369,57 @@ button.connected {
 }
 
 .profile-name {
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: var(--primary);
-    margin-bottom: 6px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #7f5af0;
+    margin-bottom: 2px;
 }
 
 .profile-wallet {
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    color: #8b8b9a;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
 }
 
 /* Username edit form */
 .edit-username-form {
     margin-top: 20px;
     padding: 20px;
-    background: rgba(30, 30, 46, 0.8);
-    border-radius: 14px;
-    border: 1px solid rgba(127, 90, 240, 0.3);
+    background: rgba(30, 30, 46, 0.5);
+    border-radius: 12px;
+    border: 1px solid rgba(127, 90, 240, 0.2);
 }
 
 .edit-username-form input {
     width: 100%;
-    padding: 14px;
-    border-radius: 12px;
-    border: 1px solid var(--card-border);
-    background: var(--darker);
-    color: var(--text);
-    margin-top: 12px;
-    font-size: 1rem;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #1a1a1f;
+    background: #0b0b0f;
+    color: white;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.edit-username-form input:focus {
+    outline: none;
+    border-color: #7f5af0;
 }
 
 .edit-actions {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     margin-top: 16px;
 }
 
 /* Daily Check-in button */
 .daily-checkin-btn {
     width: 100%;
-    padding: 18px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 500;
     margin-top: 16px;
-    border-radius: 14px;
+    border-radius: 12px;
 }
 
 .daily-checkin-btn.disabled {
@@ -452,13 +431,13 @@ button.connected {
 
 .ave-badge {
     display: inline-block;
-    background: linear-gradient(135deg, var(--accent), #ff5e00);
+    background: linear-gradient(135deg, #ff8c00, #ff5e00);
     color: white;
-    padding: 6px 14px;
+    padding: 4px 10px;
     border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    margin-left: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
     vertical-align: middle;
 }
 
@@ -466,17 +445,19 @@ button.connected {
     margin-top: 16px;
     padding: 16px;
     background: rgba(255, 140, 0, 0.08);
-    border-radius: 14px;
-    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    border-left: 3px solid #ff8c00;
 }
 
 .ave-info p {
-    margin: 8px 0;
-    color: var(--text-secondary);
+    margin: 6px 0;
+    color: #8b8b9a;
+    font-size: 14px;
 }
 
 .ave-info b {
-    color: var(--text);
+    color: white;
+    font-weight: 500;
 }
 
 /* File upload styling */
@@ -486,23 +467,23 @@ button.connected {
 
 .upload-status {
     margin-top: 12px;
-    font-size: 0.95rem;
-    color: var(--success);
+    font-size: 13px;
+    color: #2cb67d;
 }
 
 /* Task progress */
 .task-progress {
     display: flex;
     align-items: center;
-    gap: 20px;
-    margin-top: 10px;
+    gap: 16px;
+    margin-top: 20px;
 }
 
 .progress-circle {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    background: conic-gradient(var(--primary) 0% var(--progress), var(--card-border) 0%);
+    background: conic-gradient(#7f5af0 0% var(--progress), #1a1a1f 0%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -513,17 +494,17 @@ button.connected {
 .progress-circle::before {
     content: '';
     position: absolute;
-    width: 68px;
-    height: 68px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    background: var(--card-bg);
+    background: #111118;
 }
 
 .progress-text {
     position: absolute;
-    font-weight: 800;
-    font-size: 1.1rem;
-    color: var(--primary);
+    font-weight: 600;
+    font-size: 13px;
+    color: #7f5af0;
 }
 
 .progress-info {
@@ -531,14 +512,15 @@ button.connected {
 }
 
 .progress-info h3 {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin: 0 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
 }
 
 .progress-info p {
-    color: var(--text-secondary);
+    color: #8b8b9a;
     margin: 0;
+    font-size: 14px;
 }
 
 /* X (Twitter) connection styling */
@@ -546,23 +528,23 @@ button.connected {
     background: linear-gradient(135deg, #000000, #1DA1F2);
     color: white;
     width: 100%;
-    padding: 18px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 500;
     margin-top: 16px;
     border: none;
-    border-radius: 14px;
+    border-radius: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
     transition: all 0.2s ease;
 }
 
 .x-connection-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(29, 161, 242, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(29, 161, 242, 0.2);
 }
 
 .x-connection-btn:disabled {
@@ -573,8 +555,8 @@ button.connected {
 }
 
 .x-icon {
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
 }
 
 /* Discord connection styling */
@@ -582,23 +564,23 @@ button.connected {
     background: linear-gradient(135deg, #5865F2, #7289DA);
     color: white;
     width: 100%;
-    padding: 18px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 500;
     margin-top: 16px;
     border: none;
-    border-radius: 14px;
+    border-radius: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
     transition: all 0.2s ease;
 }
 
 .discord-connection-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(88, 101, 242, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(88, 101, 242, 0.2);
 }
 
 .discord-connection-btn:disabled {
@@ -609,8 +591,8 @@ button.connected {
 }
 
 .discord-icon {
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
 }
 
 /* Disconnect X button styling */
@@ -618,23 +600,23 @@ button.connected {
     background: linear-gradient(135deg, #ff4757, #ff3838);
     color: white;
     width: 100%;
-    padding: 18px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 500;
     margin-top: 16px;
     border: none;
-    border-radius: 14px;
+    border-radius: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
     transition: all 0.2s ease;
 }
 
 .disconnect-x-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
 }
 
 /* Disconnect Discord button styling */
@@ -642,23 +624,23 @@ button.connected {
     background: linear-gradient(135deg, #ff4757, #ff3838);
     color: white;
     width: 100%;
-    padding: 18px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 500;
     margin-top: 16px;
     border: none;
-    border-radius: 14px;
+    border-radius: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
     transition: all 0.2s ease;
 }
 
 .disconnect-discord-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
 }
 
 /* Follow X button styling */
@@ -666,23 +648,23 @@ button.connected {
     background: linear-gradient(135deg, #1DA1F2, #1a91da);
     color: white;
     width: 100%;
-    padding: 18px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 500;
     margin-top: 16px;
     border: none;
-    border-radius: 14px;
+    border-radius: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
     transition: all 0.2s ease;
 }
 
 .follow-x-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(29, 161, 242, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(29, 161, 242, 0.2);
 }
 
 .follow-x-btn.disabled {
@@ -693,22 +675,24 @@ button.connected {
 }
 
 .follow-x-btn.disabled-text {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    color: var(--text-secondary);
+    background: #1a1a1f;
+    border: 1px solid #2a2a35;
+    color: #8b8b9a;
     cursor: not-allowed;
 }
 
 .x-username {
     color: #1DA1F2;
-    font-weight: 700;
-    margin-top: 6px;
+    font-weight: 500;
+    margin-top: 2px;
+    font-size: 13px;
 }
 
 .discord-username {
     color: #5865F2;
-    font-weight: 700;
-    margin-top: 6px;
+    font-weight: 500;
+    margin-top: 2px;
+    font-size: 13px;
 }
 
 /* Advanced settings styling */
@@ -724,30 +708,30 @@ button.connected {
 }
 
 .advanced-toggle-btn {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: linear-gradient(135deg, #7f5af0, #2cb67d);
     color: white;
     width: 100%;
-    padding: 18px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 500;
     margin-top: 16px;
     border: none;
-    border-radius: 14px;
+    border-radius: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
     transition: all 0.2s ease;
 }
 
 .advanced-toggle-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(127, 90, 240, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(127, 90, 240, 0.2);
 }
 
 .advanced-arrow {
-    font-size: 1rem;
+    font-size: 12px;
     transition: transform 0.3s ease;
 }
 
@@ -755,36 +739,37 @@ button.connected {
     transform: rotate(180deg);
 }
 
-/* Form styling */
+/* Card header styling */
 .card h3 {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin: 0 0 12px 0;
-    color: var(--text);
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: white;
 }
 
 .card p {
-    color: var(--text-secondary);
-    margin: 0 0 20px 0;
-    font-size: 1rem;
+    color: #8b8b9a;
+    margin: 0 0 16px 0;
+    font-size: 14px;
     line-height: 1.5;
 }
 
+/* Input styling */
 .card input {
     width: 100%;
-    background: var(--darker);
-    border: 1px solid var(--card-border);
-    padding: 16px;
-    border-radius: 12px;
-    color: var(--text);
-    font-size: 1rem;
-    margin-top: 12px;
-    transition: border-color 0.2s ease;
+    background: #0b0b0f;
+    border: 1px solid #1a1a1f;
+    padding: 12px;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    margin-top: 10px;
+    box-sizing: border-box;
 }
 
 .card input:focus {
     outline: none;
-    border-color: var(--primary);
+    border-color: #7f5af0;
 }
 
 /* Status messages */
@@ -795,79 +780,71 @@ button.connected {
 #discordStatus,
 #dailyStatus {
     margin-top: 12px;
-    font-size: 0.95rem;
+    font-size: 13px;
     font-weight: 500;
 }
 
 /* Stats styling */
 .card p b {
-    color: var(--text);
-    font-weight: 700;
+    color: white;
+    font-weight: 500;
 }
 
-/* Loading states */
-button.loading {
-    position: relative;
-    color: transparent;
+/* Section headers */
+.card h3[style*="font-size: 20px"] {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    margin-bottom: 8px !important;
 }
 
-button.loading::after {
-    content: '';
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    top: 50%;
-    left: 50%;
-    margin: -10px 0 0 -10px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+.card p[style*="color: #bdbdbd"] {
+    color: #8b8b9a !important;
+    margin-bottom: 16px !important;
+    font-size: 14px !important;
 }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* Modal backdrop */
-.modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
+/* Form button styling */
+.card button {
+    width: 100%;
+    margin-top: 12px;
 }
 
 /* Responsive adjustments */
 @media (max-width: 480px) {
     .card {
-        margin: 16px 20px;
-        padding: 24px;
+        margin: 12px 16px;
+        padding: 20px;
     }
     
     .hero {
-        padding: 40px 20px;
+        padding: 32px 20px;
     }
     
-    .hero h1 {
-        font-size: 1.8rem;
+    nav {
+        padding: 16px 16px;
     }
-    
-    .profile-pic-container {
-        width: 80px;
-        height: 80px;
-    }
-    
-    .profile-pic {
-        width: 80px;
-        height: 80px;
-        font-size: 2rem;
-    }
+}
+
+/* Subtle focus styles */
+:focus {
+    outline: 2px solid #7f5af0;
+    outline-offset: 2px;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Remove blue highlight on mobile */
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Better selection */
+::selection {
+    background: rgba(127, 90, 240, 0.3);
+    color: white;
 }
 </style>
 </head>
@@ -909,12 +886,13 @@ button.loading::after {
     </div>
 
     <div class="card">
-        <h3>Set Username</h3>
-        <p>Choose a username to earn 20 AVE.</p>
+        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Set Username</h3>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Choose a username to earn 20 AVE.</p>
         
         <div id="usernameForm">
-            <input id="usernameInput" placeholder="Enter username">
-            <button style="margin-top:16px; width: 100%;" onclick="setUsername()">Save Username</button>
+            <input id="usernameInput" placeholder="Enter username"
+            style="width:100%;padding:12px;border-radius:10px;border:none;background:#0b0b0f;color:white;margin-top:10px">
+            <button style="margin-top:12px; width: 100%;" onclick="setUsername()">Save Username</button>
         </div>
         
         <div id="taskCompleted" class="task-completed" style="display: none;">
@@ -923,20 +901,21 @@ button.loading::after {
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="task-username">Username: <span id="completedUsername">Beckham</span></div>
+                <div class="task-username">Username: <span id="completedUsername">Beckham</span> •</div>
             </div>
         </div>
         
-        <p id="usernameStatus"></p>
+        <p id="usernameStatus" style="margin-top:10px;color:#2cb67d"></p>
     </div>
 
     <div class="card">
-        <h3>Verify Gmail</h3>
-        <p>Verify your Gmail account to earn 20 AVE.</p>
+        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Verify Gmail</h3>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Verify your Gmail account to earn 20 AVE.</p>
         
         <div id="gmailForm">
-            <input id="gmailInput" placeholder="Enter your Gmail address">
-            <button style="margin-top:16px; width: 100%;" onclick="verifyGmail()">Verify Gmail</button>
+            <input id="gmailInput" placeholder="Enter your Gmail address"
+            style="width:100%;padding:12px;border-radius:10px;border:none;background:#0b0b0f;color:white;margin-top:10px">
+            <button style="margin-top:12px; width: 100%;" onclick="verifyGmail()">Verify Gmail</button>
         </div>
         
         <div id="gmailCompleted" class="task-completed" style="display: none;">
@@ -945,16 +924,16 @@ button.loading::after {
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="task-username">Gmail: <span id="completedGmail">example@gmail.com</span></div>
+                <div class="task-username">Gmail: <span id="completedGmail">example@gmail.com</span> •</div>
             </div>
         </div>
         
-        <p id="gmailStatus"></p>
+        <p id="gmailStatus" style="margin-top:10px;color:#2cb67d"></p>
     </div>
 
     <div class="card">
-        <h3>Connect X</h3>
-        <p>Connect your X account to earn 20 AVE.</p>
+        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Connect X</h3>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Connect your X account to earn 20 AVE.</p>
         
         <div id="xForm">
             <button class="x-connection-btn" onclick="connectXAccount()">
@@ -971,16 +950,16 @@ button.loading::after {
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="task-username">X Account: <span id="completedX">@user</span></div>
+                <div class="task-username">X Account: <span id="completedX">@user</span> •</div>
             </div>
         </div>
         
-        <p id="xStatus"></p>
+        <p id="xStatus" style="margin-top:10px;color:#2cb67d"></p>
     </div>
 
     <div class="card">
-        <h3>Follow Averix on X</h3>
-        <p>Follow <span style="color:#1DA1F2; font-weight:700;">@averixapp</span> on X to earn 20 AVE.</p>
+        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Follow Averix on X</h3>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Follow <span style="color:#1DA1F2; font-weight:bold;">@averixapp</span> on X to earn 20 AVE.</p>
         
         <div id="followXForm">
             <button class="follow-x-btn" onclick="followXAccount()" id="followXBtn">
@@ -989,7 +968,7 @@ button.loading::after {
                 </svg>
                 Open & Follow @averixapp
             </button>
-            <button id="markFollowedBtn" class="secondary" style="margin-top: 12px; width: 100%; display: none;" onclick="markXFollowed()">
+            <button id="markFollowedBtn" class="secondary" style="margin-top: 10px; width: 100%; display: none;" onclick="markXFollowed()">
                 I've Followed @averixapp
             </button>
         </div>
@@ -1000,16 +979,16 @@ button.loading::after {
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="x-username">Followed: <span id="completedFollowX">@averixapp</span></div>
+                <div class="x-username">Followed: <span id="completedFollowX">@averixapp</span> •</div>
             </div>
         </div>
         
-        <p id="followXStatus"></p>
+        <p id="followXStatus" style="margin-top:10px;color:#2cb67d"></p>
     </div>
 
     <div class="card">
-        <h3>Connect Discord</h3>
-        <p>Connect your Discord account to earn 20 AVE.</p>
+        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Connect Discord</h3>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Connect your Discord account to earn 20 AVE.</p>
         
         <div id="discordForm">
             <button class="discord-connection-btn" onclick="connectDiscordAccount()">
@@ -1026,18 +1005,19 @@ button.loading::after {
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="discord-username">Discord Account: <span id="completedDiscord">user#1234</span></div>
+                <div class="discord-username">Discord Account: <span id="completedDiscord">user#1234</span> •</div>
             </div>
         </div>
         
-        <p id="discordStatus"></p>
+        <p id="discordStatus" style="margin-top:10px;color:#2cb67d"></p>
     </div>
 
     <div class="card">
-        <h3>Daily Check-in 
+        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">
+            Daily Check-in 
             <span class="ave-badge">+20 AVE</span>
         </h3>
-        <p>Check in daily to earn 20 AVE.</p>
+        <p style="color: #bdbdbd; margin-bottom: 16px;">Check in daily to earn 20 AVE.</p>
         
         <div class="ave-info">
             <p><b>Current daily streak:</b> <span id="dailyStreak">0</span> days</p>
@@ -1058,7 +1038,7 @@ button.loading::after {
             </div>
         </div>
         
-        <p id="dailyStatus"></p>
+        <p id="dailyStatus" style="margin-top:10px;color:#2cb67d"></p>
     </div>
 </div>
 
@@ -1168,7 +1148,7 @@ button.loading::after {
                     Cancel
                 </button>
             </div>
-            <p id="editUsernameStatus"></p>
+            <p id="editUsernameStatus" style="margin-top:10px;color:#2cb67d; font-size: 14px;"></p>
         </div>
     </div>
 </div>
@@ -1440,19 +1420,13 @@ function disconnectWallet(){
 function copyRef(){
     refLink.select()
     document.execCommand("copy")
-    alert("Referral link copied to clipboard!");
 }
 
 function setUsername(){
     const u = usernameInput.value.trim()
-    if(!u) {
-        usernameStatus.innerText = "Please enter a username"
-        usernameStatus.style.color = "#ff4757"
-        return
-    }
+    if(!u) return
     localStorage.setItem("averix_username", u)
     usernameStatus.innerText = "Username set: " + u + " • 20 AVE earned"
-    usernameStatus.style.color = "#2cb67d"
     
     // Show completed task UI
     document.getElementById('usernameForm').style.display = 'none'
@@ -1469,14 +1443,10 @@ function setUsername(){
 
 function verifyGmail(){
     const g = gmailInput.value.trim()
-    if(!g) {
-        gmailStatus.innerText = "Please enter a Gmail address"
-        gmailStatus.style.color = "#ff4757"
-        return
-    }
+    if(!g) return
     if(!g.includes('@') || !g.includes('.')) {
         gmailStatus.innerText = "Please enter a valid Gmail address"
-        gmailStatus.style.color = "#ff4757"
+        gmailStatus.style.color = "#ff6b6b"
         return
     }
     
@@ -1631,7 +1601,7 @@ function dailyCheckin() {
     
     if (lastCheckin === today) {
         dailyStatus.innerText = "Already checked in today!";
-        dailyStatus.style.color = "#ff4757";
+        dailyStatus.style.color = "#ff6b6b";
         return;
     }
     
@@ -1805,7 +1775,7 @@ function saveNewUsername() {
     
     if(!newUsername) {
         document.getElementById('editUsernameStatus').innerText = "Please enter a username"
-        document.getElementById('editUsernameStatus').style.color = "#ff4757"
+        document.getElementById('editUsernameStatus').style.color = "#ff6b6b"
         return
     }
     
@@ -1847,14 +1817,14 @@ function uploadProfilePic() {
     // Check file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
         status.innerText = "File too large! Max 2MB.";
-        status.style.color = "#ff4757";
+        status.style.color = "#ff6b6b";
         return;
     }
     
     // Check file type
     if (!file.type.match('image.*')) {
         status.innerText = "Please select an image file.";
-        status.style.color = "#ff4757";
+        status.style.color = "#ff6b6b";
         return;
     }
     
@@ -1882,7 +1852,7 @@ function uploadProfilePic() {
     
     reader.onerror = function() {
         status.innerText = "Error reading file.";
-        status.style.color = "#ff4757";
+        status.style.color = "#ff6b6b";
     };
     
     reader.readAsDataURL(file);
