@@ -42,22 +42,38 @@ HTML_TEMPLATE = '''
 <title>Averix</title>
 
 <style>
-body {
-    margin: 0;
-    background: #0b0b0f;
-    color: white;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-    padding-bottom: 90px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+:root {
+    --primary: #7f5af0;
+    --secondary: #2cb67d;
+    --dark: #0b0b0f;
+    --darker: #08080c;
+    --card-bg: #111118;
+    --card-border: #1f1f2a;
+    --text: #ffffff;
+    --text-secondary: #8b8b9a;
+    --text-muted: #6b6b7a;
+    --accent: #ff8c00;
+    --success: #2cb67d;
+    --warning: #ffd166;
+    --danger: #ff4757;
 }
 
-.hidden { display: none }
+body {
+    margin: 0;
+    background: var(--dark);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 100px;
+}
+
+.hidden { display: none !important; }
 
 #gate {
     position: fixed;
     inset: 0;
-    background: linear-gradient(135deg, #0b0b0f 0%, #1a1a2e 100%);
+    background: var(--darker);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -66,26 +82,25 @@ body {
 
 .gate-box {
     text-align: center;
-    padding: 40px;
+    padding: 40px 30px;
     max-width: 320px;
     width: 100%;
 }
 
 .gate-box h1 {
-    font-size: 36px;
+    font-size: 2.5rem;
     font-weight: 800;
-    margin-bottom: 16px;
-    background: linear-gradient(90deg, #7f5af0, #2cb67d);
+    margin: 0 0 16px 0;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
 .gate-box p {
-    color: #bdbdbd;
+    color: var(--text-secondary);
     margin-bottom: 32px;
-    font-size: 16px;
-    line-height: 1.5;
+    font-size: 1.1rem;
 }
 
 nav {
@@ -93,133 +108,124 @@ nav {
     justify-content: space-between;
     align-items: center;
     padding: 20px 24px;
-    background: rgba(11, 11, 15, 0.95);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(31, 31, 42, 0.5);
+    background: var(--darker);
+    border-bottom: 1px solid var(--card-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
-.logo { 
-    font-size: 24px; 
+.logo {
+    font-size: 1.5rem;
     font-weight: 800;
-    background: linear-gradient(90deg, #7f5af0, #2cb67d);
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
 button {
-    background: linear-gradient(90deg,#7f5af0,#2cb67d);
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
     border: none;
     padding: 12px 24px;
     color: white;
     border-radius: 12px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 0.95rem;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(127, 90, 240, 0.2);
+    min-height: 44px;
 }
 
 button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(127, 90, 240, 0.3);
+    box-shadow: 0 8px 20px rgba(127, 90, 240, 0.3);
 }
 
 button:active {
     transform: translateY(0);
 }
 
-button.connected { 
-    background: #1a1a1f;
-    box-shadow: none;
+button.connected {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
 }
 
 #disconnectBtn {
     margin-top: 8px;
-    background: #1a1a1f;
-    display: none;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    width: 100%;
+}
+
+#disconnectBtn:hover {
+    background: rgba(255, 71, 87, 0.1);
+    border-color: var(--danger);
+    color: var(--danger);
 }
 
 .hero {
-    padding: 48px 24px 32px;
+    padding: 48px 24px;
     text-align: center;
 }
 
-.hero h1 { 
-    font-size: 40px; 
-    font-weight: 800;
-    margin-bottom: 12px;
-    background: linear-gradient(90deg, #7f5af0, #2cb67d);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.hero h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 0 0 16px 0;
 }
 
-.hero p { 
-    color: #bdbdbd;
-    font-size: 18px;
-    max-width: 600px;
-    margin: 0 auto;
-    line-height: 1.6;
+.hero p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin: 0;
 }
 
 .card {
-    background: linear-gradient(135deg, rgba(26, 26, 31, 0.9), rgba(17, 17, 24, 0.9));
+    background: var(--card-bg);
     border-radius: 20px;
-    padding: 24px;
-    margin: 16px 20px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
+    padding: 28px;
+    margin: 20px 24px;
+    border: 1px solid var(--card-border);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }
 
 .highlight {
-    background: linear-gradient(135deg, rgba(42, 27, 77, 0.9), rgba(26, 26, 46, 0.9));
-    border: 1px solid rgba(127, 90, 240, 0.3);
+    background: linear-gradient(135deg, rgba(42, 27, 77, 0.8), rgba(26, 26, 46, 0.8));
+    border: 1px solid var(--primary);
 }
 
 .badge {
-    background: linear-gradient(90deg, #7f5af0, #2cb67d);
+    background: var(--primary);
     padding: 6px 12px;
     border-radius: 10px;
-    font-size: 12px;
-    font-weight: 700;
-    display: inline-block;
-    text-transform: uppercase;
+    font-size: 0.85rem;
+    font-weight: 600;
     letter-spacing: 0.5px;
-    box-shadow: 0 4px 12px rgba(127, 90, 240, 0.3);
+    display: inline-block;
+    margin-bottom: 16px;
 }
 
 .big {
-    font-size: 48px;
+    font-size: 2.5rem;
     font-weight: 800;
-    background: linear-gradient(90deg, #7f5af0, #2cb67d);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
     margin: 8px 0;
 }
 
 .ref-box input {
     width: 100%;
-    background: rgba(11, 11, 15, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--darker);
+    border: 1px solid var(--card-border);
     padding: 16px;
     border-radius: 12px;
-    color: white;
-    font-size: 14px;
-    transition: border-color 0.2s ease;
-}
-
-.ref-box input:focus {
-    outline: none;
-    border-color: #7f5af0;
+    color: var(--text);
+    font-size: 1rem;
+    margin-top: 12px;
 }
 
 .row {
@@ -229,9 +235,14 @@ button.connected {
 }
 
 .secondary {
-    background: #1a1a1f;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     flex: 1;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.secondary:hover {
+    background: rgba(127, 90, 240, 0.1);
+    border-color: var(--primary);
 }
 
 .bottom-nav {
@@ -239,13 +250,12 @@ button.connected {
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(15, 15, 22, 0.95);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--darker);
+    border-top: 1px solid var(--card-border);
     display: flex;
     justify-content: space-around;
-    padding: 16px 0;
-    z-index: 1000;
+    padding: 16px 0 24px 0;
+    backdrop-filter: blur(10px);
 }
 
 .bottom-item {
@@ -253,9 +263,9 @@ button.connected {
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
+    font-size: 0.85rem;
     font-weight: 600;
-    color: #8b8b9a;
+    color: var(--text-secondary);
     padding: 8px 16px;
     border-radius: 12px;
     transition: all 0.2s ease;
@@ -265,40 +275,38 @@ button.connected {
     width: 24px;
     height: 24px;
     stroke-width: 2;
-    transition: all 0.2s ease;
 }
 
 .bottom-item.active {
-    color: #7f5af0;
+    color: var(--primary);
     background: rgba(127, 90, 240, 0.1);
 }
 
 .bottom-item.active svg {
-    stroke: #7f5af0;
+    stroke: var(--primary);
 }
 
 /* Task completed styling */
 .task-completed {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-top: 16px;
-    padding: 16px;
-    background: linear-gradient(135deg, rgba(127, 90, 240, 0.1), rgba(44, 182, 125, 0.1));
-    border-radius: 12px;
-    border: 1px solid rgba(127, 90, 240, 0.2);
+    gap: 14px;
+    margin-top: 20px;
+    padding: 18px;
+    background: rgba(127, 90, 240, 0.08);
+    border-radius: 14px;
+    border: 1px solid rgba(127, 90, 240, 0.3);
 }
 
 .checkbox-circle {
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #2cb67d, #1a8c5e);
+    background: var(--success);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(44, 182, 125, 0.3);
 }
 
 .checkmark {
@@ -313,15 +321,15 @@ button.connected {
 
 .task-title {
     font-weight: 700;
-    color: #2cb67d;
-    font-size: 16px;
+    color: var(--success);
+    font-size: 1rem;
 }
 
 .task-username {
-    color: #7f5af0;
+    color: var(--primary);
     font-weight: 600;
     margin-top: 4px;
-    font-size: 14px;
+    font-size: 0.95rem;
 }
 
 /* Profile picture styling */
@@ -341,18 +349,18 @@ button.connected {
     width: 96px;
     height: 96px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #7f5af0, #2cb67d);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 36px;
-    font-weight: 800;
+    font-size: 2.5rem;
+    font-weight: 700;
     color: white;
     flex-shrink: 0;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    box-shadow: 0 8px 24px rgba(127, 90, 240, 0.3);
+    border: 3px solid var(--card-bg);
 }
 
 .upload-overlay {
@@ -362,18 +370,18 @@ button.connected {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #7f5af0, #2cb67d);
+    background: var(--primary);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border: 3px solid #0b0b0f;
-    transition: transform 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 3px solid var(--card-bg);
+    transition: all 0.2s ease;
 }
 
 .upload-overlay:hover {
     transform: scale(1.1);
+    background: var(--secondary);
 }
 
 .upload-overlay svg {
@@ -387,47 +395,36 @@ button.connected {
 }
 
 .profile-name {
-    font-size: 32px;
+    font-size: 1.8rem;
     font-weight: 800;
-    color: #7f5af0;
-    margin-bottom: 4px;
+    color: var(--primary);
+    margin-bottom: 6px;
 }
 
 .profile-wallet {
-    font-size: 14px;
-    color: #8b8b9a;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
     font-family: 'Monaco', 'Courier New', monospace;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 6px 12px;
-    border-radius: 8px;
-    display: inline-block;
 }
 
 /* Username edit form */
 .edit-username-form {
     margin-top: 20px;
     padding: 20px;
-    background: rgba(30, 30, 46, 0.9);
-    border-radius: 16px;
-    border: 1px solid rgba(42, 42, 53, 0.5);
-    backdrop-filter: blur(10px);
+    background: rgba(30, 30, 46, 0.8);
+    border-radius: 14px;
+    border: 1px solid rgba(127, 90, 240, 0.3);
 }
 
 .edit-username-form input {
     width: 100%;
     padding: 14px;
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(11, 11, 15, 0.9);
-    color: white;
-    font-size: 14px;
+    border: 1px solid var(--card-border);
+    background: var(--darker);
+    color: var(--text);
     margin-top: 12px;
-    transition: border-color 0.2s ease;
-}
-
-.edit-username-form input:focus {
-    outline: none;
-    border-color: #7f5af0;
+    font-size: 1rem;
 }
 
 .edit-actions {
@@ -440,12 +437,10 @@ button.connected {
 .daily-checkin-btn {
     width: 100%;
     padding: 18px;
-    font-size: 16px;
+    font-size: 1.1rem;
     font-weight: 700;
     margin-top: 16px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #7f5af0, #2cb67d);
-    box-shadow: 0 8px 24px rgba(127, 90, 240, 0.3);
+    border-radius: 14px;
 }
 
 .daily-checkin-btn.disabled {
@@ -457,31 +452,31 @@ button.connected {
 
 .ave-badge {
     display: inline-block;
-    background: linear-gradient(135deg, #ff8c00, #ff5e00);
+    background: linear-gradient(135deg, var(--accent), #ff5e00);
     color: white;
     padding: 6px 14px;
     border-radius: 20px;
-    font-size: 12px;
-    font-weight: 800;
+    font-size: 0.9rem;
+    font-weight: 700;
     margin-left: 10px;
-    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+    vertical-align: middle;
 }
 
 .ave-info {
     margin-top: 16px;
     padding: 16px;
-    background: linear-gradient(135deg, rgba(255, 140, 0, 0.1), rgba(255, 94, 0, 0.1));
-    border-radius: 12px;
-    border-left: 4px solid #ff8c00;
+    background: rgba(255, 140, 0, 0.08);
+    border-radius: 14px;
+    border-left: 4px solid var(--accent);
 }
 
 .ave-info p {
     margin: 8px 0;
-    font-size: 14px;
+    color: var(--text-secondary);
 }
 
 .ave-info b {
-    color: #ff8c00;
+    color: var(--text);
 }
 
 /* File upload styling */
@@ -491,9 +486,8 @@ button.connected {
 
 .upload-status {
     margin-top: 12px;
-    font-size: 14px;
-    color: #2cb67d;
-    font-weight: 500;
+    font-size: 0.95rem;
+    color: var(--success);
 }
 
 /* Task progress */
@@ -501,19 +495,19 @@ button.connected {
     display: flex;
     align-items: center;
     gap: 20px;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 .progress-circle {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: conic-gradient(#7f5af0 0% var(--progress), rgba(26, 26, 31, 0.5) 0%);
+    background: conic-gradient(var(--primary) 0% var(--progress), var(--card-border) 0%);
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    box-shadow: 0 8px 24px rgba(127, 90, 240, 0.2);
+    flex-shrink: 0;
 }
 
 .progress-circle::before {
@@ -522,14 +516,14 @@ button.connected {
     width: 68px;
     height: 68px;
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba(26, 26, 31, 0.9), rgba(17, 17, 24, 0.9));
+    background: var(--card-bg);
 }
 
 .progress-text {
     position: absolute;
     font-weight: 800;
-    font-size: 16px;
-    color: #7f5af0;
+    font-size: 1.1rem;
+    color: var(--primary);
 }
 
 .progress-info {
@@ -537,15 +531,14 @@ button.connected {
 }
 
 .progress-info h3 {
-    font-size: 20px;
+    font-size: 1.3rem;
     font-weight: 700;
-    margin-bottom: 4px;
-    color: white;
+    margin: 0 0 8px 0;
 }
 
 .progress-info p {
-    color: #bdbdbd;
-    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0;
 }
 
 /* X (Twitter) connection styling */
@@ -554,23 +547,22 @@ button.connected {
     color: white;
     width: 100%;
     padding: 18px;
-    font-size: 16px;
+    font-size: 1.1rem;
     font-weight: 700;
     margin-top: 16px;
     border: none;
-    border-radius: 16px;
+    border-radius: 14px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
-    box-shadow: 0 8px 24px rgba(29, 161, 242, 0.2);
     transition: all 0.2s ease;
 }
 
 .x-connection-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(29, 161, 242, 0.3);
+    box-shadow: 0 8px 20px rgba(29, 161, 242, 0.3);
 }
 
 .x-connection-btn:disabled {
@@ -581,8 +573,8 @@ button.connected {
 }
 
 .x-icon {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
 }
 
 /* Discord connection styling */
@@ -591,23 +583,22 @@ button.connected {
     color: white;
     width: 100%;
     padding: 18px;
-    font-size: 16px;
+    font-size: 1.1rem;
     font-weight: 700;
     margin-top: 16px;
     border: none;
-    border-radius: 16px;
+    border-radius: 14px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
-    box-shadow: 0 8px 24px rgba(88, 101, 242, 0.2);
     transition: all 0.2s ease;
 }
 
 .discord-connection-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(88, 101, 242, 0.3);
+    box-shadow: 0 8px 20px rgba(88, 101, 242, 0.3);
 }
 
 .discord-connection-btn:disabled {
@@ -618,8 +609,8 @@ button.connected {
 }
 
 .discord-icon {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
 }
 
 /* Disconnect X button styling */
@@ -628,24 +619,22 @@ button.connected {
     color: white;
     width: 100%;
     padding: 18px;
-    font-size: 16px;
+    font-size: 1.1rem;
     font-weight: 700;
-    margin-top: 12px;
+    margin-top: 16px;
     border: none;
-    border-radius: 16px;
+    border-radius: 14px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
-    box-shadow: 0 8px 24px rgba(255, 71, 87, 0.2);
     transition: all 0.2s ease;
 }
 
 .disconnect-x-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(255, 71, 87, 0.3);
-    background: linear-gradient(135deg, #ff3838, #ff1e1e);
+    box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3);
 }
 
 /* Disconnect Discord button styling */
@@ -654,24 +643,22 @@ button.connected {
     color: white;
     width: 100%;
     padding: 18px;
-    font-size: 16px;
+    font-size: 1.1rem;
     font-weight: 700;
-    margin-top: 12px;
+    margin-top: 16px;
     border: none;
-    border-radius: 16px;
+    border-radius: 14px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
-    box-shadow: 0 8px 24px rgba(255, 71, 87, 0.2);
     transition: all 0.2s ease;
 }
 
 .disconnect-discord-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(255, 71, 87, 0.3);
-    background: linear-gradient(135deg, #ff3838, #ff1e1e);
+    box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3);
 }
 
 /* Follow X button styling */
@@ -680,24 +667,22 @@ button.connected {
     color: white;
     width: 100%;
     padding: 18px;
-    font-size: 16px;
+    font-size: 1.1rem;
     font-weight: 700;
-    margin-top: 12px;
+    margin-top: 16px;
     border: none;
-    border-radius: 16px;
+    border-radius: 14px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
-    box-shadow: 0 8px 24px rgba(29, 161, 242, 0.2);
     transition: all 0.2s ease;
 }
 
 .follow-x-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(29, 161, 242, 0.3);
-    background: linear-gradient(135deg, #1a91da, #1a8cd0);
+    box-shadow: 0 8px 20px rgba(29, 161, 242, 0.3);
 }
 
 .follow-x-btn.disabled {
@@ -708,7 +693,9 @@ button.connected {
 }
 
 .follow-x-btn.disabled-text {
-    background: #1a1a1f;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-secondary);
     cursor: not-allowed;
 }
 
@@ -716,14 +703,12 @@ button.connected {
     color: #1DA1F2;
     font-weight: 700;
     margin-top: 6px;
-    font-size: 14px;
 }
 
 .discord-username {
     color: #5865F2;
     font-weight: 700;
     margin-top: 6px;
-    font-size: 14px;
 }
 
 /* Advanced settings styling */
@@ -739,31 +724,30 @@ button.connected {
 }
 
 .advanced-toggle-btn {
-    background: linear-gradient(135deg, #7f5af0, #2cb67d);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: white;
     width: 100%;
     padding: 18px;
-    font-size: 16px;
+    font-size: 1.1rem;
     font-weight: 700;
     margin-top: 16px;
     border: none;
-    border-radius: 16px;
+    border-radius: 14px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
-    box-shadow: 0 8px 24px rgba(127, 90, 240, 0.2);
     transition: all 0.2s ease;
 }
 
 .advanced-toggle-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(127, 90, 240, 0.3);
+    box-shadow: 0 8px 20px rgba(127, 90, 240, 0.3);
 }
 
 .advanced-arrow {
-    font-size: 16px;
+    font-size: 1rem;
     transition: transform 0.3s ease;
 }
 
@@ -771,119 +755,118 @@ button.connected {
     transform: rotate(180deg);
 }
 
-/* Card headers */
+/* Form styling */
 .card h3 {
-    font-size: 20px;
+    font-size: 1.3rem;
     font-weight: 700;
-    margin-bottom: 12px;
-    color: white;
+    margin: 0 0 12px 0;
+    color: var(--text);
 }
 
-.card > p {
-    color: #bdbdbd;
-    font-size: 14px;
+.card p {
+    color: var(--text-secondary);
+    margin: 0 0 20px 0;
+    font-size: 1rem;
     line-height: 1.5;
-    margin-bottom: 20px;
 }
 
-/* Form inputs */
-input[type="text"], input[type="email"] {
+.card input {
     width: 100%;
+    background: var(--darker);
+    border: 1px solid var(--card-border);
     padding: 16px;
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(11, 11, 15, 0.9);
-    color: white;
-    font-size: 14px;
+    color: var(--text);
+    font-size: 1rem;
+    margin-top: 12px;
     transition: border-color 0.2s ease;
-    box-sizing: border-box;
 }
 
-input[type="text"]:focus, input[type="email"]:focus {
+.card input:focus {
     outline: none;
-    border-color: #7f5af0;
-}
-
-input[type="text"]::placeholder, input[type="email"]::placeholder {
-    color: #8b8b9a;
-}
-
-/* Stats styling */
-.card p {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 12px 0;
-    font-size: 14px;
-}
-
-.card p b {
-    color: #7f5af0;
-    font-size: 16px;
+    border-color: var(--primary);
 }
 
 /* Status messages */
-#usernameStatus, #gmailStatus, #xStatus, #followXStatus, #discordStatus, #dailyStatus {
+#usernameStatus,
+#gmailStatus,
+#xStatus,
+#followXStatus,
+#discordStatus,
+#dailyStatus {
     margin-top: 12px;
-    font-size: 14px;
+    font-size: 0.95rem;
     font-weight: 500;
-    padding: 8px 12px;
-    border-radius: 8px;
-    background: rgba(44, 182, 125, 0.1);
-    border-left: 3px solid #2cb67d;
 }
 
-/* Task cards specific styling */
-#usernameForm button, #gmailForm button {
-    width: 100%;
-    margin-top: 16px;
-    padding: 16px;
-    font-size: 16px;
+/* Stats styling */
+.card p b {
+    color: var(--text);
     font-weight: 700;
-    border-radius: 12px;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-    width: 8px;
+/* Loading states */
+button.loading {
+    position: relative;
+    color: transparent;
 }
 
-::-webkit-scrollbar-track {
-    background: #0b0b0f;
+button.loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 50%;
+    left: 50%;
+    margin: -10px 0 0 -10px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
 }
 
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #7f5af0, #2cb67d);
-    border-radius: 4px;
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #8f6af0, #3cc68d);
+/* Modal backdrop */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
 }
 
-/* Loading animation */
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-.loading {
-    animation: pulse 1.5s ease-in-out infinite;
-}
-
-/* Subtle animations */
-.card, button, .bottom-item {
-    animation: fadeInUp 0.5s ease-out;
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .card {
+        margin: 16px 20px;
+        padding: 24px;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    
+    .hero {
+        padding: 40px 20px;
+    }
+    
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+    
+    .profile-pic-container {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .profile-pic {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
     }
 }
 </style>
@@ -910,7 +893,7 @@ input[type="text"]::placeholder, input[type="email"]::placeholder {
 <div id="taskPage">
     <div class="hero">
         <h1>Welcome to Averix</h1>
-        <p>Complete tasks to earn AVE tokens and participate in the $50,000 referral contest</p>
+        <p>Complete tasks to earn AVE</p>
     </div>
 
     <div class="card">
@@ -920,18 +903,18 @@ input[type="text"]::placeholder, input[type="email"]::placeholder {
             </div>
             <div class="progress-info">
                 <h3>Task Progress</h3>
-                <p>Complete all tasks to maximize your AVE earnings</p>
+                <p>Complete tasks to earn AVE</p>
             </div>
         </div>
     </div>
 
     <div class="card">
         <h3>Set Username</h3>
-        <p>Choose a unique username to earn 20 AVE</p>
+        <p>Choose a username to earn 20 AVE.</p>
         
         <div id="usernameForm">
             <input id="usernameInput" placeholder="Enter username">
-            <button onclick="setUsername()">Save Username</button>
+            <button style="margin-top:16px; width: 100%;" onclick="setUsername()">Save Username</button>
         </div>
         
         <div id="taskCompleted" class="task-completed" style="display: none;">
@@ -940,7 +923,7 @@ input[type="text"]::placeholder, input[type="email"]::placeholder {
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="task-username">Username: <span id="completedUsername">Beckham</span> •</div>
+                <div class="task-username">Username: <span id="completedUsername">Beckham</span></div>
             </div>
         </div>
         
@@ -949,11 +932,11 @@ input[type="text"]::placeholder, input[type="email"]::placeholder {
 
     <div class="card">
         <h3>Verify Gmail</h3>
-        <p>Verify your Gmail account to earn 20 AVE</p>
+        <p>Verify your Gmail account to earn 20 AVE.</p>
         
         <div id="gmailForm">
-            <input id="gmailInput" placeholder="Enter your Gmail address" type="email">
-            <button onclick="verifyGmail()">Verify Gmail</button>
+            <input id="gmailInput" placeholder="Enter your Gmail address">
+            <button style="margin-top:16px; width: 100%;" onclick="verifyGmail()">Verify Gmail</button>
         </div>
         
         <div id="gmailCompleted" class="task-completed" style="display: none;">
@@ -962,7 +945,7 @@ input[type="text"]::placeholder, input[type="email"]::placeholder {
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="task-username">Gmail: <span id="completedGmail">example@gmail.com</span> •</div>
+                <div class="task-username">Gmail: <span id="completedGmail">example@gmail.com</span></div>
             </div>
         </div>
         
@@ -971,7 +954,7 @@ input[type="text"]::placeholder, input[type="email"]::placeholder {
 
     <div class="card">
         <h3>Connect X</h3>
-        <p>Connect your X account to earn 20 AVE</p>
+        <p>Connect your X account to earn 20 AVE.</p>
         
         <div id="xForm">
             <button class="x-connection-btn" onclick="connectXAccount()">
@@ -988,7 +971,7 @@ input[type="text"]::placeholder, input[type="email"]::placeholder {
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="task-username">X Account: <span id="completedX">@user</span> •</div>
+                <div class="task-username">X Account: <span id="completedX">@user</span></div>
             </div>
         </div>
         
@@ -997,13 +980,13 @@ input[type="text"]::placeholder, input[type="email"]::placeholder {
 
     <div class="card">
         <h3>Follow Averix on X</h3>
-        <p>Follow <span style="color:#1DA1F2; font-weight:700;">@averixapp</span> on X to earn 20 AVE</p>
+        <p>Follow <span style="color:#1DA1F2; font-weight:700;">@averixapp</span> on X to earn 20 AVE.</p>
         
         <div id="followXForm">
             <button class="follow-x-btn" onclick="followXAccount()" id="followXBtn">
                 <svg class="x-icon" viewBox="0 0 24 24" fill="white">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-            </svg>
+                </svg>
                 Open & Follow @averixapp
             </button>
             <button id="markFollowedBtn" class="secondary" style="margin-top: 12px; width: 100%; display: none;" onclick="markXFollowed()">
@@ -1017,7 +1000,7 @@ input[type="text"]::placeholder, input[type="email"]::placeholder {
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="x-username">Followed: <span id="completedFollowX">@averixapp</span> •</div>
+                <div class="x-username">Followed: <span id="completedFollowX">@averixapp</span></div>
             </div>
         </div>
         
@@ -1026,7 +1009,7 @@ input[type="text"]::placeholder, input[type="email"]::placeholder {
 
     <div class="card">
         <h3>Connect Discord</h3>
-        <p>Connect your Discord account to earn 20 AVE</p>
+        <p>Connect your Discord account to earn 20 AVE.</p>
         
         <div id="discordForm">
             <button class="discord-connection-btn" onclick="connectDiscordAccount()">
@@ -1043,7 +1026,7 @@ input[type="text"]::placeholder, input[type="email"]::placeholder {
             </div>
             <div class="task-details">
                 <div class="task-title">Task Completed</div>
-                <div class="discord-username">Discord Account: <span id="completedDiscord">user#1234</span> •</div>
+                <div class="discord-username">Discord Account: <span id="completedDiscord">user#1234</span></div>
             </div>
         </div>
         
@@ -1051,11 +1034,10 @@ input[type="text"]::placeholder, input[type="email"]::placeholder {
     </div>
 
     <div class="card">
-        <h3>
-            Daily Check-in 
+        <h3>Daily Check-in 
             <span class="ave-badge">+20 AVE</span>
         </h3>
-        <p>Check in daily to earn 20 AVE and build your streak</p>
+        <p>Check in daily to earn 20 AVE.</p>
         
         <div class="ave-info">
             <p><b>Current daily streak:</b> <span id="dailyStreak">0</span> days</p>
@@ -1084,7 +1066,7 @@ input[type="text"]::placeholder, input[type="email"]::placeholder {
     <div class="card highlight">
         <span class="badge">LIVE</span>
         <h3>$50,000 Referral Contest</h3>
-        <p>Invite verified wallets and earn 30 AVE per referral</p>
+        <p>Invite verified wallets and earn 30 AVE</p>
     </div>
 
     <div class="card">
@@ -1098,7 +1080,7 @@ input[type="text"]::placeholder, input[type="email"]::placeholder {
             <input id="refLink" readonly>
         </div>
         <div class="row">
-            <button class="secondary" onclick="copyRef()">Copy Link</button>
+            <button class="secondary" onclick="copyRef()">Copy</button>
             <button class="secondary">Share</button>
         </div>
     </div>
@@ -1150,7 +1132,7 @@ input[type="text"]::placeholder, input[type="email"]::placeholder {
 
     <div class="card">
         <h3>Settings</h3>
-        <button class="secondary" style="width:100%; margin-bottom: 16px;"
+        <button class="secondary" style="width:100%; margin-bottom: 12px;"
         onclick="startEditingUsername()">
             Change username
         </button>
@@ -1176,7 +1158,7 @@ input[type="text"]::placeholder, input[type="email"]::placeholder {
         </div>
         
         <div id="editUsernameForm" class="edit-username-form" style="display: none;">
-            <h4 style="margin-top: 0; margin-bottom: 16px;">Edit Username</h4>
+            <h4 style="margin-top: 0; margin-bottom: 12px;">Edit Username</h4>
             <input type="text" id="editUsernameInput" placeholder="Enter new username">
             <div class="edit-actions">
                 <button class="secondary" style="flex: 1;" onclick="saveNewUsername()">
@@ -1186,7 +1168,7 @@ input[type="text"]::placeholder, input[type="email"]::placeholder {
                     Cancel
                 </button>
             </div>
-            <p id="editUsernameStatus" style="margin-top:12px;color:#2cb67d; font-size: 14px;"></p>
+            <p id="editUsernameStatus"></p>
         </div>
     </div>
 </div>
@@ -1458,14 +1440,19 @@ function disconnectWallet(){
 function copyRef(){
     refLink.select()
     document.execCommand("copy")
-    alert("Referral link copied to clipboard!")
+    alert("Referral link copied to clipboard!");
 }
 
 function setUsername(){
     const u = usernameInput.value.trim()
-    if(!u) return
+    if(!u) {
+        usernameStatus.innerText = "Please enter a username"
+        usernameStatus.style.color = "#ff4757"
+        return
+    }
     localStorage.setItem("averix_username", u)
     usernameStatus.innerText = "Username set: " + u + " • 20 AVE earned"
+    usernameStatus.style.color = "#2cb67d"
     
     // Show completed task UI
     document.getElementById('usernameForm').style.display = 'none'
@@ -1482,10 +1469,14 @@ function setUsername(){
 
 function verifyGmail(){
     const g = gmailInput.value.trim()
-    if(!g) return
+    if(!g) {
+        gmailStatus.innerText = "Please enter a Gmail address"
+        gmailStatus.style.color = "#ff4757"
+        return
+    }
     if(!g.includes('@') || !g.includes('.')) {
         gmailStatus.innerText = "Please enter a valid Gmail address"
-        gmailStatus.style.color = "#ff6b6b"
+        gmailStatus.style.color = "#ff4757"
         return
     }
     
@@ -1640,7 +1631,7 @@ function dailyCheckin() {
     
     if (lastCheckin === today) {
         dailyStatus.innerText = "Already checked in today!";
-        dailyStatus.style.color = "#ff6b6b";
+        dailyStatus.style.color = "#ff4757";
         return;
     }
     
@@ -1814,7 +1805,7 @@ function saveNewUsername() {
     
     if(!newUsername) {
         document.getElementById('editUsernameStatus').innerText = "Please enter a username"
-        document.getElementById('editUsernameStatus').style.color = "#ff6b6b"
+        document.getElementById('editUsernameStatus').style.color = "#ff4757"
         return
     }
     
@@ -1856,14 +1847,14 @@ function uploadProfilePic() {
     // Check file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
         status.innerText = "File too large! Max 2MB.";
-        status.style.color = "#ff6b6b";
+        status.style.color = "#ff4757";
         return;
     }
     
     // Check file type
     if (!file.type.match('image.*')) {
         status.innerText = "Please select an image file.";
-        status.style.color = "#ff6b6b";
+        status.style.color = "#ff4757";
         return;
     }
     
@@ -1891,7 +1882,7 @@ function uploadProfilePic() {
     
     reader.onerror = function() {
         status.innerText = "Error reading file.";
-        status.style.color = "#ff6b6b";
+        status.style.color = "#ff4757";
     };
     
     reader.readAsDataURL(file);
