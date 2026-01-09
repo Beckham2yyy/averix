@@ -46,10 +46,8 @@ body {
     margin: 0;
     background: #0b0b0f;
     color: white;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    font-family: Arial, sans-serif;
     padding-bottom: 90px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
 
 .hidden { display: none }
@@ -66,76 +64,34 @@ body {
 
 .gate-box {
     text-align: center;
-    padding: 40px;
-    max-width: 320px;
-    width: 100%;
-}
-
-.gate-box h1 {
-    font-size: 28px;
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: white;
-}
-
-.gate-box p {
-    color: #8b8b9a;
-    margin-bottom: 32px;
-    font-size: 15px;
-    line-height: 1.5;
+    padding: 30px;
 }
 
 nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 18px 20px;
-    background: #0b0b0f;
-    border-bottom: 1px solid #1a1a1f;
-    backdrop-filter: blur(10px);
+    padding: 16px 20px;
 }
 
-.logo { 
-    font-size: 20px; 
-    font-weight: 600;
-    letter-spacing: -0.5px;
-}
+.logo { font-size: 20px; font-weight: bold }
 
 button {
-    background: linear-gradient(90deg, #7f5af0, #2cb67d);
+    background: linear-gradient(90deg,#7f5af0,#2cb67d);
     border: none;
-    padding: 10px 20px;
+    padding: 10px 18px;
     color: white;
     border-radius: 10px;
     cursor: pointer;
-    font-weight: 500;
-    font-size: 14px;
-    transition: all 0.2s ease;
-    height: 40px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    font-weight: 600;
 }
 
-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(127, 90, 240, 0.2);
-}
-
-button:active {
-    transform: translateY(0);
-}
-
-button.connected { 
-    background: #1a1a1f;
-    border: 1px solid #2a2a35;
-}
+button.connected { background: #1a1a1f }
 
 #disconnectBtn {
     margin-top: 6px;
     background: #1a1a1f;
     display: none;
-    border: 1px solid #2a2a35;
 }
 
 .hero {
@@ -143,80 +99,51 @@ button.connected {
     text-align: center;
 }
 
-.hero h1 { 
-    font-size: 28px; 
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-.hero p { 
-    color: #8b8b9a; 
-    font-size: 15px;
-}
+.hero h1 { font-size: 30px }
+.hero p { color: #bdbdbd }
 
 .card {
     background: #111118;
-    border-radius: 16px;
-    padding: 24px;
+    border-radius: 18px;
+    padding: 22px;
     margin: 16px 20px;
-    border: 1px solid #1a1a1f;
-    transition: border-color 0.2s ease;
-}
-
-.card:hover {
-    border-color: #2a2a35;
 }
 
 .highlight {
-    background: linear-gradient(135deg, #2a1b4d, #1a1a2e);
-    border-color: #7f5af0;
+    background: linear-gradient(135deg,#2a1b4d,#1a1a2e);
 }
 
 .badge {
     background: #7f5af0;
-    padding: 4px 10px;
-    border-radius: 6px;
+    padding: 5px 10px;
+    border-radius: 8px;
     font-size: 12px;
-    font-weight: 500;
     display: inline-block;
-    margin-bottom: 12px;
 }
 
 .big {
     font-size: 30px;
-    font-weight: 600;
+    font-weight: bold;
 }
 
 .ref-box input {
     width: 100%;
     background: #0b0b0f;
-    border: 1px solid #1a1a1f;
+    border: none;
     padding: 14px;
-    border-radius: 10px;
+    border-radius: 12px;
     color: white;
-    font-size: 14px;
-    margin-top: 12px;
-}
-
-.ref-box input:focus {
-    outline: none;
-    border-color: #7f5af0;
 }
 
 .row {
     display: flex;
     gap: 10px;
-    margin-top: 16px;
+    margin-top: 12px;
 }
 
 .secondary {
     background: #1a1a1f;
     flex: 1;
-    border: 1px solid #2a2a35;
-}
-
-.secondary:hover {
-    background: #22222a;
-    border-color: #7f5af0;
 }
 
 .bottom-nav {
@@ -225,11 +152,10 @@ button.connected {
     left: 0;
     right: 0;
     background: #0f0f16;
-    border-top: 1px solid #1a1a1f;
+    border-top: 2px solid #1f1f2a;
     display: flex;
     justify-content: space-around;
-    padding: 12px 0 20px;
-    backdrop-filter: blur(10px);
+    padding: 10px 0;
 }
 
 .bottom-item {
@@ -238,22 +164,18 @@ button.connected {
     align-items: center;
     gap: 4px;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
     color: #8b8b9a;
-    padding: 8px;
-    border-radius: 8px;
-    transition: all 0.2s ease;
 }
 
 .bottom-item svg {
-    width: 22px;
-    height: 22px;
-    stroke-width: 2;
+    width: 24px;
+    height: 24px;
+    stroke-width: 2.4;
 }
 
 .bottom-item.active {
     color: #7f5af0;
-    background: rgba(127, 90, 240, 0.1);
 }
 
 .bottom-item.active svg {
@@ -264,12 +186,12 @@ button.connected {
 .task-completed {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     margin-top: 16px;
-    padding: 16px;
-    background: rgba(127, 90, 240, 0.08);
-    border-radius: 12px;
-    border: 1px solid rgba(127, 90, 240, 0.2);
+    padding: 12px;
+    background: rgba(127, 90, 240, 0.1);
+    border-radius: 10px;
+    border: 1px solid #7f5af0;
 }
 
 .checkbox-circle {
@@ -280,13 +202,12 @@ button.connected {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
 }
 
 .checkmark {
     color: white;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 .task-details {
@@ -294,16 +215,14 @@ button.connected {
 }
 
 .task-title {
-    font-weight: 500;
+    font-weight: bold;
     color: #2cb67d;
-    font-size: 14px;
 }
 
 .task-username {
     color: #7f5af0;
-    font-weight: 500;
-    margin-top: 2px;
-    font-size: 13px;
+    font-weight: bold;
+    margin-top: 4px;
 }
 
 /* Profile picture styling */
@@ -327,40 +246,33 @@ button.connected {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
-    font-weight: 600;
+    font-size: 32px;
+    font-weight: bold;
     color: white;
     flex-shrink: 0;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    border: 3px solid #111118;
 }
 
 .upload-overlay {
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     background: #7f5af0;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border: 3px solid #111118;
-    transition: all 0.2s ease;
-}
-
-.upload-overlay:hover {
-    background: #6b48e0;
-    transform: scale(1.05);
+    border: 2px solid #0b0b0f;
 }
 
 .upload-overlay svg {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     color: white;
 }
 
@@ -369,64 +281,54 @@ button.connected {
 }
 
 .profile-name {
-    font-size: 24px;
-    font-weight: 600;
+    font-size: 26px;
+    font-weight: bold;
     color: #7f5af0;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
 }
 
 .profile-wallet {
-    font-size: 13px;
+    font-size: 14px;
     color: #8b8b9a;
-    font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
 }
 
 /* Username edit form */
 .edit-username-form {
-    margin-top: 20px;
-    padding: 20px;
-    background: rgba(30, 30, 46, 0.5);
+    margin-top: 16px;
+    padding: 16px;
+    background: rgba(30, 30, 46, 0.8);
     border-radius: 12px;
-    border: 1px solid rgba(127, 90, 240, 0.2);
+    border: 1px solid #2a2a35;
 }
 
 .edit-username-form input {
     width: 100%;
     padding: 12px;
     border-radius: 10px;
-    border: 1px solid #1a1a1f;
+    border: none;
     background: #0b0b0f;
     color: white;
     margin-top: 10px;
-    font-size: 14px;
-}
-
-.edit-username-form input:focus {
-    outline: none;
-    border-color: #7f5af0;
 }
 
 .edit-actions {
     display: flex;
     gap: 10px;
-    margin-top: 16px;
+    margin-top: 12px;
 }
 
 /* Daily Check-in button */
 .daily-checkin-btn {
     width: 100%;
     padding: 16px;
-    font-size: 15px;
-    font-weight: 500;
-    margin-top: 16px;
-    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
 }
 
 .daily-checkin-btn.disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none !important;
 }
 
 .ave-badge {
@@ -435,29 +337,17 @@ button.connected {
     color: white;
     padding: 4px 10px;
     border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: bold;
     margin-left: 8px;
-    vertical-align: middle;
 }
 
 .ave-info {
-    margin-top: 16px;
-    padding: 16px;
-    background: rgba(255, 140, 0, 0.08);
-    border-radius: 12px;
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(255, 140, 0, 0.1);
+    border-radius: 10px;
     border-left: 3px solid #ff8c00;
-}
-
-.ave-info p {
-    margin: 6px 0;
-    color: #8b8b9a;
-    font-size: 14px;
-}
-
-.ave-info b {
-    color: white;
-    font-weight: 500;
 }
 
 /* File upload styling */
@@ -466,8 +356,8 @@ button.connected {
 }
 
 .upload-status {
-    margin-top: 12px;
-    font-size: 13px;
+    margin-top: 10px;
+    font-size = 14px;
     color: #2cb67d;
 }
 
@@ -475,7 +365,7 @@ button.connected {
 .task-progress {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 10px;
     margin-top: 20px;
 }
 
@@ -488,7 +378,6 @@ button.connected {
     align-items: center;
     justify-content: center;
     position: relative;
-    flex-shrink: 0;
 }
 
 .progress-circle::before {
@@ -502,25 +391,13 @@ button.connected {
 
 .progress-text {
     position: absolute;
-    font-weight: 600;
-    font-size: 13px;
+    font-weight: bold;
+    font-size = 14px;
     color: #7f5af0;
 }
 
 .progress-info {
     flex: 1;
-}
-
-.progress-info h3 {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0 0 4px 0;
-}
-
-.progress-info p {
-    color: #8b8b9a;
-    margin: 0;
-    font-size: 14px;
 }
 
 /* X (Twitter) connection styling */
@@ -529,9 +406,9 @@ button.connected {
     color: white;
     width: 100%;
     padding: 16px;
-    font-size: 15px;
-    font-weight: 500;
-    margin-top: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
     border: none;
     border-radius: 12px;
     cursor: pointer;
@@ -539,24 +416,21 @@ button.connected {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    transition: all 0.2s ease;
 }
 
 .x-connection-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(29, 161, 242, 0.2);
+    transform: translateY(-2px);
+    transition: transform 0.2s;
 }
 
 .x-connection-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none !important;
 }
 
 .x-icon {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
 }
 
 /* Discord connection styling */
@@ -565,9 +439,9 @@ button.connected {
     color: white;
     width: 100%;
     padding: 16px;
-    font-size: 15px;
-    font-weight: 500;
-    margin-top: 16px;
+    font-size = 16px;
+    font-weight: bold;
+    margin-top: 12px;
     border: none;
     border-radius: 12px;
     cursor: pointer;
@@ -575,24 +449,21 @@ button.connected {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    transition: all 0.2s ease;
 }
 
 .discord-connection-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(88, 101, 242, 0.2);
+    transform: translateY(-2px);
+    transition: transform 0.2s;
 }
 
 .discord-connection-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none !important;
 }
 
 .discord-icon {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
 }
 
 /* Disconnect X button styling */
@@ -601,9 +472,9 @@ button.connected {
     color: white;
     width: 100%;
     padding: 16px;
-    font-size: 15px;
-    font-weight: 500;
-    margin-top: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
     border: none;
     border-radius: 12px;
     cursor: pointer;
@@ -611,12 +482,12 @@ button.connected {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    transition: all 0.2s ease;
 }
 
 .disconnect-x-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+    background: linear-gradient(135deg, #ff3838, #ff1e1e);
 }
 
 /* Disconnect Discord button styling */
@@ -625,9 +496,9 @@ button.connected {
     color: white;
     width: 100%;
     padding: 16px;
-    font-size: 15px;
-    font-weight: 500;
-    margin-top: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
     border: none;
     border-radius: 12px;
     cursor: pointer;
@@ -635,12 +506,12 @@ button.connected {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    transition: all 0.2s ease;
 }
 
 .disconnect-discord-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+    background: linear-gradient(135deg, #ff3838, #ff1e1e);
 }
 
 /* Follow X button styling */
@@ -649,9 +520,9 @@ button.connected {
     color: white;
     width: 100%;
     padding: 16px;
-    font-size: 15px;
-    font-weight: 500;
-    margin-top: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
     border: none;
     border-radius: 12px;
     cursor: pointer;
@@ -659,45 +530,39 @@ button.connected {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    transition: all 0.2s ease;
 }
 
 .follow-x-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(29, 161, 242, 0.2);
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+    background: linear-gradient(135deg, #1a91da, #1a8cd0);
 }
 
 .follow-x-btn.disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none !important;
 }
 
 .follow-x-btn.disabled-text {
     background: #1a1a1f;
-    border: 1px solid #2a2a35;
-    color: #8b8b9a;
     cursor: not-allowed;
 }
 
 .x-username {
     color: #1DA1F2;
-    font-weight: 500;
-    margin-top: 2px;
-    font-size: 13px;
+    font-weight: bold;
+    margin-top: 4px;
 }
 
 .discord-username {
     color: #5865F2;
-    font-weight: 500;
-    margin-top: 2px;
-    font-size: 13px;
+    font-weight: bold;
+    margin-top: 4px;
 }
 
 /* Advanced settings styling */
 #advancedSettings {
-    margin-top: 16px;
+    margin-top: 12px;
     overflow: hidden;
     transition: max-height 0.3s ease-out;
     max-height: 0;
@@ -712,9 +577,9 @@ button.connected {
     color: white;
     width: 100%;
     padding: 16px;
-    font-size: 15px;
-    font-weight: 500;
-    margin-top: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 12px;
     border: none;
     border-radius: 12px;
     cursor: pointer;
@@ -722,129 +587,20 @@ button.connected {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    transition: all 0.2s ease;
 }
 
 .advanced-toggle-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(127, 90, 240, 0.2);
+    transform: translateY(-2px);
+    transition: transform 0.2s;
 }
 
 .advanced-arrow {
-    font-size: 12px;
+    font-size: 14px;
     transition: transform 0.3s ease;
 }
 
 .advanced-toggle-btn.rotated .advanced-arrow {
     transform: rotate(180deg);
-}
-
-/* Card header styling */
-.card h3 {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0 0 8px 0;
-    color: white;
-}
-
-.card p {
-    color: #8b8b9a;
-    margin: 0 0 16px 0;
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-/* Input styling */
-.card input {
-    width: 100%;
-    background: #0b0b0f;
-    border: 1px solid #1a1a1f;
-    padding: 12px;
-    border-radius: 10px;
-    color: white;
-    font-size: 14px;
-    margin-top: 10px;
-    box-sizing: border-box;
-}
-
-.card input:focus {
-    outline: none;
-    border-color: #7f5af0;
-}
-
-/* Status messages */
-#usernameStatus,
-#gmailStatus,
-#xStatus,
-#followXStatus,
-#discordStatus,
-#dailyStatus {
-    margin-top: 12px;
-    font-size: 13px;
-    font-weight: 500;
-}
-
-/* Stats styling */
-.card p b {
-    color: white;
-    font-weight: 500;
-}
-
-/* Section headers */
-.card h3[style*="font-size: 20px"] {
-    font-size: 16px !important;
-    font-weight: 600 !important;
-    margin-bottom: 8px !important;
-}
-
-.card p[style*="color: #bdbdbd"] {
-    color: #8b8b9a !important;
-    margin-bottom: 16px !important;
-    font-size: 14px !important;
-}
-
-/* Form button styling */
-.card button {
-    width: 100%;
-    margin-top: 12px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 480px) {
-    .card {
-        margin: 12px 16px;
-        padding: 20px;
-    }
-    
-    .hero {
-        padding: 32px 20px;
-    }
-    
-    nav {
-        padding: 16px 16px;
-    }
-}
-
-/* Subtle focus styles */
-:focus {
-    outline: 2px solid #7f5af0;
-    outline-offset: 2px;
-}
-
-/* Smooth scrolling */
-html {
-    scroll-behavior: smooth;
-}
-
-/* Remove blue highlight on mobile */
-* {
-    -webkit-tap-highlight-color: transparent;
-}
-
-/* Better selection */
-::selection {
-    background: rgba(127, 90, 240, 0.3);
-    color: white;
 }
 </style>
 </head>
@@ -965,7 +721,7 @@ html {
             <button class="follow-x-btn" onclick="followXAccount()" id="followXBtn">
                 <svg class="x-icon" viewBox="0 0 24 24" fill="white">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                </svg>
+            </svg>
                 Open & Follow @averixapp
             </button>
             <button id="markFollowedBtn" class="secondary" style="margin-top: 10px; width: 100%; display: none;" onclick="markXFollowed()">
